@@ -152,6 +152,17 @@
     "status_completed": "Completed",
     "status_cancelled": "Cancelled"
   },
+  "profile": {
+    "description": "Manage your professional and personal information",
+    "personalInfo": "Personal Information",
+    "professionalInfo": "Professional Information",
+    "licenseNumber": "License Number",
+    "specialization": "Specialization",
+    "organization": "Organization",
+    "yearsOfExperience": "Years of Experience",
+    "saveSuccess": "Profile saved successfully",
+    "createHint": "Profile not created yet. Enter your information and save."
+  },
   "settings": {
     "title": "Settings",
     "language": "Language",

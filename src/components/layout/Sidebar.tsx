@@ -8,6 +8,8 @@ import {
   FileText,
   LogOut,
   Brain,
+  User,
+  Settings,
 } from 'lucide-react'
 import { Button } from '@/components/ui'
 import { useAppDispatch } from '@/hooks/useAppStore'
@@ -24,6 +26,11 @@ export function Sidebar() {
     { to: '/interview', icon: Brain, label: t('nav.interviews') },
     { to: '/sessions', icon: History, label: t('nav.sessions') },
     { to: '/reports', icon: FileText, label: t('nav.reports') },
+  ]
+
+  const bottomNavItems = [
+    { to: '/profile', icon: User, label: t('nav.profile') },
+    { to: '/reports', icon: Settings, label: t('nav.settings') },
   ]
 
   return (
@@ -56,7 +63,24 @@ export function Sidebar() {
         ))}
       </nav>
 
-      <div className="border-t border-[hsl(var(--border))] p-4">
+      <div className="border-t border-[hsl(var(--border))] p-4 space-y-1">
+        {bottomNavItems.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            className={({ isActive }) =>
+              cn(
+                'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                isActive
+                  ? 'bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]'
+                  : 'text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]'
+              )
+            }
+          >
+            <item.icon className="h-4 w-4" />
+            {item.label}
+          </NavLink>
+        ))}
         <Button
           variant="ghost"
           className="w-full justify-start text-[hsl(var(--muted-foreground))]"

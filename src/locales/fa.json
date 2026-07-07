@@ -152,6 +152,17 @@
     "status_completed": "تکمیل شده",
     "status_cancelled": "لغو شده"
   },
+  "profile": {
+    "description": "مدیریت اطلاعات حرفه‌ای و شخصی شما",
+    "personalInfo": "اطلاعات شخصی",
+    "professionalInfo": "اطلاعات حرفه‌ای",
+    "licenseNumber": "شماره پروانه",
+    "specialization": "تخصص",
+    "organization": "سازمان",
+    "yearsOfExperience": "سال‌های تجربه",
+    "saveSuccess": "پروفایل با موفقیت ذخیره شد",
+    "createHint": "هنوز پروفایل ایجاد نشده است. اطلاعات خود را وارد کرده و ذخیره کنید."
+  },
   "settings": {
     "title": "تنظیمات",
     "language": "زبان",

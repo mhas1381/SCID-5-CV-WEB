@@ -13,6 +13,7 @@ import { NewInterviewPage } from '@/pages/interview/NewInterviewPage'
 import { InterviewSessionPage } from '@/pages/interview/InterviewSessionPage'
 import { InterviewResultsPage } from '@/pages/interview/InterviewResultsPage'
 import { SessionsListPage } from '@/pages/sessions/SessionsListPage'
+import { ProfilePage } from '@/pages/profile/ProfilePage'
 
 function AppContent() {
   useDirection()
@@ -45,6 +46,9 @@ function AppContent() {
         <Route path="/interview" element={<NewInterviewPage />} />
         <Route path="/interview/:id" element={<InterviewSessionPage />} />
         <Route path="/interview/:id/results" element={<InterviewResultsPage />} />
+
+        {/* Profile */}
+        <Route path="/profile" element={<ProfilePage />} />
 
         {/* Sessions History */}
         <Route path="/sessions" element={<SessionsListPage />} />

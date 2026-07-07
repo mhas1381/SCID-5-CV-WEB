@@ -69,6 +69,41 @@ export interface TokenRefreshRequest {
 }
 
 // ==========================================================
+// User Profile Types (Based on Backend OpenAPI Schema)
+// ==========================================================
+
+/** Matches UserProfileSerializer from backend */
+export interface UserProfile {
+  id: number
+  user: number
+  full_name: string
+  phone_number: string
+  birth_date: string | null
+  gender: 'male' | 'female' | null
+  role: 'clinician' | 'admin' | 'researcher'
+  license_number: string
+  specialization: string
+  organization: string
+  years_of_experience: number | null
+  profile_image: string | null
+  created_at: string
+  updated_at: string
+}
+
+/** POST/PATCH /api/v1/accounts/profile/ → body */
+export interface UserProfileUpdateRequest {
+  first_name?: string
+  last_name?: string
+  email?: string
+  birth_date?: string | null
+  gender?: 'male' | 'female' | null
+  license_number?: string
+  specialization?: string
+  organization?: string
+  years_of_experience?: number | null
+}
+
+// ==========================================================
 // Patient Types (Based on Backend OpenAPI Schema)
 // ==========================================================
 
@@ -93,6 +128,7 @@ export interface Patient {
 export interface PatientCreateRequest {
   first_name: string
   last_name: string
+  national_id: string
   phone_number?: string
   email?: string
   birth_date?: string // YYYY-MM-DD
@@ -111,6 +147,7 @@ export interface PatientCreateResponse {
   first_name: string
   last_name: string
   full_name: string
+  national_id: string
   phone_number: string
 }
 
