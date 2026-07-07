@@ -3,145 +3,184 @@ import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Brain } from 'lucide-react'
+import { Brain, ArrowLeft, CheckCircle } from 'lucide-react'
 import { Button, Input, Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
-import { useRegisterMutation } from '@/store/api/authApi'
+import { useSendOTPMutation, useVerifyOTPMutation } from '@/store/api/authApi'
 import { useAppDispatch } from '@/hooks/useAppStore'
 import { setCredentials } from '@/store/slices/authSlice'
 
-const registerSchema = z.object({
-  email: z.string().email('ایمیل معتبر وارد کنید'),
-  password: z.string().min(6, 'رمز عبور حداقل ۶ کاراکتر'),
-  password2: z.string().min(6, 'تکرار رمز عبور'),
-  full_name: z.string().min(3, 'نام کامل حداقل ۳ کاراکتر'),
-  phone_number: z.string().min(10, 'شماره تماس معتبر وارد کنید'),
-  is_clinician: z.boolean(),
-}).refine((data) => data.password === data.password2, {
-  message: 'رمز عبور و تکرار آن باید یکسان باشند',
-  path: ['password2'],
+const phoneSchema = z.object({
+  phone_number: z
+    .string()
+    .min(10, 'شماره تماس معتبر وارد کنید')
+    .regex(/^09\d{9}$/, 'شماره باید با 09 شروع شود و 11 رقم باشد'),
 })
 
-type RegisterFormData = z.infer<typeof registerSchema>
+const otpSchema = z.object({
+  otp_code: z
+    .string()
+    .length(5, 'کد تأیید ۵ رقمی است')
+    .regex(/^\d{5}$/, 'کد تأیید فقط شامل اعداد است'),
+})
+
+type PhoneFormData = z.infer<typeof phoneSchema>
+type OTPFormData = z.infer<typeof otpSchema>
 
 export function RegisterPage() {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
-  const [register, { isLoading }] = useRegisterMutation()
+
+  const [step, setStep] = useState<'phone' | 'otp'>('phone')
+  const [phoneNumber, setPhoneNumber] = useState('')
   const [error, setError] = useState<string | null>(null)
 
-  const {
-    register: formRegister,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<RegisterFormData>({
-    resolver: zodResolver(registerSchema),
-    defaultValues: { is_clinician: true },
+  const [sendOTP, { isLoading: isSending }] = useSendOTPMutation()
+  const [verifyOTP, { isLoading: isVerifying }] = useVerifyOTPMutation()
+
+  const phoneForm = useForm<PhoneFormData>({
+    resolver: zodResolver(phoneSchema),
   })
 
-  const onSubmit = async (data: RegisterFormData) => {
+  const otpForm = useForm<OTPFormData>({
+    resolver: zodResolver(otpSchema),
+  })
+
+  const onSendOTP = async (data: PhoneFormData) => {
     try {
       setError(null)
-      const result = await register(data).unwrap()
-      dispatch(setCredentials(result))
-      navigate('/dashboard')
+      await sendOTP({ phone_number: data.phone_number }).unwrap()
+      setPhoneNumber(data.phone_number)
+      setStep('otp')
     } catch (err: any) {
-      setError(err?.data?.detail || Object.values(err?.data || {}).flat().join('\n') || 'خطا در ثبت نام')
+      setError(err?.data?.phone_number?.[0] || err?.data?.detail || 'خطا در ارسال کد تأیید')
     }
   }
 
+  const onVerifyOTP = async (data: OTPFormData) => {
+    try {
+      setError(null)
+      const result = await verifyOTP({
+        phone_number: phoneNumber,
+        otp_code: data.otp_code,
+      }).unwrap()
+
+      dispatch(setCredentials({
+        user: result.user,
+        tokens: { access: result.access, refresh: result.refresh },
+      }))
+
+      // کاربران جدید به صفحه تنظیم رمز عبور هدایت می‌شوند
+      if (result.is_new_user) {
+        navigate('/set-password', { state: { phone: phoneNumber } })
+      } else {
+        navigate('/dashboard')
+      }
+    } catch (err: any) {
+      setError(err?.data?.detail || 'کد تأیید نادرست است')
+    }
+  }
+
+  const handleBack = () => {
+    setStep('phone')
+    setError(null)
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[hsl(var(--background))]">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[hsl(var(--background))] to-[hsl(var(--muted))]">
       <Card className="w-full max-w-md mx-4">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <Brain className="h-12 w-12 text-[hsl(var(--primary))]" />
+            <div className="rounded-2xl bg-[hsl(var(--primary))]/10 p-4">
+              <Brain className="h-10 w-10 text-[hsl(var(--primary))]" />
+            </div>
           </div>
-          <CardTitle className="text-2xl">ثبت نام</CardTitle>
+          <CardTitle className="text-2xl">
+            {step === 'phone' ? 'ثبت نام در سامانه' : 'تأیید کد'}
+          </CardTitle>
           <p className="text-sm text-[hsl(var(--muted-foreground))] mt-2">
             ایجاد حساب کاربری جدید
           </p>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {error && (
-              <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600 whitespace-pre-line">
-                {error}
-              </div>
-            )}
+          {step === 'phone' && (
+            <form onSubmit={phoneForm.handleSubmit(onSendOTP)} className="space-y-4">
+              {error && (
+                <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive text-center">
+                  {error}
+                </div>
+              )}
 
-            <Input
-              id="full_name"
-              label="نام کامل"
-              placeholder="نام و نام خانوادگی"
-              error={errors.full_name?.message}
-              {...formRegister('full_name')}
-            />
-
-            <Input
-              id="email"
-              label="ایمیل"
-              type="email"
-              placeholder="ایمیل"
-              error={errors.email?.message}
-              {...formRegister('email')}
-            />
-
-            <Input
-              id="phone_number"
-              label="شماره تماس"
-              placeholder="09xxxxxxxxx"
-              error={errors.phone_number?.message}
-              {...formRegister('phone_number')}
-            />
-
-            <Input
-              id="password"
-              label="رمز عبور"
-              type="password"
-              placeholder="رمز عبور"
-              error={errors.password?.message}
-              {...formRegister('password')}
-            />
-
-            <Input
-              id="password2"
-              label="تکرار رمز عبور"
-              type="password"
-              placeholder="تکرار رمز عبور"
-              error={errors.password2?.message}
-              {...formRegister('password2')}
-            />
-
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="is_clinician"
-                className="h-4 w-4 rounded border-[hsl(var(--input))]"
-                {...formRegister('is_clinician')}
+              <Input
+                id="phone_number"
+                label="شماره تماس"
+                placeholder="09xxxxxxxxx"
+                dir="ltr"
+                className="text-center"
+                error={phoneForm.formState.errors.phone_number?.message}
+                {...phoneForm.register('phone_number')}
               />
-              <label htmlFor="is_clinician" className="text-sm">
-                کلینیسین هستم
-              </label>
-            </div>
 
-            <Button type="submit" className="w-full" isLoading={isLoading}>
-              ثبت نام
-            </Button>
+              <p className="text-xs text-[hsl(var(--muted-foreground))] text-center">
+                کد تأیید به شماره وارد شده پیامک خواهد شد
+              </p>
 
-            <p className="text-center text-sm text-[hsl(var(--muted-foreground))]">
-              حساب کاربری دارید؟{' '}
-              <a
-                href="/login"
-                className="text-[hsl(var(--primary))] hover:underline"
-                onClick={(e) => {
-                  e.preventDefault()
-                  navigate('/login')
-                }}
+              <Button type="submit" className="w-full" isLoading={isSending}>
+                ثبت نام و ارسال کد
+              </Button>
+
+              <p className="text-center text-sm text-[hsl(var(--muted-foreground))]">
+                حساب کاربری دارید؟{' '}
+                <button
+                  type="button"
+                  className="text-[hsl(var(--primary))] hover:underline"
+                  onClick={() => navigate('/login')}
+                >
+                  ورود
+                </button>
+              </p>
+            </form>
+          )}
+
+          {step === 'otp' && (
+            <form onSubmit={otpForm.handleSubmit(onVerifyOTP)} className="space-y-4">
+              {error && (
+                <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive text-center">
+                  {error}
+                </div>
+              )}
+
+              <div className="text-center">
+                <CheckCircle className="h-8 w-8 text-green-500 mx-auto mb-2" />
+                <p className="text-sm text-[hsl(var(--muted-foreground))]">
+                  کد تأیید به شماره {phoneNumber} ارسال شد
+                </p>
+              </div>
+
+              <Input
+                id="otp_code"
+                label="کد تأیید"
+                placeholder="12345"
+                dir="ltr"
+                className="text-center text-lg tracking-[0.5em]"
+                maxLength={5}
+                error={otpForm.formState.errors.otp_code?.message}
+                {...otpForm.register('otp_code')}
+              />
+
+              <Button type="submit" className="w-full" isLoading={isVerifying}>
+                تأیید و ثبت نام
+              </Button>
+
+              <button
+                type="button"
+                onClick={handleBack}
+                className="flex items-center justify-center gap-1 w-full text-sm text-[hsl(var(--muted-foreground))] hover:text-foreground transition-colors"
               >
-                ورود
-              </a>
-            </p>
-          </form>
+                <ArrowLeft className="h-4 w-4" />
+                ویرایش شماره تماس
+              </button>
+            </form>
+          )}
         </CardContent>
       </Card>
     </div>

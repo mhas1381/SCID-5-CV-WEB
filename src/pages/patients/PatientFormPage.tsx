@@ -38,7 +38,7 @@ export function PatientFormPage() {
       last_name: patient.last_name,
       national_id: patient.national_id,
       phone_number: patient.phone_number,
-      date_of_birth: patient.date_of_birth,
+      date_of_birth: patient.date_of_birth || '',
       gender: patient.gender,
       address: patient.address || '',
     } : undefined,

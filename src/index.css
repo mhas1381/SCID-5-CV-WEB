@@ -51,8 +51,39 @@
   * {
     @apply border-[hsl(var(--border))];
   }
+
   body {
     @apply bg-[hsl(var(--background))] text-[hsl(var(--foreground))] antialiased;
-    font-family: system-ui, -apple-system, sans-serif;
+  }
+
+  /* Persian (RTL) font stack */
+  [dir="rtl"] body,
+  [dir="rtl"] {
+    font-family: "Vazirmatn", "IRANSans", "Tahoma", system-ui, -apple-system, sans-serif;
+    line-height: 1.8;
+  }
+
+  /* English (LTR) font stack */
+  [dir="ltr"] body,
+  [dir="ltr"] {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.6;
+  }
+
+  /* Better spacing for RTL text */
+  [dir="rtl"] p,
+  [dir="rtl"] h1,
+  [dir="rtl"] h2,
+  [dir="rtl"] h3,
+  [dir="rtl"] h4,
+  [dir="rtl"] h5,
+  [dir="rtl"] h6 {
+    line-height: 1.8;
+  }
+
+  /* Fix search input icon positioning in RTL */
+  [dir="rtl"] input[type="text"],
+  [dir="rtl"] input[type="search"] {
+    text-align: right;
   }
 }

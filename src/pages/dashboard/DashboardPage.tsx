@@ -1,25 +1,29 @@
+import { useTranslation } from 'react-i18next'
 import { useGetMeQuery } from '@/store/api/authApi'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
 import { Users, ClipboardList, Activity, CalendarDays } from 'lucide-react'
 
-const stats = [
-  { title: 'بیماران فعال', value: '—', icon: Users, color: 'text-blue-600', bg: 'bg-blue-100' },
-  { title: 'مصاحبه‌های امروز', value: '—', icon: ClipboardList, color: 'text-green-600', bg: 'bg-green-100' },
-  { title: 'مصاحبه‌های در حال انجام', value: '—', icon: Activity, color: 'text-orange-600', bg: 'bg-orange-100' },
-  { title: 'جلسات این هفته', value: '—', icon: CalendarDays, color: 'text-purple-600', bg: 'bg-purple-100' },
-]
-
 export function DashboardPage() {
+  const { t } = useTranslation()
   const { data: user, isLoading } = useGetMeQuery()
+
+  const stats = [
+    { title: t('dashboard.totalPatients'), value: '—', icon: Users, color: 'text-blue-600', bg: 'bg-blue-100' },
+    { title: t('dashboard.recentSessions'), value: '—', icon: ClipboardList, color: 'text-green-600', bg: 'bg-green-100' },
+    { title: t('dashboard.completedSessions'), value: '—', icon: Activity, color: 'text-orange-600', bg: 'bg-orange-100' },
+    { title: t('dashboard.totalSessions'), value: '—', icon: CalendarDays, color: 'text-purple-600', bg: 'bg-purple-100' },
+  ]
 
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-bold">
-          {isLoading ? 'در حال بارگذاری...' : `خوش آمدید، ${user?.full_name || 'کاربر'}`}
+          {isLoading
+            ? t('common.loading')
+            : `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || t('nav.dashboard')}
         </h1>
         <p className="text-[hsl(var(--muted-foreground))] mt-1">
-          پنل مدیریت مصاحبه‌های بالینی SCID-5-CV
+          {t('dashboard.description')}
         </p>
       </div>
 
@@ -44,22 +48,22 @@ export function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>فعالیت‌های اخیر</CardTitle>
+            <CardTitle>{t('dashboard.recentPatients')}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-[hsl(var(--muted-foreground))]">
-              برای مشاهده فعالیت‌های اخیر، بیماران و جلسات خود را مدیریت کنید.
+              {t('common.noData')}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>مصاحبه‌های در حال انجام</CardTitle>
+            <CardTitle>{t('dashboard.recentSessions')}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-[hsl(var(--muted-foreground))]">
-              هیچ مصاحبه در حال انجامی وجود ندارد.
+              {t('common.noData')}
             </p>
           </CardContent>
         </Card>

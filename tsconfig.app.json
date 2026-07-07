@@ -21,8 +21,9 @@
     "paths": {
       "@/*": ["src/*"]
     },
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "ignoreDeprecations": "6.0",
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },

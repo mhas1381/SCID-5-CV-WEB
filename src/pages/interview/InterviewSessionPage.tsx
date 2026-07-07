@@ -11,14 +11,16 @@ export function InterviewSessionPage() {
   const sessionId = Number(id)
 
   const { data: session, isLoading: sessionLoading, error: sessionError } = useGetSessionQuery(sessionId)
-  const { data: questions, isLoading: questionsLoading } = useGetModuleQuestionsQuery(session?.module || '', { skip: !session })
+  const { data: questions, isLoading: questionsLoading } = useGetModuleQuestionsQuery(
+    { module: session?.module ?? '', lang: 'fa' as const },
+    { skip: !session }
+  )
   const [submitAnswer] = useSubmitAnswerMutation()
   const [completeSession, { isLoading: isCompleting }] = useCompleteSessionMutation()
 
   const [currentIndex, setCurrentIndex] = useState(session?.current_question_index || 0)
   const [answers, setAnswers] = useState<Record<string, string | boolean | number>>({})
   const [notes, setNotes] = useState<Record<string, string>>({})
-  const [submitting, setSubmitting] = useState(false)
 
   if (sessionLoading || questionsLoading) {
     return <div className="text-center py-12">در حال بارگذاری...</div>
@@ -44,7 +46,6 @@ export function InterviewSessionPage() {
 
   const handleAnswer = async (value: string | boolean | number) => {
     setAnswers((prev) => ({ ...prev, [question.id]: value }))
-    setSubmitting(true)
     try {
       await submitAnswer({
         sessionId,
@@ -55,7 +56,6 @@ export function InterviewSessionPage() {
     } catch (err) {
       console.error('Failed to submit answer:', err)
     }
-    setSubmitting(false)
   }
 
   const handleNext = () => {

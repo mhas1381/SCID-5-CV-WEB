@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useGetSessionsQuery } from '@/store/api/interviewApi'
-import { Button, Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
+import type { Session } from '@/types'
+import { Button, Card, CardContent } from '@/components/ui'
 import { ClipboardList, Eye, Search } from 'lucide-react'
 import { cn } from '@/utils/cn'
 
@@ -23,7 +24,7 @@ export function SessionsListPage() {
   const [search, setSearch] = useState('')
   const { data: sessions, isLoading } = useGetSessionsQuery({})
 
-  const filteredSessions = sessions?.filter((s) =>
+  const filteredSessions = sessions?.results?.filter((s: Session) =>
     s.patient_name.includes(search) || s.module.includes(search)
   ) || []
 
@@ -91,7 +92,7 @@ export function SessionsListPage() {
         </Card>
       ) : (
         <div className="space-y-3">
-          {filteredSessions.map((session) => (
+          {filteredSessions.map((session: Session) => (
             <Card
               key={session.id}
               className="hover:shadow-md transition-shadow cursor-pointer"

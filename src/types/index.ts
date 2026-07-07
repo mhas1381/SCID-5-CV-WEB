@@ -1,174 +1,241 @@
 // ==========================================================
-// User & Auth Types
+// User & Auth Types (Based on Backend OpenAPI Schema)
 // ==========================================================
+
+/** Matches VerifyOTPUser / MeResponse from backend */
 export interface User {
-  id: number;
-  email: string;
-  full_name: string;
-  is_clinician: boolean;
-  phone_number: string;
+  id: number
+  phone_number: string
+  first_name: string
+  last_name: string
+  email: string | null
+  role: 'clinician' | 'admin' | 'researcher'
+  profile_image: string | null
+  is_staff: boolean
+  is_superuser: boolean
+  has_password: boolean
 }
 
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
-
-export interface RegisterRequest {
-  email: string;
-  password: string;
-  password2: string;
-  full_name: string;
-  is_clinician: boolean;
-  phone_number: string;
-}
-
+/** POST /api/v1/accounts/auth/send-otp/ → body */
 export interface SendOTPRequest {
-  phone_number: string;
+  phone_number: string
 }
 
+/** POST /api/v1/accounts/auth/send-otp/ → 200 response */
+export interface SendOTPResponse {
+  detail: string
+  user_exists: boolean
+}
+
+/** POST /api/v1/accounts/auth/send-otp/ → 400 error */
+export interface SendOTPError {
+  detail?: string
+  phone_number?: string[]
+}
+
+/** POST /api/v1/accounts/auth/verify-otp/ → body */
 export interface VerifyOTPRequest {
-  phone_number: string;
-  code: string;
+  phone_number: string
+  otp_code: string
 }
 
+/** POST /api/v1/accounts/auth/verify-otp/ → 200 response */
+export interface VerifyOTPResponse {
+  refresh: string
+  access: string
+  user: User
+  is_new_user: boolean
+}
+
+/** POST /api/v1/accounts/auth/set-password/ → body */
 export interface SetPasswordRequest {
-  phone_number: string;
-  code: string;
-  password: string;
-  password2: string;
+  password: string
+  confirm_password: string
+}
+
+/** POST /api/v1/accounts/auth/set-password/ → 200 response */
+export interface SetPasswordResponse {
+  detail: string
 }
 
 export interface AuthTokens {
-  access: string;
-  refresh: string;
+  access: string
+  refresh: string
 }
 
-export interface Profile {
-  user: User;
-  specialization?: string;
-  license_number?: string;
-  work_place?: string;
-  bio?: string;
+/** POST /api/v1/accounts/token/refresh/ → body & response */
+export interface TokenRefreshRequest {
+  refresh: string
 }
 
 // ==========================================================
-// Patient Types
+// Patient Types (Based on Backend OpenAPI Schema)
 // ==========================================================
+
+/** Patient list item / detail */
 export interface Patient {
-  id: number;
-  first_name: string;
-  last_name: string;
-  national_id: string;
-  phone_number: string;
-  date_of_birth: string;
-  gender: 'male' | 'female';
-  address?: string;
-  created_at: string;
-  updated_at: string;
+  id: number
+  patient_code: string
+  first_name: string
+  last_name: string
+  full_name: string
+  national_id: string
+  phone_number: string
+  gender: 'male' | 'female'
+  birth_date: string | null
+  date_of_birth: string | null
+  address: string
+  created_by_name: string
+  created_at: string
+  is_active: boolean
+}
+
+export interface PatientCreateRequest {
+  first_name: string
+  last_name: string
+  phone_number?: string
+  email?: string
+  birth_date?: string // YYYY-MM-DD
+  gender?: 'male' | 'female'
+  marital_status?: string
+  education?: string
+  occupation?: string
+  address?: string
+  emergency_contact_name?: string
+  emergency_contact_phone?: string
+}
+
+export interface PatientCreateResponse {
+  id: number
+  patient_code: string
+  first_name: string
+  last_name: string
+  full_name: string
+  phone_number: string
 }
 
 export interface PatientNote {
-  id: number;
-  patient: number;
-  content: string;
-  created_by: number;
-  created_at: string;
-  updated_at: string;
+  id: number
+  clinician_name: string
+  note_type: 'general' | 'progress' | 'follow_up' | 'referral' | 'other'
+  content: string
+  created_at: string
 }
 
-export interface PatientListResponse {
-  count: number;
-  next: string | null;
-  previous: string | null;
-  results: Patient[];
+export interface PatientNoteCreateRequest {
+  content: string
+  note_type?: 'general' | 'progress' | 'follow_up' | 'referral' | 'other'
+}
+
+export interface PatientNoteCreateResponse {
+  id: number
+  clinician_name: string
+  note_type: string
+  content: string
+  created_at: string
 }
 
 // ==========================================================
-// Overview Types
+// Overview Types (Based on Backend OpenAPI Schema)
 // ==========================================================
+
 export interface OverviewQuestion {
-  id: string;
-  field_type: string;
-  label: string;
-  required: boolean;
-  order: number;
-  options?: { label: string; value: string }[];
-  placeholder?: string;
-  help_text?: string;
+  id: number
+  key: string
+  text: string
+  field_type: 'text' | 'textarea' | 'boolean' | 'number' | 'select' | 'json'
+  required: boolean
+  order: number
+  choices: { label: string; value: string }[] | null
+  depends_on: string | null
+}
+
+export interface OverviewSection {
+  id: string
+  title: string
+  icon: string
+  questions: OverviewQuestion[]
+}
+
+export interface OverviewQuestionsResponse {
+  total: number
+  lang: 'en' | 'fa'
+  sections: OverviewSection[]
 }
 
 export interface OverviewAnswer {
-  question_id: string;
-  value: string | string[] | boolean | number;
+  question_id: string
+  value: string | string[] | boolean | number
 }
 
 export interface Overview {
-  id: number;
-  patient: number;
-  clinician: number;
-  answers: OverviewAnswer[];
-  created_at: string;
-  updated_at: string;
+  id: number
+  patient: number
+  clinician: number
+  answers: OverviewAnswer[]
+  created_at: string
+  updated_at: string
 }
 
 // ==========================================================
-// Interview / Module Types
+// Interview / Module Types (Based on Backend OpenAPI Schema)
 // ==========================================================
+
 export interface Question {
-  id: string;
-  module: string;
-  question_text: string;
-  question_type: 'yes_no' | 'multiple_choice' | 'text' | 'scale';
-  options?: { label: string; value: string }[];
-  order: number;
-  required: boolean;
-  conditional_on?: string;
-  conditional_value?: string;
-  criteria?: string;
-  severity?: number;
+  id: string
+  module: string
+  question_text: string
+  question_type: 'yes_no' | 'multiple_choice' | 'text' | 'scale'
+  options?: { label: string; value: string }[]
+  order: number
+  required: boolean
+  conditional_on?: string
+  conditional_value?: string
+  criteria?: string
+  severity?: number
 }
 
 export interface Answer {
-  question_id: string;
-  value: string | boolean | number;
-  notes?: string;
+  question_id: string
+  value: string | boolean | number
+  notes?: string
 }
 
 export interface Session {
-  id: number;
-  patient: number;
-  patient_name: string;
-  clinician: number;
-  module: string;
-  status: 'in_progress' | 'completed' | 'cancelled';
-  answers: Answer[];
-  current_question_index: number;
-  started_at: string;
-  completed_at?: string;
-  created_at: string;
+  id: number
+  patient: number
+  patient_name: string
+  clinician: number
+  module: string
+  status: 'in_progress' | 'completed' | 'cancelled'
+  answers: Answer[]
+  current_question_index: number
+  started_at: string
+  completed_at?: string
+  created_at: string
 }
 
 export interface DiagnosticResult {
-  module: string;
-  diagnosis: string;
-  criteria_met: string[];
-  severity: string;
-  confidence: number;
-  recommendations: string[];
+  module: string
+  diagnosis: string
+  criteria_met: string[]
+  severity: string
+  confidence: number
+  recommendations: string[]
 }
 
 // ==========================================================
 // API Response Types
 // ==========================================================
+
 export interface APIError {
-  detail?: string;
-  [key: string]: string | string[] | undefined;
+  detail?: string
+  [key: string]: string | string[] | undefined
 }
 
 export interface PaginatedResponse<T> {
-  count: number;
-  next: string | null;
-  previous: string | null;
-  results: T[];
+  count: number
+  next: string | null
+  previous: string | null
+  results: T[]
 }

@@ -1,66 +1,62 @@
 import { baseApi } from './baseApi'
-import type { User, AuthTokens, LoginRequest, RegisterRequest, SendOTPRequest, VerifyOTPRequest, SetPasswordRequest, Profile } from '@/types'
+import type { User, SendOTPRequest, SendOTPResponse, SendOTPError, VerifyOTPRequest, VerifyOTPResponse, SetPasswordRequest, SetPasswordResponse, AuthTokens, TokenRefreshRequest } from '@/types'
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    login: builder.mutation<{ user: User; tokens: AuthTokens }, LoginRequest>({
-      query: (credentials) => ({
-        url: 'accounts/v1/token/',
-        method: 'POST',
-        body: credentials,
-      }),
-    }),
-    register: builder.mutation<{ user: User; tokens: AuthTokens }, RegisterRequest>({
+    sendOTP: builder.mutation<SendOTPResponse, SendOTPRequest>({
       query: (data) => ({
-        url: 'accounts/v1/register/',
+        url: 'v1/accounts/auth/send-otp/',
         method: 'POST',
         body: data,
       }),
     }),
-    sendOTP: builder.mutation<{ message: string }, SendOTPRequest>({
+    verifyOTP: builder.mutation<VerifyOTPResponse, VerifyOTPRequest>({
       query: (data) => ({
-        url: 'accounts/v1/auth/send-otp/',
+        url: 'v1/accounts/auth/verify-otp/',
         method: 'POST',
         body: data,
       }),
+      invalidatesTags: ['User'],
     }),
-    verifyOTP: builder.mutation<{ message: string }, VerifyOTPRequest>({
+    setPassword: builder.mutation<SetPasswordResponse, SetPasswordRequest>({
       query: (data) => ({
-        url: 'accounts/v1/auth/verify-otp/',
-        method: 'POST',
-        body: data,
-      }),
-    }),
-    setPassword: builder.mutation<{ message: string }, SetPasswordRequest>({
-      query: (data) => ({
-        url: 'accounts/v1/auth/set-password/',
+        url: 'v1/accounts/auth/set-password/',
         method: 'POST',
         body: data,
       }),
     }),
     getMe: builder.query<User, void>({
-      query: () => 'accounts/v1/me/',
+      query: () => 'v1/accounts/users/me/',
+      providesTags: ['User'],
     }),
-    getProfile: builder.query<Profile, void>({
-      query: () => 'accounts/v1/profile/',
-    }),
-    refreshToken: builder.mutation<AuthTokens, { refresh: string }>({
+    updateProfile: builder.mutation<User, Partial<User>>({
       query: (data) => ({
-        url: 'accounts/v1/token/refresh/',
+        url: 'v1/accounts/users/me/',
+        method: 'PATCH',
+        body: data,
+      }),
+      invalidatesTags: ['User'],
+    }),
+    refreshToken: builder.mutation<AuthTokens, TokenRefreshRequest>({
+      query: (data) => ({
+        url: 'v1/accounts/token/refresh/',
         method: 'POST',
         body: data,
       }),
+    }),
+    // Used internally: call verifyOTP at startup to check if token is still valid
+    verifyToken: builder.query<User, void>({
+      query: () => 'v1/accounts/users/me/',
     }),
   }),
 })
 
 export const {
-  useLoginMutation,
-  useRegisterMutation,
   useSendOTPMutation,
   useVerifyOTPMutation,
   useSetPasswordMutation,
   useGetMeQuery,
-  useGetProfileQuery,
+  useUpdateProfileMutation,
   useRefreshTokenMutation,
+  useVerifyTokenQuery,
 } = authApi
