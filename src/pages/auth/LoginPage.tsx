@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Brain, ArrowLeft, CheckCircle } from 'lucide-react'
@@ -30,6 +31,7 @@ type OTPFormData = z.infer<typeof otpSchema>
 export function LoginPage() {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
+  const { t } = useTranslation()
 
   const [step, setStep] = useState<'phone' | 'otp'>('phone')
   const [phoneNumber, setPhoneNumber] = useState('')
@@ -103,10 +105,10 @@ export function LoginPage() {
             </div>
           </div>
            <CardTitle className="text-3xl">
-             {step === 'phone' ? 'ورود/ثبت نام' : 'تأیید کد'}
+              {step === 'phone' ? t('auth.login') : t('auth.otpCode')}
            </CardTitle>
            <p className="text-sm text-[hsl(var(--muted-foreground))] mt-2">
-             سامانه هوشمند مصاحبه بالینی SCID-5-CV
+              {t('app.fullTitle')} {t('app.subtitle')}
            </p>
         </CardHeader>
         <CardContent>
@@ -120,8 +122,8 @@ export function LoginPage() {
 
               <Input
                 id="phone_number"
-                label="شماره تماس"
-                placeholder="09xxxxxxxxx"
+                label={t('auth.phoneNumber')}
+                placeholder={t('auth.phonePlaceholder')}
                 dir="ltr"
                 className="text-center"
                 error={phoneForm.formState.errors.phone_number?.message}
@@ -129,11 +131,11 @@ export function LoginPage() {
               />
 
               <p className="text-xs text-[hsl(var(--muted-foreground))] text-center">
-                کد تأیید به شماره وارد شده پیامک خواهد شد
+                {t('auth.otpHint')}
               </p>
 
                <Button type="submit" className="w-full" isLoading={isSending}>
-                 ارسال کد تأیید
+                  {t('auth.sendOTP')}
                </Button>
             </form>
           )}
@@ -149,14 +151,14 @@ export function LoginPage() {
               <div className="text-center">
                 <CheckCircle className="h-8 w-8 text-green-500 mx-auto mb-2" />
                 <p className="text-sm text-[hsl(var(--muted-foreground))]">
-                  کد تأیید به شماره {phoneNumber} ارسال شد
+                   {t('auth.otpSent', { phone: phoneNumber })}
                 </p>
               </div>
 
               <Input
                 id="otp_code"
-                label="کد تأیید"
-                placeholder="12345"
+                label={t('auth.otpCode')}
+                placeholder={t('auth.otpPlaceholder')}
                 dir="ltr"
                 className="text-center text-lg tracking-[0.5em]"
                 maxLength={5}
@@ -165,7 +167,7 @@ export function LoginPage() {
               />
 
                <Button type="submit" className="w-full" isLoading={isVerifying}>
-                 تأیید و ادامه
+                  {t('auth.verifyOTP')}
                </Button>
 
               <button
@@ -174,7 +176,7 @@ export function LoginPage() {
                 className="flex items-center justify-center gap-1 w-full text-sm text-[hsl(var(--muted-foreground))] hover:text-foreground transition-colors"
               >
                 <ArrowLeft className="h-4 w-4" />
-                ویرایش شماره تماس
+                {t('auth.editPhone')}
               </button>
             </form>
           )}

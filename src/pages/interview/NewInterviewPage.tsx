@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useGetPatientsQuery } from '@/store/api/patientApi'
 import { useCreateSessionMutation } from '@/store/api/interviewApi'
@@ -21,6 +22,7 @@ const MODULES = [
 ]
 
 export function NewInterviewPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [selectedPatient, setSelectedPatient] = useState<number | null>(null)
   const [selectedModule, setSelectedModule] = useState<string | null>(null)
@@ -46,9 +48,9 @@ export function NewInterviewPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">مصاحبه جدید</h1>
+        <h1 className="text-2xl font-bold">{t('interview.title')}</h1>
         <p className="text-[hsl(var(--muted-foreground))] mt-1">
-          شروع یک مصاحبه بالینی جدید
+          {t('interview.description')}
         </p>
       </div>
 
@@ -63,7 +65,7 @@ export function NewInterviewPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <User className="h-5 w-5" />
-            انتخاب بیمار
+            {t('interview.selectPatient')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -72,7 +74,7 @@ export function NewInterviewPage() {
             value={selectedPatient ?? ''}
             onChange={(e) => setSelectedPatient(e.target.value ? Number(e.target.value) : null)}
           >
-            <option value="">انتخاب بیمار...</option>
+            <option value="">{t('interview.selectPatientPlaceholder')}</option>
             {patientsData?.results.map((patient) => (
               <option key={patient.id} value={patient.id}>
                 {patient.first_name} {patient.last_name} - {patient.national_id}
@@ -86,7 +88,7 @@ export function NewInterviewPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Brain className="h-5 w-5" />
-            انتخاب ماژول
+            {t('interview.selectModule')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -114,7 +116,7 @@ export function NewInterviewPage() {
 
       <div className="flex justify-center">
         <Button size="lg" onClick={handleStart} isLoading={isLoading} disabled={!selectedPatient || !selectedModule}>
-          شروع مصاحبه
+          {t('interview.start')}
         </Button>
       </div>
     </div>

@@ -1,20 +1,21 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   useGetProfileQuery,
-  useCreateProfileMutation,
   useUpdateProfileMutation,
 } from '@/store/api/profileApi'
+import { useGetMeQuery } from '@/store/api/authApi'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui'
-import { Loader2, User, Save } from 'lucide-react'
-import { useAppSelector } from '@/hooks/useAppStore'
+import { Loader2, User, Save, AlertCircle, CheckCircle2, Camera } from 'lucide-react'
+import { getErrorMessage } from '@/utils/error'
 import type { UserProfileUpdateRequest } from '@/types'
 
 export function ProfilePage() {
   const { t } = useTranslation()
-  const user = useAppSelector((state) => state.auth.user)
+
+  const { data: me, isLoading: meLoading } = useGetMeQuery()
 
   const {
     data: profile,
@@ -22,62 +23,85 @@ export function ProfilePage() {
     isError: profileError,
     refetch,
   } = useGetProfileQuery()
-  const [createProfile, { isLoading: isCreating }] = useCreateProfileMutation()
   const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation()
 
   const [form, setForm] = useState<UserProfileUpdateRequest>({})
   const [saved, setSaved] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
+  const [profileImage, setProfileImage] = useState<File | null>(null)
+  const [profileImagePreview, setProfileImagePreview] = useState<string | null>(null)
+  const serverImage = profile?.profile_image || me?.profile_image
+  const [cacheBuster] = useState(Date.now())
+  const profileImageSrc = useMemo(() => {
+    return profileImagePreview || (serverImage ? `${serverImage}?t=${cacheBuster}` : null)
+  }, [profileImagePreview, serverImage, cacheBuster])
 
   useEffect(() => {
     if (profile) {
       setForm({
-        first_name: user?.first_name || '',
-        last_name: user?.last_name || '',
-        email: user?.email || '',
+        first_name: me?.first_name || '',
+        last_name: me?.last_name || '',
+        email: me?.email || '',
         birth_date: profile.birth_date || '',
         gender: profile.gender,
-        role: profile.role || user?.role,
+        role: profile.role || me?.role,
         license_number: profile.license_number || '',
         specialization: profile.specialization || '',
         organization: profile.organization || '',
         years_of_experience: profile.years_of_experience,
       })
-    } else if (user) {
+    } else if (me) {
       setForm({
-        first_name: user.first_name || '',
-        last_name: user.last_name || '',
-        email: user.email || '',
+        first_name: me.first_name || '',
+        last_name: me.last_name || '',
+        email: me.email || '',
         birth_date: '',
         gender: null,
-        role: user.role,
+        role: me.role,
         license_number: '',
         specialization: '',
         organization: '',
         years_of_experience: null,
       })
     }
-  }, [profile, user])
+  }, [profile, me])
 
   const handleChange = (field: string, value: string | number | null) => {
     setForm((prev) => ({ ...prev, [field]: value ?? '' }))
     setSaved(false)
+    setSubmitError(null)
   }
 
   const handleSubmit = async () => {
     try {
-      if (profile) {
-        await updateProfile(form).unwrap()
+      setSubmitError(null)
+      setSaved(false)
+
+      let body: FormData | UserProfileUpdateRequest
+
+      if (profileImage) {
+        const fd = new FormData()
+        for (const [key, value] of Object.entries(form)) {
+          if (value !== undefined && value !== null) {
+            fd.append(key, String(value))
+          }
+        }
+        fd.append('profile_image', profileImage)
+        body = fd
       } else {
-        await createProfile(form).unwrap()
+        body = form
       }
+
+      await updateProfile(body).unwrap()
       setSaved(true)
+      setProfileImage(null)
       refetch()
-    } catch {
-      // error handled by RTK
+    } catch (err: any) {
+      setSubmitError(getErrorMessage(err, 'خطا در ذخیره پروفایل'))
     }
   }
 
-  if (profileLoading) {
+  if (profileLoading || meLoading) {
     return (
       <div className="flex items-center justify-center py-20">
         <Loader2 className="h-8 w-8 animate-spin text-[hsl(var(--primary))]" />
@@ -103,6 +127,49 @@ export function ProfilePage() {
           </p>
         )}
       </div>
+
+      <Card>
+        <CardContent className="flex flex-col items-center py-6">
+          <div className="relative">
+            <div className="h-24 w-24 overflow-hidden rounded-full border-2 border-[hsl(var(--border))]">
+              {profileImageSrc ? (
+                <img
+                  src={profileImageSrc}
+                  alt="profile"
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-[hsl(var(--muted))]">
+                  <User className="h-10 w-10 text-[hsl(var(--muted-foreground))]" />
+                </div>
+              )}
+            </div>
+            <label
+              htmlFor="profile_image"
+              className="absolute -bottom-1 -left-1 cursor-pointer rounded-full bg-[hsl(var(--primary))] p-2 text-[hsl(var(--primary-foreground))] shadow-md hover:bg-[hsl(var(--primary))/0.9]"
+            >
+              <Camera className="h-4 w-4" />
+            </label>
+            <input
+              id="profile_image"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0]
+                if (file) {
+                  setProfileImage(file)
+                  setProfileImagePreview(URL.createObjectURL(file))
+                  setSaved(false)
+                  setSubmitError(null)
+                }
+              }}
+            />
+          </div>
+          <p className="mt-3 text-sm font-medium">{me?.first_name} {me?.last_name}</p>
+          <p className="text-xs text-[hsl(var(--muted-foreground))]">{me?.email}</p>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
@@ -227,12 +294,22 @@ export function ProfilePage() {
         </CardContent>
       </Card>
 
+      {submitError && (
+        <div className="flex items-center gap-2 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+          <AlertCircle className="h-4 w-4 shrink-0" />
+          {submitError}
+        </div>
+      )}
+
       <div className="flex items-center justify-end gap-4">
         {saved && (
-          <p className="text-sm text-green-600">{t('profile.saveSuccess')}</p>
+          <p className="flex items-center gap-1 text-sm text-green-600">
+            <CheckCircle2 className="h-4 w-4" />
+            {t('profile.saveSuccess')}
+          </p>
         )}
-        <Button onClick={handleSubmit} disabled={isCreating || isUpdating}>
-          {isCreating || isUpdating ? (
+        <Button onClick={handleSubmit} disabled={isUpdating}>
+          {isUpdating ? (
             <>
               <Loader2 className="ml-2 h-4 w-4 animate-spin" />
               {t('common.loading')}

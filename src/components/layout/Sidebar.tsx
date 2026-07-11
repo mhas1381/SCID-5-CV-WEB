@@ -1,3 +1,4 @@
+import { useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavLink } from 'react-router-dom'
 import { cn } from '@/utils/cn'
@@ -13,12 +14,20 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui'
 import { useAppDispatch } from '@/hooks/useAppStore'
+import { useGetMeQuery } from '@/store/api/authApi'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { logout } from '@/store/slices/authSlice'
 
-export function Sidebar() {
-  const { t } = useTranslation()
+interface SidebarProps {
+  open: boolean
+  onClose: () => void
+}
+
+export function Sidebar({ open, onClose }: SidebarProps) {
+  const { t, i18n } = useTranslation()
   const dispatch = useAppDispatch()
+  const { data: me } = useGetMeQuery()
+  const isRtl = i18n.language === 'fa'
 
   const navItems = [
     { to: '/dashboard', icon: LayoutDashboard, label: t('nav.dashboard') },
@@ -28,13 +37,21 @@ export function Sidebar() {
     { to: '/reports', icon: FileText, label: t('nav.reports') },
   ]
 
-  const bottomNavItems = [
-    { to: '/profile', icon: User, label: t('nav.profile') },
-    { to: '/reports', icon: Settings, label: t('nav.settings') },
-  ]
+  const profileImage = me?.profile_image
+  const [cacheBuster] = useState(Date.now())
+  const profileImageSrc = useMemo(() => {
+    return profileImage ? `${profileImage}?t=${cacheBuster}` : null
+  }, [profileImage, cacheBuster])
 
   return (
-    <aside className="fixed right-0 top-0 z-40 flex h-screen w-64 flex-col border-l border-[hsl(var(--border))] bg-[hsl(var(--card))]">
+    <aside
+      className={cn(
+        'fixed top-0 z-40 flex h-screen w-64 flex-col border-[hsl(var(--border))] bg-[hsl(var(--card))] transition-transform duration-300',
+        isRtl ? 'right-0 border-l' : 'left-0 border-r',
+        'md:translate-x-0',
+        open ? 'translate-x-0' : (isRtl ? 'translate-x-full' : '-translate-x-full')
+      )}
+    >
       <div className="flex items-center justify-between border-b border-[hsl(var(--border))] px-6 py-4">
         <div className="flex items-center gap-2">
           <Brain className="h-6 w-6 text-[hsl(var(--primary))]" />
@@ -48,6 +65,7 @@ export function Sidebar() {
           <NavLink
             key={item.to}
             to={item.to}
+            onClick={onClose}
             className={({ isActive }) =>
               cn(
                 'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
@@ -64,29 +82,46 @@ export function Sidebar() {
       </nav>
 
       <div className="border-t border-[hsl(var(--border))] p-4 space-y-1">
-        {bottomNavItems.map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            className={({ isActive }) =>
-              cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                isActive
-                  ? 'bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]'
-                  : 'text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]'
-              )
-            }
-          >
-            <item.icon className="h-4 w-4" />
-            {item.label}
-          </NavLink>
-        ))}
+        <NavLink
+          to="/profile"
+          onClick={onClose}
+          className={({ isActive }) =>
+            cn(
+              'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+              isActive
+                ? 'bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]'
+                : 'text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]'
+            )
+          }
+        >
+          {profileImageSrc ? (
+            <img src={profileImageSrc} alt="" className="h-5 w-5 rounded-full object-cover" />
+          ) : (
+            <User className="h-4 w-4" />
+          )}
+          {t('nav.profile')}
+        </NavLink>
+        <NavLink
+          to="/reports"
+          onClick={onClose}
+          className={({ isActive }) =>
+            cn(
+              'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+              isActive
+                ? 'bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]'
+                : 'text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]'
+            )
+          }
+        >
+          <Settings className="h-4 w-4" />
+          {t('nav.settings')}
+        </NavLink>
         <Button
           variant="ghost"
           className="w-full justify-start text-[hsl(var(--muted-foreground))]"
           onClick={() => dispatch(logout())}
         >
-          <LogOut className="ml-2 h-4 w-4" />
+          <LogOut className="rtl:ml-2 ltr:mr-2 h-4 w-4" />
           {t('nav.logout')}
         </Button>
       </div>

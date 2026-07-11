@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -24,6 +25,7 @@ const registrationSchema = z.object({
 type RegistrationFormData = z.infer<typeof registrationSchema>
 
 export function CompleteRegistrationPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
   const dispatch = useAppDispatch()
@@ -65,7 +67,6 @@ export function CompleteRegistrationPage() {
 
       const result = await completeProfile(profileData).unwrap()
 
-      // ذخیره توکنها و اطلاعات کاربر
       dispatch(setCredentials({
         user: result.user,
         tokens: tokens,
@@ -142,14 +143,14 @@ export function CompleteRegistrationPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
                 id="first_name"
-                label="نام"
+                label={t('patients.firstName')}
                 placeholder="نام خود را وارد کنید"
                 error={form.formState.errors.first_name?.message}
                 {...form.register('first_name')}
               />
               <Input
                 id="last_name"
-                label="نام خانوادگی"
+                label={t('patients.lastName')}
                 placeholder="نام خانوادگی خود را وارد کنید"
                 error={form.formState.errors.last_name?.message}
                 {...form.register('last_name')}
@@ -167,7 +168,7 @@ export function CompleteRegistrationPage() {
 
             <Input
               id="password"
-              label="رمز عبور"
+              label={t('auth.password')}
               placeholder="رمز عبور خود را وارد کنید"
               type="password"
               error={form.formState.errors.password?.message}
@@ -176,7 +177,7 @@ export function CompleteRegistrationPage() {
 
             <Input
               id="confirm_password"
-              label="تکرار رمز عبور"
+              label={t('auth.confirmPassword')}
               placeholder="رمز عبور خود را تکرار کنید"
               type="password"
               error={form.formState.errors.confirm_password?.message}

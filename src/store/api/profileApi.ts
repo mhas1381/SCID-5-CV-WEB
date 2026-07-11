@@ -15,7 +15,7 @@ export const profileApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['Profile', 'User'],
     }),
-    updateProfile: builder.mutation<UserProfile, UserProfileUpdateRequest>({
+    updateProfile: builder.mutation<UserProfile, UserProfileUpdateRequest | FormData>({
       query: (data) => ({
         url: 'v1/accounts/profile/',
         method: 'PATCH',

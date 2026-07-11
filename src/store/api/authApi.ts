@@ -33,16 +33,8 @@ export const authApi = baseApi.injectEndpoints({
       }),
     }),
     getMe: builder.query<User, void>({
-      query: () => 'v1/accounts/users/me/',
+      query: () => 'v1/accounts/me/',
       providesTags: ['User'],
-    }),
-    updateProfile: builder.mutation<User, Partial<User>>({
-      query: (data) => ({
-        url: 'v1/accounts/users/me/',
-        method: 'PATCH',
-        body: data,
-      }),
-      invalidatesTags: ['User'],
     }),
     refreshToken: builder.mutation<AuthTokens, TokenRefreshRequest>({
       query: (data) => ({
@@ -53,7 +45,7 @@ export const authApi = baseApi.injectEndpoints({
     }),
     // Used internally: call verifyOTP at startup to check if token is still valid
     verifyToken: builder.query<User, void>({
-      query: () => 'v1/accounts/users/me/',
+      query: () => 'v1/accounts/me/',
     }),
   }),
 })
@@ -64,7 +56,6 @@ export const {
   useSetPasswordMutation,
   useCompleteProfileMutation,
   useGetMeQuery,
-  useUpdateProfileMutation,
   useRefreshTokenMutation,
   useVerifyTokenQuery,
 } = authApi

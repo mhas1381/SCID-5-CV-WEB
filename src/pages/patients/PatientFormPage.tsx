@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -20,6 +21,7 @@ const patientSchema = z.object({
 type PatientFormData = z.infer<typeof patientSchema>
 
 export function PatientFormPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { id } = useParams()
   const isEdit = !!id
@@ -55,19 +57,19 @@ export function PatientFormPage() {
       }
       navigate('/patients')
     } catch (err: any) {
-      setError(getErrorMessage(err, 'خطا در ذخیره اطلاعات'))
+      setError(getErrorMessage(err, t('patients.saveError')))
     }
   }
 
   if (isEdit && isLoadingPatient) {
-    return <div className="text-center py-12">در حال بارگذاری...</div>
+    return <div className="text-center py-12">{t('common.loading')}</div>
   }
 
   return (
     <div className="max-w-2xl mx-auto">
       <Card>
         <CardHeader>
-          <CardTitle>{isEdit ? 'ویرایش بیمار' : 'ثبت بیمار جدید'}</CardTitle>
+          <CardTitle>{isEdit ? t('patients.editPatient') : t('patients.newPatient')}</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -78,15 +80,15 @@ export function PatientFormPage() {
             <div className="grid grid-cols-2 gap-4">
               <Input
                 id="first_name"
-                label="نام"
-                placeholder="نام"
+                label={t('patients.firstName')}
+                placeholder={t('patients.firstName')}
                 error={errors.first_name?.message}
                 {...register('first_name')}
               />
               <Input
                 id="last_name"
-                label="نام خانوادگی"
-                placeholder="نام خانوادگی"
+                label={t('patients.lastName')}
+                placeholder={t('patients.lastName')}
                 error={errors.last_name?.message}
                 {...register('last_name')}
               />
@@ -95,14 +97,14 @@ export function PatientFormPage() {
             <div className="grid grid-cols-2 gap-4">
               <Input
                 id="national_id"
-                label="کد ملی"
+                label={t('patients.nationalId')}
                 placeholder="۱۰ رقم"
                 error={errors.national_id?.message}
                 {...register('national_id')}
               />
               <Input
                 id="phone_number"
-                label="شماره تماس"
+                label={t('patients.phone')}
                 placeholder="09xxxxxxxxx"
                 error={errors.phone_number?.message}
                 {...register('phone_number')}
@@ -112,19 +114,19 @@ export function PatientFormPage() {
             <div className="grid grid-cols-2 gap-4">
               <Input
                 id="date_of_birth"
-                label="تاریخ تولد"
+                label={t('patients.birthDate')}
                 type="date"
                 error={errors.date_of_birth?.message}
                 {...register('date_of_birth')}
               />
               <div className="space-y-1">
-                <label className="block text-sm font-medium">جنسیت</label>
+                <label className="block text-sm font-medium">{t('patients.gender')}</label>
                 <select
                   className="flex h-10 w-full rounded-lg border border-[hsl(var(--input))] bg-transparent px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
                   {...register('gender')}
                 >
-                  <option value="male">مرد</option>
-                  <option value="female">زن</option>
+                  <option value="male">{t('patients.male')}</option>
+                  <option value="female">{t('patients.female')}</option>
                 </select>
                 {errors.gender && <p className="text-sm text-red-500">{errors.gender.message}</p>}
               </div>
@@ -132,18 +134,18 @@ export function PatientFormPage() {
 
             <Input
               id="address"
-              label="آدرس"
-              placeholder="آدرس (اختیاری)"
+              label={t('patients.address')}
+              placeholder={t('patients.address')}
               error={errors.address?.message}
               {...register('address')}
             />
 
             <div className="flex gap-4 pt-4">
               <Button type="submit" isLoading={isCreating || isUpdating}>
-                {isEdit ? 'بروزرسانی' : 'ثبت بیمار'}
+                {isEdit ? t('common.save') : t('patients.registerPatient')}
               </Button>
               <Button type="button" variant="outline" onClick={() => navigate('/patients')}>
-                انصراف
+                {t('common.cancel')}
               </Button>
             </div>
           </form>

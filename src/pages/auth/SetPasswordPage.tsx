@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { useTranslation } from 'react-i18next'
 import { Brain, Shield } from 'lucide-react'
 import { Button, Input, Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
 import { useSetPasswordMutation } from '@/store/api/authApi'
@@ -19,6 +20,7 @@ const passwordSchema = z.object({
 type PasswordFormData = z.infer<typeof passwordSchema>
 
 export function SetPasswordPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
   const [setPassword, { isLoading }] = useSetPasswordMutation()
@@ -58,7 +60,7 @@ export function SetPasswordPage() {
             <Shield className="h-12 w-12 text-green-500 mx-auto mb-4" />
             <h2 className="text-xl font-bold mb-2">رمز عبور با موفقیت تنظیم شد</h2>
             <p className="text-sm text-[hsl(var(--muted-foreground))]">
-              در حال انتقال به داشبورد ...
+              {t('common.loading')}
             </p>
           </CardContent>
         </Card>
@@ -75,13 +77,13 @@ export function SetPasswordPage() {
               <Brain className="h-10 w-10 text-[hsl(var(--primary))]" />
             </div>
           </div>
-          <CardTitle className="text-2xl">تنظیم رمز عبور</CardTitle>
+          <CardTitle className="text-2xl">{t('auth.setPassword')}</CardTitle>
           <p className="text-sm text-[hsl(var(--muted-foreground))] mt-2">
-            برای حساب کاربری خود یک رمز عبور انتخاب کنید
+            {t('auth.setPasswordHint')}
           </p>
           {phone && (
             <p className="text-xs text-[hsl(var(--muted-foreground))] mt-1">
-              شماره تماس: {phone}
+              {t('auth.phoneNumber')}: {phone}
             </p>
           )}
         </CardHeader>
@@ -95,24 +97,24 @@ export function SetPasswordPage() {
 
             <Input
               id="password"
-              label="رمز عبور"
+              label={t('auth.password')}
               type="password"
-              placeholder="حداقل ۶ کاراکتر"
+              placeholder={t('auth.passwordMinLength')}
               error={errors.password?.message}
               {...register('password')}
             />
 
             <Input
               id="confirm_password"
-              label="تکرار رمز عبور"
+              label={t('auth.confirmPassword')}
               type="password"
-              placeholder="رمز عبور را دوباره وارد کنید"
+              placeholder={t('auth.confirmPassword')}
               error={errors.confirm_password?.message}
               {...register('confirm_password')}
             />
 
             <Button type="submit" className="w-full" isLoading={isLoading}>
-              تأیید و ادامه
+              {t('auth.setPasswordBtn')}
             </Button>
           </form>
         </CardContent>
