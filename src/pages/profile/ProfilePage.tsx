@@ -36,6 +36,7 @@ export function ProfilePage() {
         email: user?.email || '',
         birth_date: profile.birth_date || '',
         gender: profile.gender,
+        role: profile.role || user?.role,
         license_number: profile.license_number || '',
         specialization: profile.specialization || '',
         organization: profile.organization || '',
@@ -48,6 +49,7 @@ export function ProfilePage() {
         email: user.email || '',
         birth_date: '',
         gender: null,
+        role: user.role,
         license_number: '',
         specialization: '',
         organization: '',
@@ -57,7 +59,7 @@ export function ProfilePage() {
   }, [profile, user])
 
   const handleChange = (field: string, value: string | number | null) => {
-    setForm((prev) => ({ ...prev, [field]: value || '' }))
+    setForm((prev) => ({ ...prev, [field]: value ?? '' }))
     setSaved(false)
   }
 
@@ -128,6 +130,34 @@ export function ProfilePage() {
             value={form.email || ''}
             onChange={(e) => handleChange('email', e.target.value)}
           />
+          <Input
+            id="birth_date"
+            label={t('profile.birthDate')}
+            type="date"
+            value={form.birth_date || ''}
+            onChange={(e) => handleChange('birth_date', e.target.value)}
+          />
+          <div className="space-y-1">
+            <label
+              htmlFor="role"
+              className="block text-sm font-medium text-[hsl(var(--foreground))]"
+            >
+              {t('profile.role')}
+            </label>
+            <select
+              id="role"
+              className="flex h-10 w-full rounded-lg border border-[hsl(var(--input))] bg-transparent px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
+              value={form.role || ''}
+              onChange={(e) =>
+                handleChange('role', (e.target.value as 'admin' | 'clinician' | 'researcher') || '')
+              }
+            >
+              <option value="">{t('common.optional')}</option>
+              <option value="admin">{t('profile.admin')}</option>
+              <option value="clinician">{t('profile.clinician')}</option>
+              <option value="researcher">{t('profile.researcher')}</option>
+            </select>
+          </div>
         </CardContent>
       </Card>
 
@@ -183,13 +213,14 @@ export function ProfilePage() {
                 onChange={(e) =>
                   handleChange(
                     'gender',
-                    (e.target.value as 'male' | 'female') || null
+                    (e.target.value as 'male' | 'female' | 'other') || null
                   )
                 }
               >
                 <option value="">{t('common.optional')}</option>
                 <option value="male">{t('patients.male')}</option>
                 <option value="female">{t('patients.female')}</option>
+                <option value="other">{t('profile.other')}</option>
               </select>
             </div>
           </div>

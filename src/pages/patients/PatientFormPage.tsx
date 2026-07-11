@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useCreatePatientMutation, useUpdatePatientMutation, useGetPatientQuery } from '@/store/api/patientApi'
 import { Button, Input, Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
+import { getErrorMessage } from '@/utils/error'
 
 const patientSchema = z.object({
   first_name: z.string().min(2, 'نام حداقل ۲ کاراکتر'),
@@ -54,7 +55,7 @@ export function PatientFormPage() {
       }
       navigate('/patients')
     } catch (err: any) {
-      setError(err?.data?.detail || 'خطا در ذخیره اطلاعات')
+      setError(getErrorMessage(err, 'خطا در ذخیره اطلاعات'))
     }
   }
 

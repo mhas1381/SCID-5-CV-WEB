@@ -96,7 +96,8 @@ export interface UserProfileUpdateRequest {
   last_name?: string
   email?: string
   birth_date?: string | null
-  gender?: 'male' | 'female' | null
+  gender?: 'male' | 'female' | 'other' | null
+  role?: 'admin' | 'clinician' | 'researcher'
   license_number?: string
   specialization?: string
   organization?: string

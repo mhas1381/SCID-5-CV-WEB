@@ -8,6 +8,7 @@ import { Button, Input, Card, CardHeader, CardTitle, CardContent } from '@/compo
 import { useSendOTPMutation, useVerifyOTPMutation } from '@/store/api/authApi'
 import { useAppDispatch } from '@/hooks/useAppStore'
 import { setCredentials } from '@/store/slices/authSlice'
+import { getErrorMessage } from '@/utils/error'
 
 const phoneSchema = z.object({
   phone_number: z
@@ -52,7 +53,7 @@ export function LoginPage() {
       setPhoneNumber(data.phone_number)
       setStep('otp')
     } catch (err: any) {
-      setError(err?.data?.phone_number?.[0] || err?.data?.detail || 'خطا در ارسال کد تأیید')
+      setError(getErrorMessage(err, 'خطا در ارسال کد تأیید'))
     }
   }
 
@@ -70,14 +71,20 @@ export function LoginPage() {
         tokens: { access: result.access, refresh: result.refresh },
       }))
 
-      // اگر کاربر جدید است، به صفحه تنظیم رمز عبور هدایت شود
+      // اگر کاربر جدید است (is_new_user: true)، به صفحه ثبت اطلاعات هدایت شود
+      // اگر کاربر موجود است (is_new_user: false)، مستقیماً به داشبورد هدایت شود
       if (result.is_new_user) {
-        navigate('/set-password', { state: { phone: phoneNumber } })
+        navigate('/complete-registration', {
+          state: {
+            phone: phoneNumber,
+            tokens: { access: result.access, refresh: result.refresh }
+          }
+        })
       } else {
         navigate('/dashboard')
       }
     } catch (err: any) {
-      setError(err?.data?.detail || 'کد تأیید نادرست است')
+      setError(getErrorMessage(err, 'کد تأیید نادرست است'))
     }
   }
 
@@ -88,19 +95,19 @@ export function LoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[hsl(var(--background))] to-[hsl(var(--muted))]">
-      <Card className="w-full max-w-md mx-4">
+      <Card className="w-full max-w-lg mx-4">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
             <div className="rounded-2xl bg-[hsl(var(--primary))]/10 p-4">
-              <Brain className="h-10 w-10 text-[hsl(var(--primary))]" />
+              <Brain className="h-12 w-12 text-[hsl(var(--primary))]" />
             </div>
           </div>
-          <CardTitle className="text-2xl">
-            {step === 'phone' ? 'ورود به سامانه' : 'تأیید کد'}
-          </CardTitle>
-          <p className="text-sm text-[hsl(var(--muted-foreground))] mt-2">
-            SCID-5-CV — Structured Clinical Interview for DSM-5
-          </p>
+           <CardTitle className="text-3xl">
+             {step === 'phone' ? 'ورود/ثبت نام' : 'تأیید کد'}
+           </CardTitle>
+           <p className="text-sm text-[hsl(var(--muted-foreground))] mt-2">
+             سامانه هوشمند مصاحبه بالینی SCID-5-CV
+           </p>
         </CardHeader>
         <CardContent>
           {step === 'phone' && (
@@ -125,20 +132,9 @@ export function LoginPage() {
                 کد تأیید به شماره وارد شده پیامک خواهد شد
               </p>
 
-              <Button type="submit" className="w-full" isLoading={isSending}>
-                ارسال کد تأیید
-              </Button>
-
-              <p className="text-center text-sm text-[hsl(var(--muted-foreground))]">
-                حساب کاربری ندارید؟{' '}
-                <button
-                  type="button"
-                  className="text-[hsl(var(--primary))] hover:underline"
-                  onClick={() => navigate('/register')}
-                >
-                  ثبت نام
-                </button>
-              </p>
+               <Button type="submit" className="w-full" isLoading={isSending}>
+                 ارسال کد تأیید
+               </Button>
             </form>
           )}
 
@@ -168,9 +164,9 @@ export function LoginPage() {
                 {...otpForm.register('otp_code')}
               />
 
-              <Button type="submit" className="w-full" isLoading={isVerifying}>
-                تأیید و ورود
-              </Button>
+               <Button type="submit" className="w-full" isLoading={isVerifying}>
+                 تأیید و ادامه
+               </Button>
 
               <button
                 type="button"

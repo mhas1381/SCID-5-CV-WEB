@@ -160,6 +160,12 @@
     "specialization": "تخصص",
     "organization": "سازمان",
     "yearsOfExperience": "سال‌های تجربه",
+    "birthDate": "تاریخ تولد",
+    "role": "نقش",
+    "admin": "مدیر",
+    "clinician": "درمانگر",
+    "researcher": "محقق",
+    "other": "سایر",
     "saveSuccess": "پروفایل با موفقیت ذخیره شد",
     "createHint": "هنوز پروفایل ایجاد نشده است. اطلاعات خود را وارد کرده و ذخیره کنید."
   },

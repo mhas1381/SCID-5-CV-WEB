@@ -4,8 +4,8 @@ import { AppLayout } from '@/components/layout/AppLayout'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import { LandingPage } from '@/pages/landing/LandingPage'
 import { LoginPage } from '@/pages/auth/LoginPage'
-import { RegisterPage } from '@/pages/auth/RegisterPage'
 import { SetPasswordPage } from '@/pages/auth/SetPasswordPage'
+import { CompleteRegistrationPage } from '@/pages/auth/CompleteRegistrationPage'
 import { DashboardPage } from '@/pages/dashboard/DashboardPage'
 import { PatientsPage } from '@/pages/patients/PatientsPage'
 import { PatientFormPage } from '@/pages/patients/PatientFormPage'
@@ -23,7 +23,7 @@ function AppContent() {
       {/* Public Routes */}
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
+      <Route path="/complete-registration" element={<CompleteRegistrationPage />} />
       <Route path="/set-password" element={<SetPasswordPage />} />
 
       {/* Protected Routes with Layout */}

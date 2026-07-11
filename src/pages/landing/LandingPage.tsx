@@ -45,14 +45,12 @@ export function LandingPage() {
             <Brain className="h-7 w-7 text-[hsl(var(--primary))]" />
             <span className="text-lg font-bold">SCID-5-CV</span>
           </div>
-          <div className="flex items-center gap-3">
-            <Button variant="outline" onClick={() => navigate('/login')}>
-              ورود
-            </Button>
-            <Button onClick={() => navigate('/register')}>
-              ثبت‌نام
-            </Button>
-          </div>
+           <div className="flex items-center gap-3">
+             <Button size="lg" onClick={() => navigate('/login')}>
+               شروع کنید
+               <ArrowLeft className="mr-2 h-5 w-5" />
+             </Button>
+           </div>
         </div>
       </header>
 
@@ -76,15 +74,12 @@ export function LandingPage() {
               بر اساس معیارهای DSM-5 است. این سیستم به روانشناسان و روانپزشکان کمک می‌کند
               تا فرآیند تشخیص را با دقت و سرعت بیشتری انجام دهند.
             </p>
-            <div className="flex items-center justify-center gap-4 mt-10">
-              <Button size="lg" onClick={() => navigate('/register')}>
-                شروع کنید
-                <ArrowLeft className="mr-2 h-5 w-5" />
-              </Button>
-              <Button size="lg" variant="outline" onClick={() => navigate('/login')}>
-                ورود به سیستم
-              </Button>
-            </div>
+             <div className="flex items-center justify-center mt-10">
+               <Button size="lg" onClick={() => navigate('/login')}>
+                 شروع کنید
+                 <ArrowLeft className="mr-2 h-5 w-5" />
+               </Button>
+             </div>
           </div>
         </div>
 

@@ -25,6 +25,13 @@ export const authApi = baseApi.injectEndpoints({
         body: data,
       }),
     }),
+    completeProfile: builder.mutation<any, any>({
+      query: (data) => ({
+        url: 'v1/accounts/profile/complete/',
+        method: 'POST',
+        body: data,
+      }),
+    }),
     getMe: builder.query<User, void>({
       query: () => 'v1/accounts/users/me/',
       providesTags: ['User'],
@@ -55,6 +62,7 @@ export const {
   useSendOTPMutation,
   useVerifyOTPMutation,
   useSetPasswordMutation,
+  useCompleteProfileMutation,
   useGetMeQuery,
   useUpdateProfileMutation,
   useRefreshTokenMutation,

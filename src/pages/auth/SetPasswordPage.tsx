@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { Brain, Shield } from 'lucide-react'
 import { Button, Input, Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
 import { useSetPasswordMutation } from '@/store/api/authApi'
+import { getErrorMessage } from '@/utils/error'
 
 const passwordSchema = z.object({
   password: z.string().min(6, 'رمز عبور حداقل ۶ کاراکتر'),
@@ -45,7 +46,7 @@ export function SetPasswordPage() {
       setSuccess(true)
       setTimeout(() => navigate('/dashboard'), 1500)
     } catch (err: any) {
-      setError(err?.data?.detail || 'خطا در تنظیم رمز عبور')
+      setError(getErrorMessage(err, 'خطا در تنظیم رمز عبور'))
     }
   }
 

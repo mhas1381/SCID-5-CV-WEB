@@ -5,6 +5,7 @@ import { useCreateSessionMutation } from '@/store/api/interviewApi'
 import { Button, Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
 import { Brain, User, AlertCircle } from 'lucide-react'
 import { cn } from '@/utils/cn'
+import { getErrorMessage } from '@/utils/error'
 
 const MODULES = [
   { id: 'A', label: 'حالات خلقی (Mood Episodes)', description: 'MDD, Dysthymia, Mania, Hypomania' },
@@ -38,7 +39,7 @@ export function NewInterviewPage() {
       const session = await createSession({ patient: selectedPatient, module: selectedModule }).unwrap()
       navigate(`/interview/${session.id}`)
     } catch (err: any) {
-      setError(err?.data?.detail || 'خطا در شروع مصاحبه')
+      setError(getErrorMessage(err, 'خطا در شروع مصاحبه'))
     }
   }
 

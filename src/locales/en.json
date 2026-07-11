@@ -160,6 +160,12 @@
     "specialization": "Specialization",
     "organization": "Organization",
     "yearsOfExperience": "Years of Experience",
+    "birthDate": "Birth Date",
+    "role": "Role",
+    "admin": "Admin",
+    "clinician": "Clinician",
+    "researcher": "Researcher",
+    "other": "Other",
     "saveSuccess": "Profile saved successfully",
     "createHint": "Profile not created yet. Enter your information and save."
   },
