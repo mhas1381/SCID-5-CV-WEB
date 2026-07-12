@@ -144,7 +144,7 @@ export function LoginPage() {
 
       navigate('/dashboard')
     } catch (err: any) {
-      setError(getErrorMessage(err, 'شماره تلفن یا رمز عبور اشتباه است'))
+      setError(getErrorMessage(err, 'خطا در ورود'))
     }
   }
 
