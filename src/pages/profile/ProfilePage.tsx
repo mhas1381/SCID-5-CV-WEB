@@ -305,7 +305,7 @@ export function ProfilePage() {
         </CardContent>
       </Card>
 
-      {me?.has_password === false && (
+      {!meLoading && me?.has_password !== true && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
