@@ -24,6 +24,7 @@ export const authApi = baseApi.injectEndpoints({
         method: 'POST',
         body: data,
       }),
+      invalidatesTags: ['User'],
     }),
     completeProfile: builder.mutation<any, any>({
       query: (data) => ({
