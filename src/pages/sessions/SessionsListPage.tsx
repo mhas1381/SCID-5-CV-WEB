@@ -6,6 +6,7 @@ import type { Session } from '@/types'
 import { Button, Card, CardContent } from '@/components/ui'
 import { ClipboardList, Eye, Search } from 'lucide-react'
 import { cn } from '@/utils/cn'
+import { formatDate } from '@/utils/date'
 
 export function SessionsListPage() {
   const { t, i18n } = useTranslation()
@@ -111,7 +112,7 @@ export function SessionsListPage() {
                     </div>
                     <div className="flex gap-4 mt-2 text-sm text-[hsl(var(--muted-foreground))]">
                       <span>ماژول {session.module}: {MODULE_LABELS[session.module] || session.module}</span>
-                      <span>{new Date(session.started_at).toLocaleDateString(i18n.language === 'fa' ? 'fa-IR' : 'en-US')}</span>
+                      <span>{formatDate(session.started_at)}</span>
                     </div>
                   </div>
                   <Button

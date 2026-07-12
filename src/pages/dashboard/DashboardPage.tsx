@@ -5,6 +5,7 @@ import { useGetDashboardSummaryQuery } from '@/store/api/dashboardApi'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
 import { Button } from '@/components/ui'
 import { Users, ClipboardList, Activity, CalendarDays, Loader2 } from 'lucide-react'
+import { formatDate } from '@/utils/date'
 
 export function DashboardPage() {
   const { t } = useTranslation()
@@ -67,7 +68,7 @@ export function DashboardPage() {
                     {summary.recent_patients.map((p) => (
                       <li key={p.id} className="flex items-center justify-between py-3">
                         <span className="font-medium">{p.first_name} {p.last_name}</span>
-                        <span className="text-sm text-[hsl(var(--muted-foreground))]">{p.created_at}</span>
+                        <span className="text-sm text-[hsl(var(--muted-foreground))]">{formatDate(p.created_at)}</span>
                       </li>
                     ))}
                   </ul>
@@ -90,7 +91,7 @@ export function DashboardPage() {
                     {summary.recent_sessions.map((s) => (
                       <li key={s.id} className="flex items-center justify-between py-3">
                         <span className="font-medium">{s.patient_name}</span>
-                        <span className="text-sm text-[hsl(var(--muted-foreground))]">{s.created_at}</span>
+                        <span className="text-sm text-[hsl(var(--muted-foreground))]">{formatDate(s.created_at)}</span>
                       </li>
                     ))}
                   </ul>
