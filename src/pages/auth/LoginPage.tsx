@@ -173,7 +173,7 @@ export function LoginPage() {
           {step === 'phone' && (
             <form onSubmit={phoneForm.handleSubmit(onSendOTP)} className="space-y-4">
               {error && (
-                <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive text-center">
+                <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm font-medium text-destructive text-center">
                   {error}
                 </div>
               )}
@@ -244,7 +244,7 @@ export function LoginPage() {
           {step === 'otp' && (
             <form onSubmit={otpForm.handleSubmit(onVerifyOTP)} className="space-y-4">
               {error && (
-                <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive text-center">
+                <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm font-medium text-destructive text-center">
                   {error}
                 </div>
               )}
@@ -285,7 +285,7 @@ export function LoginPage() {
           {step === 'password' && (
             <form onSubmit={passwordForm.handleSubmit(onPasswordLogin)} className="space-y-4">
               {error && (
-                <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive text-center">
+                <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm font-medium text-destructive text-center">
                   {error}
                 </div>
               )}
