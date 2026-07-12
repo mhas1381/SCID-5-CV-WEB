@@ -70,7 +70,7 @@ export function DashboardPage() {
                       <li
                         key={p.id}
                         className={`flex items-center gap-3 px-6 py-3.5 transition-colors hover:bg-[hsl(var(--muted))/50] cursor-pointer ${idx > 0 ? 'border-t border-[hsl(var(--border))]' : ''}`}
-                        onClick={() => navigate(`/patients/${p.id}`)}>
+                        onClick={() => navigate(`/patients/${p.id}/edit`)}>
                         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[hsl(var(--primary))/10] text-[hsl(var(--primary))]">
                           <User className="h-4 w-4" />
                         </div>
