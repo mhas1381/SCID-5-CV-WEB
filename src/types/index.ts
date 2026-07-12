@@ -214,7 +214,6 @@ export interface City {
   id: number
   province: number
   name: string
-  province_name?: string
 }
 
 export interface PatientNoteCreateResponse {
