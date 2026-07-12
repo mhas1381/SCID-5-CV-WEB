@@ -43,7 +43,7 @@
     "phonePlaceholder": "09xxxxxxxxx",
     "otpCode": "کد تأیید",
     "otpPlaceholder": "12345",
-    "otpSent": "کد تأیید به شماره {phone} ارسال شد",
+    "otpSent": "کد تأیید به شماره {{phone}} ارسال شد",
     "otpHint": "کد تأیید به شماره وارد شده پیامک خواهد شد",
     "sendOTP": "ارسال کد تأیید",
     "sendOTPRegister": "ثبت نام و ارسال کد",

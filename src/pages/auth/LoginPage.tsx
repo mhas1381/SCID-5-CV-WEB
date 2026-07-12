@@ -101,9 +101,8 @@ export function LoginPage() {
         tokens: { access: result.access, refresh: result.refresh },
       }))
 
-      // اگر کاربر جدید است (is_new_user: true)، به صفحه ثبت اطلاعات هدایت شود
-      // اگر کاربر موجود است (is_new_user: false)، مستقیماً به داشبورد هدایت شود
-      if (result.is_new_user) {
+      // اگر کاربر جدید است و اطلاعات پایه ندارد، به صفحه ثبت اطلاعات هدایت شود
+      if (result.is_new_user && !result.user?.first_name) {
         navigate('/complete-registration', {
           state: {
             phone: phoneNumber,
