@@ -8,7 +8,9 @@ import { useGetMeQuery } from '@/store/api/authApi'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui'
-import { Loader2, User, Save, AlertCircle, CheckCircle2, Camera } from 'lucide-react'
+import { JalaliDatePicker } from '@/components/ui/JalaliDatePicker'
+import { toast } from 'sonner'
+import { Loader2, User, Save, Camera } from 'lucide-react'
 import { getErrorMessage } from '@/utils/error'
 import type { UserProfileUpdateRequest } from '@/types'
 
@@ -26,8 +28,6 @@ export function ProfilePage() {
   const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation()
 
   const [form, setForm] = useState<UserProfileUpdateRequest>({})
-  const [saved, setSaved] = useState(false)
-  const [submitError, setSubmitError] = useState<string | null>(null)
   const [profileImage, setProfileImage] = useState<File | null>(null)
   const [profileImagePreview, setProfileImagePreview] = useState<string | null>(null)
   const serverImage = profile?.profile_image || me?.profile_image
@@ -68,15 +68,10 @@ export function ProfilePage() {
 
   const handleChange = (field: string, value: string | number | null) => {
     setForm((prev) => ({ ...prev, [field]: value ?? '' }))
-    setSaved(false)
-    setSubmitError(null)
   }
 
   const handleSubmit = async () => {
     try {
-      setSubmitError(null)
-      setSaved(false)
-
       let body: FormData | UserProfileUpdateRequest
 
       if (profileImage) {
@@ -93,11 +88,11 @@ export function ProfilePage() {
       }
 
       await updateProfile(body).unwrap()
-      setSaved(true)
+      toast.success(t('profile.saveSuccess'))
       setProfileImage(null)
       refetch()
     } catch (err: any) {
-      setSubmitError(getErrorMessage(err, 'خطا در ذخیره پروفایل'))
+      toast.error(getErrorMessage(err, 'خطا در ذخیره پروفایل'))
     }
   }
 
@@ -160,8 +155,6 @@ export function ProfilePage() {
                 if (file) {
                   setProfileImage(file)
                   setProfileImagePreview(URL.createObjectURL(file))
-                  setSaved(false)
-                  setSubmitError(null)
                 }
               }}
             />
@@ -197,12 +190,10 @@ export function ProfilePage() {
             value={form.email || ''}
             onChange={(e) => handleChange('email', e.target.value)}
           />
-          <Input
-            id="birth_date"
+          <JalaliDatePicker
             label={t('profile.birthDate')}
-            type="date"
             value={form.birth_date || ''}
-            onChange={(e) => handleChange('birth_date', e.target.value)}
+            onChange={(value) => handleChange('birth_date', value)}
           />
           <div className="space-y-1">
             <label
@@ -294,20 +285,7 @@ export function ProfilePage() {
         </CardContent>
       </Card>
 
-      {submitError && (
-        <div className="flex items-center gap-2 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
-          <AlertCircle className="h-4 w-4 shrink-0" />
-          {submitError}
-        </div>
-      )}
-
-      <div className="flex items-center justify-end gap-4">
-        {saved && (
-          <p className="flex items-center gap-1 text-sm text-green-600">
-            <CheckCircle2 className="h-4 w-4" />
-            {t('profile.saveSuccess')}
-          </p>
-        )}
+      <div className="flex items-center justify-end">
         <Button onClick={handleSubmit} disabled={isUpdating}>
           {isUpdating ? (
             <>

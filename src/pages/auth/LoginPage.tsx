@@ -4,9 +4,11 @@ import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { GoogleLogin } from '@react-oauth/google'
+import type { CredentialResponse } from '@react-oauth/google'
 import { Brain, ArrowLeft, CheckCircle } from 'lucide-react'
 import { Button, Input, Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
-import { useSendOTPMutation, useVerifyOTPMutation } from '@/store/api/authApi'
+import { useSendOTPMutation, useVerifyOTPMutation, useGoogleLoginMutation } from '@/store/api/authApi'
 import { useAppDispatch } from '@/hooks/useAppStore'
 import { setCredentials } from '@/store/slices/authSlice'
 import { getErrorMessage } from '@/utils/error'
@@ -39,6 +41,26 @@ export function LoginPage() {
 
   const [sendOTP, { isLoading: isSending }] = useSendOTPMutation()
   const [verifyOTP, { isLoading: isVerifying }] = useVerifyOTPMutation()
+  const [googleLoginMutation] = useGoogleLoginMutation()
+
+  const onGoogleSuccess = async (credentialResponse: CredentialResponse) => {
+    try {
+      setError(null)
+      const idToken = credentialResponse.credential
+      if (!idToken) {
+        setError('Google token not received')
+        return
+      }
+      const result = await googleLoginMutation({ id_token: idToken }).unwrap()
+      dispatch(setCredentials({
+        user: result.user,
+        tokens: { access: result.access, refresh: result.refresh },
+      }))
+      navigate('/dashboard')
+    } catch (err: any) {
+      setError(getErrorMessage(err, 'خطا در ورود با گوگل'))
+    }
+  }
 
   const phoneForm = useForm<PhoneFormData>({
     resolver: zodResolver(phoneSchema),
@@ -137,6 +159,29 @@ export function LoginPage() {
                <Button type="submit" className="w-full" isLoading={isSending}>
                   {t('auth.sendOTP')}
                </Button>
+
+               <div className="relative my-4">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-[hsl(var(--border))]" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-[hsl(var(--card))] px-2 text-[hsl(var(--muted-foreground))]">
+                      {t('common.or')}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex justify-center">
+                  <GoogleLogin
+                    onSuccess={onGoogleSuccess}
+                    onError={() => setError('Google Login Failed')}
+                    size="large"
+                    theme="outline"
+                    text="signin_with"
+                    shape="rectangular"
+                    width="300"
+                  />
+                </div>
             </form>
           )}
 

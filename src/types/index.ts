@@ -47,6 +47,14 @@ export interface VerifyOTPResponse {
   is_new_user: boolean
 }
 
+/** POST /api/v1/accounts/auth/google/ → response */
+export interface GoogleLoginResponse {
+  refresh: string
+  access: string
+  user: User
+  message: string
+}
+
 /** POST /api/v1/accounts/auth/set-password/ → body */
 export interface SetPasswordRequest {
   password: string

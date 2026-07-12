@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useCreatePatientMutation, useUpdatePatientMutation, useGetPatientQuery } from '@/store/api/patientApi'
 import { Button, Input, Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
+import { JalaliDatePicker } from '@/components/ui/JalaliDatePicker'
 import { getErrorMessage } from '@/utils/error'
 
 const patientSchema = z.object({
@@ -33,6 +34,7 @@ export function PatientFormPage() {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm<PatientFormData>({
     resolver: zodResolver(patientSchema),
@@ -112,12 +114,17 @@ export function PatientFormPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <Input
-                id="date_of_birth"
-                label={t('patients.birthDate')}
-                type="date"
-                error={errors.date_of_birth?.message}
-                {...register('date_of_birth')}
+              <Controller
+                name="date_of_birth"
+                control={control}
+                render={({ field }) => (
+                  <JalaliDatePicker
+                    label={t('patients.birthDate')}
+                    value={field.value || ''}
+                    onChange={field.onChange}
+                    error={errors.date_of_birth?.message}
+                  />
+                )}
               />
               <div className="space-y-1">
                 <label className="block text-sm font-medium">{t('patients.gender')}</label>
