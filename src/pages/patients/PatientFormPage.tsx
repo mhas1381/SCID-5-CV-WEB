@@ -8,6 +8,8 @@ import { useCreatePatientMutation, useUpdatePatientMutation, useGetPatientQuery 
 import { Button, Input, Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
 import { JalaliDatePicker } from '@/components/ui/JalaliDatePicker'
 import { getErrorMessage } from '@/utils/error'
+import { toast } from 'sonner'
+import { UserPlus, User, ArrowRight, Loader2 } from 'lucide-react'
 
 const patientSchema = z.object({
   first_name: z.string().min(2, 'نام حداقل ۲ کاراکتر'),
@@ -54,32 +56,62 @@ export function PatientFormPage() {
       setError(null)
       if (isEdit && id) {
         await updatePatient({ id: Number(id), data }).unwrap()
+        toast.success(t('patients.updateSuccess'))
       } else {
         await createPatient(data).unwrap()
+        toast.success(t('patients.createSuccess'))
       }
       navigate('/patients')
     } catch (err: any) {
-      setError(getErrorMessage(err, t('patients.saveError')))
+      const msg = getErrorMessage(err, t('patients.saveError'))
+      toast.error(msg)
+      setError(msg)
     }
   }
 
   if (isEdit && isLoadingPatient) {
-    return <div className="text-center py-12">{t('common.loading')}</div>
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-8 w-8 animate-spin text-[hsl(var(--primary))]" />
+      </div>
+    )
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="mx-auto max-w-2xl">
+      <div className="mb-6">
+        <button
+          onClick={() => navigate('/patients')}
+          className="flex items-center gap-1 text-sm text-[hsl(var(--muted-foreground))] hover:text-foreground transition-colors"
+        >
+          <ArrowRight className="h-4 w-4" />
+          {t('patients.title')}
+        </button>
+      </div>
+
       <Card>
         <CardHeader>
-          <CardTitle>{isEdit ? t('patients.editPatient') : t('patients.newPatient')}</CardTitle>
+          <div className="flex items-center gap-3">
+            <div className="rounded-xl bg-[hsl(var(--primary))/10] p-3">
+              {isEdit ? <User className="h-6 w-6 text-[hsl(var(--primary))]" /> : <UserPlus className="h-6 w-6 text-[hsl(var(--primary))]" />}
+            </div>
+            <div>
+              <CardTitle className="text-xl">{isEdit ? t('patients.editPatient') : t('patients.newPatient')}</CardTitle>
+              <p className="text-sm text-[hsl(var(--muted-foreground))] mt-1">
+                {isEdit ? 'ویرایش اطلاعات بیمار' : 'ثبت اطلاعات بیمار جدید'}
+              </p>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             {error && (
-              <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600">{error}</div>
+              <div className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm font-medium text-red-600">
+                {error}
+              </div>
             )}
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
                 id="first_name"
                 label={t('patients.firstName')}
@@ -96,7 +128,7 @@ export function PatientFormPage() {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
                 id="national_id"
                 label={t('patients.nationalId')}
@@ -108,12 +140,13 @@ export function PatientFormPage() {
                 id="phone_number"
                 label={t('patients.phone')}
                 placeholder="09xxxxxxxxx"
+                dir="ltr"
                 error={errors.phone_number?.message}
                 {...register('phone_number')}
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Controller
                 name="date_of_birth"
                 control={control}
@@ -127,7 +160,7 @@ export function PatientFormPage() {
                 )}
               />
               <div className="space-y-1">
-                <label className="block text-sm font-medium">{t('patients.gender')}</label>
+                <label className="block text-sm font-medium text-[hsl(var(--foreground))]">{t('patients.gender')}</label>
                 <select
                   className="flex h-10 w-full rounded-lg border border-[hsl(var(--input))] bg-transparent px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
                   {...register('gender')}
@@ -147,8 +180,8 @@ export function PatientFormPage() {
               {...register('address')}
             />
 
-            <div className="flex gap-4 pt-4">
-              <Button type="submit" isLoading={isCreating || isUpdating}>
+            <div className="flex gap-4 pt-4 border-t border-[hsl(var(--border))]">
+              <Button type="submit" isLoading={isCreating || isUpdating} className="min-w-[120px]">
                 {isEdit ? t('common.save') : t('patients.registerPatient')}
               </Button>
               <Button type="button" variant="outline" onClick={() => navigate('/patients')}>

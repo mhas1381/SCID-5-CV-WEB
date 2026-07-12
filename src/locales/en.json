@@ -109,7 +109,8 @@
     "noPatients": "No patients found",
     "registerPatient": "Register New Patient",
     "deleteConfirm": "Are you sure you want to delete this patient?",
-    "saveSuccess": "Patient information saved successfully",
+    "createSuccess": "New patient created successfully",
+    "updateSuccess": "Patient information updated successfully",
     "saveError": "Error saving patient information"
   },
   "interview": {
