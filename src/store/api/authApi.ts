@@ -1,5 +1,5 @@
 import { baseApi } from './baseApi'
-import type { User, SendOTPRequest, SendOTPResponse, SendOTPError, VerifyOTPRequest, VerifyOTPResponse, GoogleLoginResponse, SetPasswordRequest, SetPasswordResponse, AuthTokens, TokenRefreshRequest } from '@/types'
+import type { User, SendOTPRequest, SendOTPResponse, SendOTPError, VerifyOTPRequest, VerifyOTPResponse, GoogleLoginResponse, PasswordLoginRequest, SetPasswordRequest, SetPasswordResponse, AuthTokens, TokenRefreshRequest } from '@/types'
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -44,6 +44,14 @@ export const authApi = baseApi.injectEndpoints({
         body: data,
       }),
     }),
+    passwordLogin: builder.mutation<VerifyOTPResponse, PasswordLoginRequest>({
+      query: (data) => ({
+        url: 'v1/accounts/token/',
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['User'],
+    }),
     googleLogin: builder.mutation<GoogleLoginResponse, { id_token: string }>({
       query: (data) => ({
         url: 'v1/accounts/auth/google/',
@@ -68,4 +76,5 @@ export const {
   useRefreshTokenMutation,
   useVerifyTokenQuery,
   useGoogleLoginMutation,
+  usePasswordLoginMutation,
 } = authApi

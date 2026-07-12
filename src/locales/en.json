@@ -60,7 +60,11 @@
     "passwordMinLength": "Password must be at least 8 characters",
     "passwordMatch": "Passwords do not match",
     "setPasswordBtn": "Set Password",
-    "skipPassword": "Skip"
+    "skipPassword": "Skip",
+    "passwordLogin": "Login with Password",
+    "passwordLoginBtn": "Login",
+    "loginWithPassword": "Login with Password",
+    "loginWithOTP": "Login with OTP"
   },
   "dashboard": {
     "title": "Dashboard",

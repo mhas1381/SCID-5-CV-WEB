@@ -55,6 +55,12 @@ export interface GoogleLoginResponse {
   message: string
 }
 
+/** POST /api/v1/accounts/token/ → body (Login with Phone & Password) */
+export interface PasswordLoginRequest {
+  phone_number: string
+  password: string
+}
+
 /** POST /api/v1/accounts/auth/set-password/ → body */
 export interface SetPasswordRequest {
   password: string

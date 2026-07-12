@@ -60,7 +60,11 @@
     "passwordMinLength": "رمز عبور حداقل ۸ کاراکتر",
     "passwordMatch": "رمز عبور و تکرار آن یکسان نیست",
     "setPasswordBtn": "تنظیم رمز عبور",
-    "skipPassword": "رد کردن"
+    "skipPassword": "رد کردن",
+    "passwordLogin": "ورود با رمز عبور",
+    "passwordLoginBtn": "ورود",
+    "loginWithPassword": "ورود با رمز عبور",
+    "loginWithOTP": "ورود با کد یکبار مصرف"
   },
   "dashboard": {
     "title": "داشبورد",

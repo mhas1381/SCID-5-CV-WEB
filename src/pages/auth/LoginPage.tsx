@@ -8,7 +8,7 @@ import { GoogleLogin } from '@react-oauth/google'
 import type { CredentialResponse } from '@react-oauth/google'
 import { Brain, ArrowLeft, CheckCircle } from 'lucide-react'
 import { Button, Input, Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
-import { useSendOTPMutation, useVerifyOTPMutation, useGoogleLoginMutation } from '@/store/api/authApi'
+import { useSendOTPMutation, useVerifyOTPMutation, useGoogleLoginMutation, usePasswordLoginMutation } from '@/store/api/authApi'
 import { useAppDispatch } from '@/hooks/useAppStore'
 import { setCredentials } from '@/store/slices/authSlice'
 import { getErrorMessage } from '@/utils/error'
@@ -27,21 +27,31 @@ const otpSchema = z.object({
     .regex(/^\d{5}$/, 'کد تأیید فقط شامل اعداد است'),
 })
 
+const passwordSchema = z.object({
+  phone_number: z
+    .string()
+    .min(10, 'شماره تماس معتبر وارد کنید')
+    .regex(/^09\d{9}$/, 'شماره باید با 09 شروع شود و 11 رقم باشد'),
+  password: z.string().min(1, 'رمز عبور را وارد کنید'),
+})
+
 type PhoneFormData = z.infer<typeof phoneSchema>
 type OTPFormData = z.infer<typeof otpSchema>
+type PasswordFormData = z.infer<typeof passwordSchema>
 
 export function LoginPage() {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const { t } = useTranslation()
 
-  const [step, setStep] = useState<'phone' | 'otp'>('phone')
+  const [step, setStep] = useState<'phone' | 'otp' | 'password'>('phone')
   const [phoneNumber, setPhoneNumber] = useState('')
   const [error, setError] = useState<string | null>(null)
 
   const [sendOTP, { isLoading: isSending }] = useSendOTPMutation()
   const [verifyOTP, { isLoading: isVerifying }] = useVerifyOTPMutation()
   const [googleLoginMutation] = useGoogleLoginMutation()
+  const [passwordLoginMutation, { isLoading: isPasswordLogging }] = usePasswordLoginMutation()
 
   const onGoogleSuccess = async (credentialResponse: CredentialResponse) => {
     try {
@@ -76,6 +86,10 @@ export function LoginPage() {
     resolver: zodResolver(otpSchema),
   })
 
+  const passwordForm = useForm<PasswordFormData>({
+    resolver: zodResolver(passwordSchema),
+  })
+
   const onSendOTP = async (data: PhoneFormData) => {
     try {
       setError(null)
@@ -95,13 +109,11 @@ export function LoginPage() {
         otp_code: data.otp_code,
       }).unwrap()
 
-      // ذخیره توکن و user
       dispatch(setCredentials({
         user: result.user,
         tokens: { access: result.access, refresh: result.refresh },
       }))
 
-      // اگر کاربر جدید است و اطلاعات پایه ندارد، به صفحه ثبت اطلاعات هدایت شود
       if (result.is_new_user && !result.user?.first_name) {
         navigate('/complete-registration', {
           state: {
@@ -114,6 +126,25 @@ export function LoginPage() {
       }
     } catch (err: any) {
       setError(getErrorMessage(err, 'کد تأیید نادرست است'))
+    }
+  }
+
+  const onPasswordLogin = async (data: PasswordFormData) => {
+    try {
+      setError(null)
+      const result = await passwordLoginMutation({
+        phone_number: data.phone_number,
+        password: data.password,
+      }).unwrap()
+
+      dispatch(setCredentials({
+        user: result.user,
+        tokens: { access: result.access, refresh: result.refresh },
+      }))
+
+      navigate('/dashboard')
+    } catch (err: any) {
+      setError(getErrorMessage(err, 'شماره تلفن یا رمز عبور اشتباه است'))
     }
   }
 
@@ -132,7 +163,7 @@ export function LoginPage() {
             </div>
           </div>
            <CardTitle className="text-3xl">
-              {step === 'phone' ? t('auth.login') : t('auth.otpCode')}
+              {step === 'phone' ? t('auth.login') : step === 'password' ? t('auth.passwordLogin') : t('auth.otpCode')}
            </CardTitle>
            <p className="text-sm text-[hsl(var(--muted-foreground))] mt-2">
               {t('app.fullTitle')} {t('app.subtitle')}
@@ -165,7 +196,27 @@ export function LoginPage() {
                   {t('auth.sendOTP')}
                </Button>
 
-               <div className="relative my-4">
+               <div className="relative my-6">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-[hsl(var(--border))]" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-[hsl(var(--card))] px-2 text-[hsl(var(--muted-foreground))]">
+                      {t('common.or')}
+                    </span>
+                  </div>
+                </div>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => { setStep('password'); setError(null) }}
+                >
+                  {t('auth.loginWithPassword')}
+                </Button>
+
+               <div className="relative my-2">
                   <div className="absolute inset-0 flex items-center">
                     <div className="w-full border-t border-[hsl(var(--border))]" />
                   </div>
@@ -227,6 +278,47 @@ export function LoginPage() {
               >
                 <ArrowLeft className="h-4 w-4" />
                 {t('auth.editPhone')}
+              </button>
+            </form>
+          )}
+
+          {step === 'password' && (
+            <form onSubmit={passwordForm.handleSubmit(onPasswordLogin)} className="space-y-4">
+              {error && (
+                <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive text-center">
+                  {error}
+                </div>
+              )}
+
+              <Input
+                id="password_phone"
+                label={t('auth.phoneNumber')}
+                placeholder={t('auth.phonePlaceholder')}
+                dir="ltr"
+                error={passwordForm.formState.errors.phone_number?.message}
+                {...passwordForm.register('phone_number')}
+              />
+
+              <Input
+                id="password_field"
+                label={t('auth.password')}
+                placeholder={t('auth.password')}
+                type="password"
+                error={passwordForm.formState.errors.password?.message}
+                {...passwordForm.register('password')}
+              />
+
+              <Button type="submit" className="w-full" isLoading={isPasswordLogging}>
+                {t('auth.passwordLoginBtn')}
+              </Button>
+
+              <button
+                type="button"
+                onClick={handleBack}
+                className="flex items-center justify-center gap-1 w-full text-sm text-[hsl(var(--muted-foreground))] hover:text-foreground transition-colors"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                {t('auth.loginWithOTP')}
               </button>
             </form>
           )}
