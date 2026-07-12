@@ -210,31 +210,33 @@ export function ProfilePage() {
             value={form.email || ''}
             onChange={(e) => handleChange('email', e.target.value)}
           />
-          <JalaliDatePicker
-            label={t('profile.birthDate')}
-            value={form.birth_date || ''}
-            onChange={(value) => handleChange('birth_date', value)}
-          />
-          <div className="space-y-1">
-            <label
-              htmlFor="role"
-              className="block text-sm font-medium text-[hsl(var(--foreground))]"
-            >
-              {t('profile.role')}
-            </label>
-            <select
-              id="role"
-              className="flex h-10 w-full rounded-lg border border-[hsl(var(--input))] bg-transparent px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
-              value={form.role || ''}
-              onChange={(e) =>
-                handleChange('role', (e.target.value as 'admin' | 'clinician' | 'researcher') || '')
-              }
-            >
-              <option value="">{t('common.optional')}</option>
-              <option value="admin">{t('profile.admin')}</option>
-              <option value="clinician">{t('profile.clinician')}</option>
-              <option value="researcher">{t('profile.researcher')}</option>
-            </select>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <JalaliDatePicker
+              label={t('profile.birthDate')}
+              value={form.birth_date || ''}
+              onChange={(value) => handleChange('birth_date', value)}
+            />
+            <div className="space-y-1">
+              <label
+                htmlFor="role"
+                className="block text-sm font-medium text-[hsl(var(--foreground))]"
+              >
+                {t('profile.role')}
+              </label>
+              <select
+                id="role"
+                className="flex h-10 w-full rounded-lg border border-[hsl(var(--input))] bg-transparent px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
+                value={form.role || ''}
+                onChange={(e) =>
+                  handleChange('role', (e.target.value as 'admin' | 'clinician' | 'researcher') || '')
+                }
+              >
+                <option value="">{t('common.optional')}</option>
+                <option value="admin">{t('profile.admin')}</option>
+                <option value="clinician">{t('profile.clinician')}</option>
+                <option value="researcher">{t('profile.researcher')}</option>
+              </select>
+            </div>
           </div>
         </CardContent>
       </Card>
