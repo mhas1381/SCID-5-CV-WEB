@@ -5,7 +5,7 @@ import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useCreatePatientMutation, useUpdatePatientMutation, useGetPatientQuery } from '@/store/api/patientApi'
-import { useGetProvincesQuery, useGetCitiesQuery } from '@/store/api/locationApi'
+import { useGetProvincesQuery, useGetAllCitiesQuery } from '@/store/api/locationApi'
 import { Button, Input, Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
 import { JalaliDatePicker } from '@/components/ui/JalaliDatePicker'
 import { getErrorMessage } from '@/utils/error'
@@ -35,9 +35,11 @@ export function PatientFormPage() {
   const [updatePatient, { isLoading: isUpdating }] = useUpdatePatientMutation()
   const { data: patient, isLoading: isLoadingPatient } = useGetPatientQuery(Number(id), { skip: !isEdit })
   const { data: provinces } = useGetProvincesQuery()
+  const { data: allCities } = useGetAllCitiesQuery()
   const [selectedProvince, setSelectedProvince] = useState<number | null>(null)
-  const { data: cities } = useGetCitiesQuery(selectedProvince ?? undefined, { skip: !selectedProvince })
   const [error, setError] = useState<string | null>(null)
+
+  const cities = allCities?.filter((c) => c.province === selectedProvince)
 
   useEffect(() => {
     if (patient?.province) setSelectedProvince(patient.province)

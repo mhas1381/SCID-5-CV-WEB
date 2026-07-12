@@ -10,10 +10,8 @@ export const locationApi = baseApi.injectEndpoints({
         return Array.isArray(list[0]) ? list[0] : list
       },
     }),
-    getCities: builder.query<City[], number | void>({
-      query: (provinceId) => provinceId
-        ? `v1/base/cities/?province=${provinceId}`
-        : 'v1/base/cities/',
+    getAllCities: builder.query<City[], void>({
+      query: () => 'v1/base/cities/',
       transformResponse: (res: City[] | PaginatedResponse<City>) => {
         const list = Array.isArray(res) ? res : res.results
         return Array.isArray(list[0]) ? list[0] : list
@@ -22,4 +20,4 @@ export const locationApi = baseApi.injectEndpoints({
   }),
 })
 
-export const { useGetProvincesQuery, useGetCitiesQuery } = locationApi
+export const { useGetProvincesQuery, useGetAllCitiesQuery } = locationApi
