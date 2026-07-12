@@ -56,7 +56,13 @@ export function LoginPage() {
         user: result.user,
         tokens: { access: result.access, refresh: result.refresh },
       }))
-      navigate('/dashboard')
+      if (!result.user.has_password || result.user.phone_number?.startsWith('0990')) {
+        navigate('/complete-registration', {
+          state: { isGoogle: true, user: result.user },
+        })
+      } else {
+        navigate('/dashboard')
+      }
     } catch (err: any) {
       setError(getErrorMessage(err, 'خطا در ورود با گوگل'))
     }

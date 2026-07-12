@@ -103,6 +103,7 @@ export interface UserProfileUpdateRequest {
   first_name?: string
   last_name?: string
   email?: string
+  phone_number?: string
   birth_date?: string | null
   gender?: 'male' | 'female' | 'other' | null
   role?: 'admin' | 'clinician' | 'researcher'
