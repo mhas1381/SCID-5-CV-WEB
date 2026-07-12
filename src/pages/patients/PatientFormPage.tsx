@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useCreatePatientMutation, useUpdatePatientMutation, useGetPatientQuery } from '@/store/api/patientApi'
+import { useGetProvincesQuery, useGetCitiesQuery } from '@/store/api/locationApi'
 import { Button, Input, Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
 import { JalaliDatePicker } from '@/components/ui/JalaliDatePicker'
 import { getErrorMessage } from '@/utils/error'
@@ -14,11 +15,13 @@ import { UserPlus, User, ArrowRight, Loader2 } from 'lucide-react'
 const patientSchema = z.object({
   first_name: z.string().min(2, 'نام حداقل ۲ کاراکتر'),
   last_name: z.string().min(2, 'نام خانوادگی حداقل ۲ کاراکتر'),
-  national_id: z.string().length(10, 'کد ملی ۱۰ رقم'),
+  national_id: z.string().length(10, 'کد ملی ۱۰ رقم').optional().or(z.literal('')),
   phone_number: z.string().min(10, 'شماره تماس معتبر'),
   date_of_birth: z.string().min(10, 'تاریخ تولد معتبر').optional().or(z.literal('')),
   gender: z.enum(['male', 'female']),
   address: z.string().optional(),
+  province: z.number().optional().nullable(),
+  city: z.number().optional().nullable(),
 })
 
 type PatientFormData = z.infer<typeof patientSchema>
@@ -31,15 +34,25 @@ export function PatientFormPage() {
   const [createPatient, { isLoading: isCreating }] = useCreatePatientMutation()
   const [updatePatient, { isLoading: isUpdating }] = useUpdatePatientMutation()
   const { data: patient, isLoading: isLoadingPatient } = useGetPatientQuery(Number(id), { skip: !isEdit })
+  const { data: provinces } = useGetProvincesQuery()
+  const [selectedProvince, setSelectedProvince] = useState<number | null>(null)
+  const { data: cities } = useGetCitiesQuery(selectedProvince ?? undefined, { skip: !selectedProvince })
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (patient?.province) setSelectedProvince(patient.province)
+  }, [patient?.province])
 
   const {
     register,
     handleSubmit,
     control,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<PatientFormData>({
     resolver: zodResolver(patientSchema),
+    defaultValues: isEdit ? undefined : { gender: 'male', province: null, city: null },
     values: patient ? {
       first_name: patient.first_name,
       last_name: patient.last_name,
@@ -48,17 +61,31 @@ export function PatientFormPage() {
       date_of_birth: patient.date_of_birth || '',
       gender: patient.gender,
       address: patient.address || '',
+      province: patient.province,
+      city: patient.city,
     } : undefined,
   })
+
+  const watchedProvince = watch('province')
 
   const onSubmit = async (data: PatientFormData) => {
     try {
       setError(null)
+      if (!isEdit && !data.national_id) {
+        setError('کد ملی الزامی است')
+        return
+      }
+      const body = {
+        ...data,
+        national_id: data.national_id || undefined,
+        province: data.province || undefined,
+        city: data.city || undefined,
+      }
       if (isEdit && id) {
-        await updatePatient({ id: Number(id), data }).unwrap()
+        await updatePatient({ id: Number(id), data: body }).unwrap()
         toast.success(t('patients.updateSuccess'))
       } else {
-        await createPatient(data).unwrap()
+        await createPatient(body as any).unwrap()
         toast.success(t('patients.createSuccess'))
       }
       navigate('/patients')
@@ -169,6 +196,41 @@ export function PatientFormPage() {
                   <option value="female">{t('patients.female')}</option>
                 </select>
                 {errors.gender && <p className="text-sm text-red-500">{errors.gender.message}</p>}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className="block text-sm font-medium text-[hsl(var(--foreground))]">استان</label>
+                <select
+                  className="flex h-10 w-full rounded-lg border border-[hsl(var(--input))] bg-transparent px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
+                  value={watchedProvince ?? ''}
+                  onChange={(e) => {
+                    const val = e.target.value ? Number(e.target.value) : null
+                    setValue('province', val)
+                    setSelectedProvince(val)
+                    setValue('city', null)
+                  }}
+                >
+                  <option value="">انتخاب استان</option>
+                  {provinces?.map((p) => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-1">
+                <label className="block text-sm font-medium text-[hsl(var(--foreground))]">شهر</label>
+                <select
+                  className="flex h-10 w-full rounded-lg border border-[hsl(var(--input))] bg-transparent px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
+                  value={watch('city') ?? ''}
+                  onChange={(e) => setValue('city', e.target.value ? Number(e.target.value) : null)}
+                  disabled={!watchedProvince}
+                >
+                  <option value="">انتخاب شهر</option>
+                  {cities?.map((c) => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
               </div>
             </div>
 

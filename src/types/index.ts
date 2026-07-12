@@ -157,6 +157,8 @@ export interface Patient {
   birth_date: string | null
   date_of_birth: string | null
   address: string
+  province: number | null
+  city: number | null
   created_by_name: string
   created_at: string
   is_active: boolean
@@ -168,12 +170,14 @@ export interface PatientCreateRequest {
   national_id: string
   phone_number?: string
   email?: string
-  birth_date?: string // YYYY-MM-DD
+  birth_date?: string
   gender?: 'male' | 'female'
   marital_status?: string
   education?: string
   occupation?: string
   address?: string
+  province?: number | null
+  city?: number | null
   emergency_contact_name?: string
   emergency_contact_phone?: string
 }
@@ -199,6 +203,17 @@ export interface PatientNote {
 export interface PatientNoteCreateRequest {
   content: string
   note_type?: 'general' | 'progress' | 'follow_up' | 'referral' | 'other'
+}
+
+export interface Province {
+  id: number
+  name: string
+}
+
+export interface City {
+  id: number
+  province: number
+  name: string
 }
 
 export interface PatientNoteCreateResponse {
