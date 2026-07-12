@@ -61,6 +61,27 @@ export interface PasswordLoginRequest {
   password: string
 }
 
+/** GET /api/v1/dashboard/summary/ → response */
+export interface DashboardSummary {
+  total_patients: number
+  total_sessions: number
+  completed_sessions: number
+  recent_sessions_count: number
+  recent_patients: {
+    id: number
+    first_name: string
+    last_name: string
+    created_at: string
+  }[]
+  recent_sessions: {
+    id: number
+    patient_name: string
+    patient_id: number
+    status: string
+    created_at: string
+  }[]
+}
+
 /** POST /api/v1/accounts/auth/set-password/ → body */
 export interface SetPasswordRequest {
   password: string

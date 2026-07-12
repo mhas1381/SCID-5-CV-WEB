@@ -72,6 +72,7 @@
     "totalPatients": "Total Patients",
     "totalSessions": "Total Sessions",
     "completedSessions": "Completed Sessions",
+    "recentSessionsCount": "Recent Sessions",
     "recentPatients": "Recent Patients",
     "recentSessions": "Recent Sessions",
     "viewAllPatients": "View All Patients",
