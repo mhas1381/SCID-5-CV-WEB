@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { useGetPatientsQuery, useDeletePatientMutation } from '@/store/api/patientApi'
 import { Button, Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
 import { Input } from '@/components/ui/Input'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { Plus, Search, Edit2, Trash2, User } from 'lucide-react'
 
 export function PatientsPage() {
@@ -11,13 +12,14 @@ export function PatientsPage() {
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
+  const [deleteTarget, setDeleteTarget] = useState<{ id: number; name: string } | null>(null)
   const { data, isLoading } = useGetPatientsQuery({ page, search })
-  const [deletePatient] = useDeletePatientMutation()
+  const [deletePatient, { isLoading: isDeleting }] = useDeletePatientMutation()
 
-  const handleDelete = async (id: number) => {
-    if (window.confirm(t('patients.deleteConfirm'))) {
-      await deletePatient(id)
-    }
+  const handleDelete = async () => {
+    if (!deleteTarget) return
+    await deletePatient(deleteTarget.id)
+    setDeleteTarget(null)
   }
 
   return (
@@ -87,7 +89,7 @@ export function PatientsPage() {
                   <Button
                     size="sm"
                     variant="danger"
-                    onClick={(e) => { e.stopPropagation(); handleDelete(patient.id) }}
+                    onClick={(e) => { e.stopPropagation(); setDeleteTarget({ id: patient.id, name: `${patient.first_name} ${patient.last_name}` }) }}
                   >
                     <Trash2 className="ml-1 h-3 w-3" />
                     {t('common.delete')}
@@ -120,6 +122,17 @@ export function PatientsPage() {
           </Button>
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title="حذف بیمار"
+        message={`آیا از حذف "${deleteTarget?.name}" اطمینان دارید؟ این عمل غیرقابل برگشت است.`}
+        confirmLabel="حذف"
+        cancelLabel="انصراف"
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteTarget(null)}
+        isLoading={isDeleting}
+      />
     </div>
   )
 }
