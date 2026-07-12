@@ -4,7 +4,7 @@ import { useGetMeQuery } from '@/store/api/authApi'
 import { useGetDashboardSummaryQuery } from '@/store/api/dashboardApi'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
 import { Button } from '@/components/ui'
-import { Users, ClipboardList, Activity, CalendarDays, Loader2 } from 'lucide-react'
+import { Users, ClipboardList, Activity, CalendarDays, Loader2, ChevronRight, User, CheckCircle2, Clock, XCircle } from 'lucide-react'
 import { formatDate } from '@/utils/date'
 
 export function DashboardPage() {
@@ -59,48 +59,85 @@ export function DashboardPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>{t('dashboard.recentPatients')}</CardTitle>
+                <Users className="h-5 w-5 text-[hsl(var(--muted-foreground))]" />
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-0">
                 {summary?.recent_patients?.length ? (
-                  <ul className="divide-y divide-[hsl(var(--border))]">
-                    {summary.recent_patients.map((p) => (
-                      <li key={p.id} className="flex items-center justify-between py-3">
-                        <span className="font-medium">{p.first_name} {p.last_name}</span>
-                        <span className="text-sm text-[hsl(var(--muted-foreground))]">{formatDate(p.created_at)}</span>
+                  <ul>
+                    {summary.recent_patients.map((p, idx) => (
+                      <li
+                        key={p.id}
+                        className={`flex items-center gap-3 px-6 py-3.5 transition-colors hover:bg-[hsl(var(--muted))/50] cursor-pointer ${idx > 0 ? 'border-t border-[hsl(var(--border))]' : ''}`}
+                        onClick={() => navigate(`/patients/${p.id}`)}>
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[hsl(var(--primary))/10] text-[hsl(var(--primary))]">
+                          <User className="h-4 w-4" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{p.first_name} {p.last_name}</p>
+                        </div>
+                        <span className="shrink-0 text-xs text-[hsl(var(--muted-foreground))]">{formatDate(p.created_at)}</span>
+                        <ChevronRight className="h-4 w-4 text-[hsl(var(--muted-foreground))]" />
                       </li>
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-sm text-[hsl(var(--muted-foreground))]">{t('common.noData')}</p>
+                  <div className="px-6 py-8 text-center">
+                    <User className="mx-auto h-8 w-8 text-[hsl(var(--muted-foreground))] mb-2" />
+                    <p className="text-sm text-[hsl(var(--muted-foreground))]">{t('common.noData')}</p>
+                  </div>
                 )}
-                <Button variant="outline" className="mt-4 w-full" onClick={() => navigate('/patients')}>
-                  {t('dashboard.viewAllPatients')}
-                </Button>
+                <div className="border-t border-[hsl(var(--border))] px-6 py-3">
+                  <Button variant="outline" className="w-full" onClick={() => navigate('/patients')}>
+                    {t('dashboard.viewAllPatients')}
+                  </Button>
+                </div>
               </CardContent>
             </Card>
 
             <Card>
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>{t('dashboard.recentSessions')}</CardTitle>
+                <ClipboardList className="h-5 w-5 text-[hsl(var(--muted-foreground))]" />
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-0">
                 {summary?.recent_sessions?.length ? (
-                  <ul className="divide-y divide-[hsl(var(--border))]">
-                    {summary.recent_sessions.map((s) => (
-                      <li key={s.id} className="flex items-center justify-between py-3">
-                        <span className="font-medium">{s.patient_name}</span>
-                        <span className="text-sm text-[hsl(var(--muted-foreground))]">{formatDate(s.created_at)}</span>
+                  <ul>
+                    {summary.recent_sessions.map((s, idx) => (
+                      <li
+                        key={s.id}
+                        className={`flex items-center gap-3 px-6 py-3.5 transition-colors hover:bg-[hsl(var(--muted))/50] cursor-pointer ${idx > 0 ? 'border-t border-[hsl(var(--border))]' : ''}`}
+                        onClick={() => navigate('/sessions')}>
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[hsl(var(--muted))]">
+                          {s.status === 'completed' ? (
+                            <CheckCircle2 className="h-4 w-4 text-green-600" />
+                          ) : s.status === 'in_progress' ? (
+                            <Clock className="h-4 w-4 text-amber-600" />
+                          ) : (
+                            <XCircle className="h-4 w-4 text-red-600" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{s.patient_name}</p>
+                          <p className="text-xs text-[hsl(var(--muted-foreground))]">{s.status === 'completed' ? 'تکمیل شده' : s.status === 'in_progress' ? 'در حال انجام' : 'لغو شده'}</p>
+                        </div>
+                        <span className="shrink-0 text-xs text-[hsl(var(--muted-foreground))]">{formatDate(s.created_at)}</span>
+                        <ChevronRight className="h-4 w-4 text-[hsl(var(--muted-foreground))]" />
                       </li>
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-sm text-[hsl(var(--muted-foreground))]">{t('common.noData')}</p>
+                  <div className="px-6 py-8 text-center">
+                    <ClipboardList className="mx-auto h-8 w-8 text-[hsl(var(--muted-foreground))] mb-2" />
+                    <p className="text-sm text-[hsl(var(--muted-foreground))]">{t('common.noData')}</p>
+                  </div>
                 )}
-                <Button variant="outline" className="mt-4 w-full" onClick={() => navigate('/patients')}>
-                  {t('dashboard.viewAllSessions')}
-                </Button>
+                <div className="border-t border-[hsl(var(--border))] px-6 py-3">
+                  <Button variant="outline" className="w-full" onClick={() => navigate('/patients')}>
+                    {t('dashboard.viewAllSessions')}
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </div>
