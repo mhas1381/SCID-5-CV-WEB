@@ -204,7 +204,7 @@ export function PatientFormPage() {
                 <label className="block text-sm font-medium text-[hsl(var(--foreground))]">استان</label>
                 <select
                   className="flex h-10 w-full rounded-lg border border-[hsl(var(--input))] bg-transparent px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
-                  value={watchedProvince ?? ''}
+                  value={watchedProvince != null ? String(watchedProvince) : ''}
                   onChange={(e) => {
                     const val = e.target.value ? Number(e.target.value) : null
                     setValue('province', val)
@@ -214,7 +214,7 @@ export function PatientFormPage() {
                 >
                   <option value="">انتخاب استان</option>
                   {provinces?.map((p) => (
-                    <option key={p.id} value={p.id}>{p.name}</option>
+                    <option key={p.id} value={String(p.id)}>{p.name}</option>
                   ))}
                 </select>
               </div>
@@ -222,13 +222,13 @@ export function PatientFormPage() {
                 <label className="block text-sm font-medium text-[hsl(var(--foreground))]">شهر</label>
                 <select
                   className="flex h-10 w-full rounded-lg border border-[hsl(var(--input))] bg-transparent px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
-                  value={watch('city') ?? ''}
+                  value={watch('city') != null ? String(watch('city')) : ''}
                   onChange={(e) => setValue('city', e.target.value ? Number(e.target.value) : null)}
                   disabled={!watchedProvince}
                 >
                   <option value="">انتخاب شهر</option>
                   {cities?.map((c) => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
+                    <option key={c.id} value={String(c.id)}>{c.name}</option>
                   ))}
                 </select>
               </div>
