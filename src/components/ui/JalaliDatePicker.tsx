@@ -24,7 +24,7 @@ function toIso(gy: number, gm: number, gd: number): string {
 
 function parseIso(value?: string): { gy: number; gm: number; gd: number } | null {
   if (!value) return null
-  const m = value.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+  const m = value.match(/^(\d{4})-(\d{2})-(\d{2})/)
   if (!m) return null
   return { gy: +m[1], gm: +m[2], gd: +m[3] }
 }

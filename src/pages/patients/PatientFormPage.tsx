@@ -16,7 +16,7 @@ const patientSchema = z.object({
   last_name: z.string().min(2, 'نام خانوادگی حداقل ۲ کاراکتر'),
   national_id: z.string().length(10, 'کد ملی ۱۰ رقم'),
   phone_number: z.string().min(10, 'شماره تماس معتبر'),
-  date_of_birth: z.string().min(10, 'تاریخ تولد معتبر'),
+  date_of_birth: z.string().min(10, 'تاریخ تولد معتبر').optional().or(z.literal('')),
   gender: z.enum(['male', 'female']),
   address: z.string().optional(),
 })
