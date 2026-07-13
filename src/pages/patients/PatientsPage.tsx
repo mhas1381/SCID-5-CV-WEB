@@ -69,7 +69,7 @@ export function PatientsPage() {
           {data?.results.map((patient) => (
             <Card key={patient.id} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate(`/patients/${patient.id}`)}>
               <CardHeader>
-                <CardTitle className="text-base">{patient.first_name} {patient.last_name}</CardTitle>
+                <CardTitle className="text-base">{patient.full_name || `${patient.first_name || ''} ${patient.last_name || ''}`.trim()}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2 text-sm">
@@ -89,7 +89,7 @@ export function PatientsPage() {
                   <Button
                     size="sm"
                     variant="danger"
-                    onClick={(e) => { e.stopPropagation(); setDeleteTarget({ id: patient.id, name: `${patient.first_name} ${patient.last_name}` }) }}
+                    onClick={(e) => { e.stopPropagation(); setDeleteTarget({ id: patient.id, name: `${patient.first_name || ''} ${patient.last_name || ''}`.trim() || patient.full_name || 'این بیمار' }) }}
                   >
                     <Trash2 className="ml-1 h-3 w-3" />
                     {t('common.delete')}
