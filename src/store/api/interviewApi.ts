@@ -1,71 +1,107 @@
 import { baseApi } from './baseApi'
-import type { Question, Session, DiagnosticResult, Overview, OverviewQuestionsResponse, OverviewAnswer, PaginatedResponse } from '@/types'
+import type {
+  AnswerResponse,
+  CompleteOverviewResponse,
+  CompleteSessionResponse,
+  DiagnosticResultsResponse,
+  Module,
+  Overview,
+  OverviewCreateRequest,
+  OverviewQuestionsResponse,
+  PaginatedResponse,
+  ProgressResponse,
+  Question,
+  Session,
+  SubmitAnswerRequest,
+} from '@/types'
 
 export const interviewApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     // ==========================================================
-    // Questions (Backend: /api/v1/questions/...)
+    // Modules (Backend: GET /api/v1/questions/modules/)
     // ==========================================================
-    getModuleQuestions: builder.query<Question[], { module: string; lang?: 'en' | 'fa' }>({
-      query: ({ module, lang = 'en' }) =>
-        `v1/questions/modules/${module}/questions/?lang=${lang}`,
+    getModules: builder.query<Module[], void>({
+      query: () => 'v1/questions/modules/',
+      transformResponse: (res: PaginatedResponse<Module>) => res.results,
     }),
+
+    getModuleQuestions: builder.query<Question[], string>({
+      query: (code) => `v1/questions/modules/${code}/questions/`,
+    }),
+
+    // ==========================================================
+    // Overview Questions (Backend: GET /api/v1/accounts/overview-questions/)
+    // ==========================================================
     getOverviewQuestions: builder.query<OverviewQuestionsResponse, { lang?: 'en' | 'fa' }>({
       query: ({ lang = 'en' } = {}) =>
-        `v1/questions/overview-questions/?lang=${lang}`,
+        `v1/accounts/overview-questions/?lang=${lang}`,
       providesTags: ['OverviewQuestions'],
     }),
+
     // ==========================================================
-    // Sessions (Backend: /api/v1/interviews/...)
+    // Sessions (Backend: /api/v1/interviews/sessions/)
     // ==========================================================
-    getSessions: builder.query<PaginatedResponse<Session>, { patient?: number; module?: string; page?: number }>({
+    getSessions: builder.query<PaginatedResponse<Session>, Record<string, unknown>>({
       query: (params) => ({
         url: 'v1/interviews/sessions/',
         params,
       }),
       providesTags: ['Session'],
     }),
+
     getSession: builder.query<Session, number>({
       query: (id) => `v1/interviews/sessions/${id}/`,
       providesTags: (result, error, id) => [{ type: 'Session', id }],
     }),
-    createSession: builder.mutation<Session, { patient: number; module: string }>({
-      query: (data) => ({
+
+    createSession: builder.mutation<Session, { patient: number; notes?: string }>({
+      query: (body) => ({
         url: 'v1/interviews/sessions/',
         method: 'POST',
-        body: data,
+        body,
       }),
       invalidatesTags: ['Session'],
     }),
-    updateSession: builder.mutation<Session, { id: number; data: Partial<Session> }>({
-      query: ({ id, data }) => ({
-        url: `v1/interviews/sessions/${id}/`,
-        method: 'PATCH',
-        body: data,
-      }),
-      invalidatesTags: (result, error, { id }) => [{ type: 'Session', id }, 'Session'],
-    }),
-    submitAnswer: builder.mutation<Session, { sessionId: number; questionId: string; value: string | boolean | number; notes?: string }>({
-      query: ({ sessionId, ...data }) => ({
-        url: `v1/interviews/sessions/${sessionId}/submit-answer/`,
+
+    // POST /api/v1/interviews/sessions/{id}/answer/
+    submitAnswer: builder.mutation<AnswerResponse, { sessionId: number } & SubmitAnswerRequest>({
+      query: ({ sessionId, ...body }) => ({
+        url: `v1/interviews/sessions/${sessionId}/answer/`,
         method: 'POST',
-        body: data,
+        body,
       }),
-      invalidatesTags: (result, error, { sessionId }) => [{ type: 'Session', id: sessionId }],
     }),
-    completeSession: builder.mutation<Session, number>({
+
+    // POST /api/v1/interviews/sessions/{id}/complete-overview/
+    completeOverview: builder.mutation<CompleteOverviewResponse, number>({
+      query: (id) => ({
+        url: `v1/interviews/sessions/${id}/complete-overview/`,
+        method: 'POST',
+      }),
+      invalidatesTags: (result, error, id) => [{ type: 'Session', id }, 'Session'],
+    }),
+
+    // POST /api/v1/interviews/sessions/{id}/complete/
+    completeSession: builder.mutation<CompleteSessionResponse, number>({
       query: (id) => ({
         url: `v1/interviews/sessions/${id}/complete/`,
         method: 'POST',
       }),
       invalidatesTags: (result, error, id) => [{ type: 'Session', id }, 'Session'],
     }),
+
+    // GET /api/v1/interviews/sessions/{id}/progress/
+    getSessionProgress: builder.query<ProgressResponse, number>({
+      query: (id) => `v1/interviews/sessions/${id}/progress/`,
+    }),
+
     // ==========================================================
-    // Diagnostic Results
+    // Diagnostic Results (GET /api/v1/interviews/sessions/{id}/results/)
     // ==========================================================
-    getDiagnosticResult: builder.query<DiagnosticResult[], number>({
+    getDiagnosticResults: builder.query<DiagnosticResultsResponse, number>({
       query: (sessionId) => `v1/interviews/sessions/${sessionId}/results/`,
     }),
+
     // ==========================================================
     // Overview (Patient Background) — Backend: /api/v1/accounts/...
     // ==========================================================
@@ -73,41 +109,30 @@ export const interviewApi = baseApi.injectEndpoints({
       query: (patientId) => `v1/accounts/patients/${patientId}/overviews/`,
       providesTags: (result, error, patientId) => [{ type: 'Overview', id: patientId }],
     }),
-    createOverview: builder.mutation<Overview, { patientId: number; answers: OverviewAnswer[] }>({
-      query: ({ patientId, answers }) => ({
+
+    createOverview: builder.mutation<Overview, { patientId: number; data: OverviewCreateRequest }>({
+      query: ({ patientId, data }) => ({
         url: `v1/accounts/patients/${patientId}/overviews/`,
         method: 'POST',
-        body: { answers },
-      }),
-      invalidatesTags: (result, error, { patientId }) => [{ type: 'Overview', id: patientId }],
-    }),
-    getOverview: builder.query<Overview, number>({
-      query: (id) => `v1/accounts/overviews/${id}/`,
-      providesTags: (result, error, id) => [{ type: 'Overview', id }],
-    }),
-    updateOverview: builder.mutation<Overview, { id: number; data: { answers: OverviewAnswer[] } }>({
-      query: ({ id, data }) => ({
-        url: `v1/accounts/overviews/${id}/`,
-        method: 'PUT',
         body: data,
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: 'Overview', id }],
+      invalidatesTags: (result, error, { patientId }) => [{ type: 'Overview', id: patientId }],
     }),
   }),
 })
 
 export const {
+  useGetModulesQuery,
   useGetModuleQuestionsQuery,
   useGetOverviewQuestionsQuery,
   useGetSessionsQuery,
   useGetSessionQuery,
   useCreateSessionMutation,
-  useUpdateSessionMutation,
   useSubmitAnswerMutation,
+  useCompleteOverviewMutation,
   useCompleteSessionMutation,
-  useGetDiagnosticResultQuery,
+  useGetSessionProgressQuery,
+  useGetDiagnosticResultsQuery,
   useGetPatientOverviewsQuery,
   useCreateOverviewMutation,
-  useGetOverviewQuery,
-  useUpdateOverviewMutation,
 } = interviewApi

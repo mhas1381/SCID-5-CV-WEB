@@ -228,11 +228,13 @@ export interface PatientNoteCreateResponse {
 // Overview Types (Based on Backend OpenAPI Schema)
 // ==========================================================
 
+/** GET /api/v1/accounts/overview-questions/ */
 export interface OverviewQuestion {
   id: number
   key: string
   text: string
-  field_type: 'text' | 'textarea' | 'boolean' | 'number' | 'select' | 'json'
+  text_fa?: string
+  input_type: 'radio' | 'date' | 'number' | 'text' | 'textarea'
   required: boolean
   order: number
   choices: { label: string; value: string }[] | null
@@ -242,7 +244,8 @@ export interface OverviewQuestion {
 export interface OverviewSection {
   id: string
   title: string
-  icon: string
+  title_fa?: string
+  icon?: string
   questions: OverviewQuestion[]
 }
 
@@ -252,16 +255,19 @@ export interface OverviewQuestionsResponse {
   sections: OverviewSection[]
 }
 
-export interface OverviewAnswer {
-  question_id: string
-  value: string | string[] | boolean | number
+/** POST /api/v1/accounts/patients/{id}/overviews/ — body */
+export interface OverviewCreateRequest {
+  answers: Record<string, string | boolean | number>
 }
 
+/** GET /api/v1/accounts/patients/{id}/overviews/ — list item */
 export interface Overview {
   id: number
   patient: number
   clinician: number
-  answers: OverviewAnswer[]
+  clinician_name?: string
+  patient_name?: string
+  answers: Record<string, string | boolean | number>
   created_at: string
   updated_at: string
 }
@@ -270,47 +276,201 @@ export interface Overview {
 // Interview / Module Types (Based on Backend OpenAPI Schema)
 // ==========================================================
 
-export interface Question {
-  id: string
-  module: string
-  question_text: string
-  question_type: 'yes_no' | 'multiple_choice' | 'text' | 'scale'
-  options?: { label: string; value: string }[]
-  order: number
-  required: boolean
-  conditional_on?: string
-  conditional_value?: string
-  criteria?: string
-  severity?: number
-}
+// --- Session ---
 
-export interface Answer {
-  question_id: string
-  value: string | boolean | number
-  notes?: string
-}
+export type SessionStatus = 'not_started' | 'in_progress' | 'completed' | 'abandoned'
 
 export interface Session {
   id: number
   patient: number
   patient_name: string
   clinician: number
-  module: string
-  status: 'in_progress' | 'completed' | 'cancelled'
-  answers: Answer[]
-  current_question_index: number
+  clinician_name: string
+  status: SessionStatus
+  phase: 'overview' | 'diagnostic'
+  current_question: number | null
+  current_question_id: string | null
+  current_module: number | null
+  current_module_code: string | null
   started_at: string
-  completed_at?: string
-  created_at: string
+  completed_at: string | null
+  notes?: string | null
+  responses?: SessionResponse[]
+  total_responses?: number
 }
 
-export interface DiagnosticResult {
+export interface SessionCreateRequest {
+  patient: number
+  notes?: string
+}
+
+export interface SessionResponse {
+  id: number
+  question: number
+  question_id_str: string
+  selected_option: number | null
+  selected_option_label: string | null
+  selected_option_label_fa: string | null
+  text_response: string | null
+  numeric_response: number | null
+  date_response: string | null
+  answered_at: string
+}
+
+// --- Questions ---
+
+export type QuestionType = 'screen' | 'symptom' | 'criteria' | 'chronology' | 'impairment' | 'differential' | 'diagnostic'
+export type InputType = 'radio' | 'date' | 'number' | 'text' | 'textarea'
+export type TemporalContext = 'current' | 'past' | 'lifetime'
+
+export interface ResponseOption {
+  id: number
+  label: string
+  label_fa: string
+  value: string
+  score: number
+  is_skip_trigger: boolean
+  skip_to_question: number | null
+  is_deviation_check: boolean
+  deviation_value: string
+  order: number
+}
+
+export interface Question {
+  id: number
+  question_id: string
   module: string
-  diagnosis: string
-  criteria_met: string[]
-  severity: string
-  confidence: number
-  recommendations: string[]
+  module_code: string
+  module_name?: string
+  module_name_fa?: string
+  text: string
+  text_fa: string
+  notes?: string
+  notes_fa?: string
+  criteria_text?: string
+  criteria_text_fa?: string
+  question_type: QuestionType
+  input_type: InputType
+  is_branching?: boolean
+  is_counted_symptom?: boolean
+  symptom_group?: string
+  temporal_context?: TemporalContext
+  section?: string
+  order?: number
+  response_options: ResponseOption[]
+}
+
+// --- Module ---
+
+export interface Module {
+  id: number
+  code: string
+  name: string
+  name_fa?: string
+  description?: string
+  description_fa?: string
+  order?: number
+  questions_count: number
+}
+
+// --- Submit Answer ---
+
+export interface SubmitAnswerRequest {
+  selected_option_id?: number
+  text_response?: string
+  numeric_response?: number
+  date_response?: string
+}
+
+export interface AnswerResponseData {
+  id: number
+  question_id_str: string
+  selected_option_label: string | null
+  selected_option_label_fa: string | null
+  text_response: string | null
+  numeric_response: number | null
+  date_response: string | null
+  question_input_type: string
+  answered_at: string
+}
+
+export interface NextQuestionInfo {
+  question_id: string
+  text: string
+  text_fa: string
+  question_type: string
+}
+
+export interface AnswerResponse {
+  detail: string
+  response: AnswerResponseData
+  next_question: NextQuestionInfo | null
+  session_status: string
+}
+
+// --- Progress ---
+
+export interface ProgressResponse {
+  session_id: number
+  status: string
+  current_module: string | null
+  current_question: string | null
+  total_questions_in_module: number
+  answered_total: number
+  progress_percent: number
+}
+
+// --- Complete Overview ---
+
+export interface CompleteOverviewResponse {
+  detail: string
+  session: Session
+}
+
+// --- Complete Session ---
+
+export interface CompleteDisorderResult {
+  id: number
+  criteria: number
+  disorder_name: string
+  disorder_name_fa: string
+  diagnosis_code: string
+  is_met: boolean
+  is_current: boolean
+  severity: string | null
+  symptoms_met_count: number
+  criteria_details: Record<string, unknown>
+  clinician_confirmed: boolean
+  confirmation_status: string
+}
+
+export interface CompleteSessionResponse {
+  detail: string
+  session_id: number
+  results: CompleteDisorderResult[]
+}
+
+// --- Diagnostic Results ---
+
+export interface DiagnosticResultItem {
+  id: number
+  criteria: number
+  disorder_name: string
+  disorder_name_fa: string
+  diagnosis_code: string
+  is_met: boolean
+  is_current: boolean
+  severity: string | null
+  symptoms_met_count: number
+  criteria_details: Record<string, unknown>
+  clinician_confirmed: boolean
+  confirmation_status: string
+}
+
+export interface DiagnosticResultsResponse {
+  session_id: number
+  status: string
+  results: DiagnosticResultItem[]
 }
 
 // ==========================================================

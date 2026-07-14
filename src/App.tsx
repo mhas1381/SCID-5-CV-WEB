@@ -13,6 +13,7 @@ import { DashboardPage } from '@/pages/dashboard/DashboardPage'
 import { PatientsPage } from '@/pages/patients/PatientsPage'
 import { PatientFormPage } from '@/pages/patients/PatientFormPage'
 import { NewInterviewPage } from '@/pages/interview/NewInterviewPage'
+import { OverviewPage } from '@/pages/interview/OverviewPage'
 import { InterviewSessionPage } from '@/pages/interview/InterviewSessionPage'
 import { InterviewResultsPage } from '@/pages/interview/InterviewResultsPage'
 import { SessionsListPage } from '@/pages/sessions/SessionsListPage'
@@ -50,6 +51,7 @@ function AppContent() {
 
           {/* Interview */}
           <Route path="/interview" element={<NewInterviewPage />} />
+          <Route path="/interview/:id/overview" element={<OverviewPage />} />
           <Route path="/interview/:id" element={<InterviewSessionPage />} />
           <Route path="/interview/:id/results" element={<InterviewResultsPage />} />
 

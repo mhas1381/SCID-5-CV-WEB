@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useGetSessionsQuery } from '@/store/api/interviewApi'
 import type { Session } from '@/types'
 import { Button, Card, CardContent } from '@/components/ui'
-import { ClipboardList, Eye, Search } from 'lucide-react'
+import { ClipboardList, Eye, Search, Loader2 } from 'lucide-react'
 import { cn } from '@/utils/cn'
 import { formatDate } from '@/utils/date'
 
@@ -12,24 +12,11 @@ export function SessionsListPage() {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
-  const { data: sessions, isLoading } = useGetSessionsQuery({})
+  const { data: sessionsData, isLoading } = useGetSessionsQuery({})
 
-  const MODULE_LABELS: Record<string, string> = {
-    A: t('dashboard.moduleA'),
-    B: t('dashboard.moduleB'),
-    C: t('dashboard.moduleC'),
-    D: t('dashboard.moduleD'),
-    E: t('dashboard.moduleE'),
-    F: t('dashboard.moduleF'),
-    G: t('dashboard.moduleG'),
-    H: t('dashboard.moduleH'),
-    I: t('dashboard.moduleI'),
-    J: t('dashboard.moduleJ'),
-  }
-
-  const filteredSessions = sessions?.results?.filter((s: Session) =>
-    s.patient_name.includes(search) || s.module.includes(search)
-  ) || []
+  const filteredSessions = (sessionsData?.results || []).filter((s: Session) =>
+    s.patient_name.toLowerCase().includes(search.toLowerCase())
+  )
 
   const statusBadge = (status: string) => {
     switch (status) {
@@ -37,7 +24,7 @@ export function SessionsListPage() {
         return 'bg-yellow-100 text-yellow-800'
       case 'completed':
         return 'bg-green-100 text-green-800'
-      case 'cancelled':
+      case 'abandoned':
         return 'bg-red-100 text-red-800'
       default:
         return 'bg-gray-100 text-gray-800'
@@ -48,7 +35,7 @@ export function SessionsListPage() {
     switch (status) {
       case 'in_progress': return t('sessions.status_in_progress')
       case 'completed': return t('sessions.status_completed')
-      case 'cancelled': return t('sessions.status_cancelled')
+      case 'abandoned': return t('sessions.status_abandoned')
       default: return status
     }
   }
@@ -80,8 +67,8 @@ export function SessionsListPage() {
       </div>
 
       {isLoading ? (
-        <div className="text-center py-12 text-[hsl(var(--muted-foreground))]">
-          {t('common.loading')}
+        <div className="flex justify-center py-12">
+          <Loader2 className="h-6 w-6 animate-spin text-[hsl(var(--muted-foreground))]" />
         </div>
       ) : filteredSessions.length === 0 ? (
         <Card>
@@ -111,7 +98,9 @@ export function SessionsListPage() {
                       </span>
                     </div>
                     <div className="flex gap-4 mt-2 text-sm text-[hsl(var(--muted-foreground))]">
-                      <span>ماژول {session.module}: {MODULE_LABELS[session.module] || session.module}</span>
+                      {session.current_module_code && (
+                        <span>{t('dashboard.module' + session.current_module_code)}</span>
+                      )}
                       <span>{formatDate(session.started_at)}</span>
                     </div>
                   </div>
