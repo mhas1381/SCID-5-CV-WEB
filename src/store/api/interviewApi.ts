@@ -5,6 +5,7 @@ import type {
   CompleteSessionResponse,
   DiagnosticResultsResponse,
   Module,
+  NavigateResponse,
   Overview,
   OverviewCreateRequest,
   OverviewQuestionsResponse,
@@ -63,6 +64,24 @@ export const interviewApi = baseApi.injectEndpoints({
       invalidatesTags: ['Session'],
     }),
 
+    // DELETE /api/v1/interviews/sessions/{id}/
+    deleteSession: builder.mutation<void, number>({
+      query: (id) => ({
+        url: `v1/interviews/sessions/${id}/`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Session'],
+    }),
+
+    // POST /api/v1/interviews/sessions/{id}/continue/
+    continueSession: builder.mutation<Session, number>({
+      query: (id) => ({
+        url: `v1/interviews/sessions/${id}/continue/`,
+        method: 'POST',
+      }),
+      invalidatesTags: (result, error, id) => [{ type: 'Session', id }, 'Session'],
+    }),
+
     // POST /api/v1/interviews/sessions/{id}/answer/
     submitAnswer: builder.mutation<AnswerResponse, { sessionId: number } & SubmitAnswerRequest>({
       query: ({ sessionId, ...body }) => ({
@@ -70,6 +89,16 @@ export const interviewApi = baseApi.injectEndpoints({
         method: 'POST',
         body,
       }),
+    }),
+
+    // POST /api/v1/interviews/sessions/{id}/navigate/
+    navigateSession: builder.mutation<NavigateResponse, { sessionId: number; question_id: string }>({
+      query: ({ sessionId, question_id }) => ({
+        url: `v1/interviews/sessions/${sessionId}/navigate/`,
+        method: 'POST',
+        body: { question_id },
+      }),
+      invalidatesTags: (result, error, { sessionId }) => [{ type: 'Session', id: sessionId }],
     }),
 
     // POST /api/v1/interviews/sessions/{id}/complete-overview/
@@ -129,10 +158,13 @@ export const {
   useGetSessionQuery,
   useCreateSessionMutation,
   useSubmitAnswerMutation,
+  useNavigateSessionMutation,
   useCompleteOverviewMutation,
   useCompleteSessionMutation,
   useGetSessionProgressQuery,
   useGetDiagnosticResultsQuery,
   useGetPatientOverviewsQuery,
   useCreateOverviewMutation,
+  useDeleteSessionMutation,
+  useContinueSessionMutation,
 } = interviewApi

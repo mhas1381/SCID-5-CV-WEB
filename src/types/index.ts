@@ -380,6 +380,7 @@ export interface SubmitAnswerRequest {
   text_response?: string
   numeric_response?: number
   date_response?: string
+  question_id?: string
 }
 
 export interface AnswerResponseData {
@@ -406,6 +407,11 @@ export interface AnswerResponse {
   response: AnswerResponseData
   next_question: NextQuestionInfo | null
   session_status: string
+}
+
+export interface NavigateResponse {
+  detail: string
+  current_question: Question
 }
 
 // --- Progress ---

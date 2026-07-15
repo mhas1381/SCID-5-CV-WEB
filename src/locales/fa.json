@@ -145,7 +145,9 @@
     "completeError": "خطا در تکمیل مصاحبه",
     "notInDiagnosticPhase": "بخش تشخیصی شروع نشده",
     "completeOverviewFirst": "لطفاً ابتدا بخش اطلاعات زمینه‌ای (Overview) را تکمیل کنید.",
-    "goToOverview": "رفتن به بخش Overview"
+    "goToOverview": "رفتن به بخش Overview",
+    "completedPrompt": "این جلسه قبلاً تکمیل شده است. آیا می‌خواهید دوباره روی آن کار کنید؟",
+    "viewResults": "مشاهده نتایج"
   },
   "results": {
     "title": "نتایج تشخیصی",
@@ -177,7 +179,13 @@
     "status_in_progress": "در حال انجام",
     "status_completed": "تکمیل شده",
     "status_abandoned": "رها شده",
-    "status_cancelled": "لغو شده"
+    "status_cancelled": "لغو شده",
+    "deleteTitle": "حذف جلسه",
+    "deleteConfirm": "آیا از حذف جلسه \"{{name}}\" اطمینان دارید؟ این عمل غیرقابل برگشت است.",
+    "deleteSuccess": "جلسه با موفقیت حذف شد.",
+    "deleteError": "خطا در حذف جلسه.",
+    "continue": "ادامه",
+    "continueError": "خطا در ادامه جلسه."
   },
   "profile": {
     "description": "مدیریت اطلاعات حرفه‌ای و شخصی شما",

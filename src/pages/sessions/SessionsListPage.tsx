@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { useGetSessionsQuery } from '@/store/api/interviewApi'
+import { toast } from 'sonner'
+import { useGetSessionsQuery, useDeleteSessionMutation, useContinueSessionMutation } from '@/store/api/interviewApi'
 import type { Session } from '@/types'
 import { Button, Card, CardContent } from '@/components/ui'
-import { ClipboardList, Eye, Search, Loader2 } from 'lucide-react'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
+import { ClipboardList, Eye, Search, Loader2, Trash2, Play } from 'lucide-react'
 import { cn } from '@/utils/cn'
 import { formatDate } from '@/utils/date'
 
@@ -12,7 +14,30 @@ export function SessionsListPage() {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
+  const [deleteTarget, setDeleteTarget] = useState<Session | null>(null)
+  const [deleteSession, { isLoading: isDeleting }] = useDeleteSessionMutation()
+  const [continueSession, { isLoading: isContinuing }] = useContinueSessionMutation()
   const { data: sessionsData, isLoading } = useGetSessionsQuery({})
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return
+    try {
+      await deleteSession(deleteTarget.id).unwrap()
+      toast.success(t('sessions.deleteSuccess'))
+      setDeleteTarget(null)
+    } catch {
+      toast.error(t('sessions.deleteError'))
+    }
+  }
+
+  const handleContinue = async (session: Session) => {
+    try {
+      await continueSession(session.id).unwrap()
+      navigate(`/interview/${session.id}`)
+    } catch {
+      toast.error(t('sessions.continueError'))
+    }
+  }
 
   const filteredSessions = (sessionsData?.results || []).filter((s: Session) =>
     s.patient_name.toLowerCase().includes(search.toLowerCase())
@@ -104,19 +129,51 @@ export function SessionsListPage() {
                       <span>{formatDate(session.started_at)}</span>
                     </div>
                   </div>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={(e) => { e.stopPropagation(); navigate(`/interview/${session.id}`) }}
-                  >
-                    <Eye className="h-4 w-4" />
-                  </Button>
+                  <div className="flex items-center gap-1">
+                    {session.phase === 'diagnostic' ? (
+                      <Button
+                        size="sm"
+                        variant={session.status === 'completed' ? 'outline' : 'default'}
+                        onClick={(e) => { e.stopPropagation(); handleContinue(session) }}
+                        isLoading={isContinuing}
+                      >
+                        <Play className="h-4 w-4 ml-1" />
+                        {t('sessions.continue')}
+                      </Button>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={(e) => { e.stopPropagation(); navigate(`/interview/${session.id}`) }}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    )}
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={(e) => { e.stopPropagation(); setDeleteTarget(session) }}
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
       )}
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title={t('sessions.deleteTitle')}
+        message={t('sessions.deleteConfirm', { name: deleteTarget?.patient_name || '' })}
+        confirmLabel={t('common.delete')}
+        cancelLabel={t('common.cancel')}
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteTarget(null)}
+        isLoading={isDeleting}
+      />
     </div>
   )
 }

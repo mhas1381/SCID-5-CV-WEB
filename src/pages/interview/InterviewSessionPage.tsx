@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -8,12 +8,14 @@ import {
   useGetSessionProgressQuery,
   useSubmitAnswerMutation,
   useCompleteSessionMutation,
+  useNavigateSessionMutation,
+  useContinueSessionMutation,
 } from '@/store/api/interviewApi'
 import { Button, Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
-import { AlertCircle, CheckCircle, Loader2, ArrowLeft } from 'lucide-react'
+import { AlertCircle, CheckCircle, Loader2, ArrowLeft, ChevronRight, FileText, Play } from 'lucide-react'
 import { cn } from '@/utils/cn'
 import { getErrorMessage } from '@/utils/error'
-import type { Question, SubmitAnswerRequest } from '@/types'
+import type { Question, SubmitAnswerRequest, SessionResponse } from '@/types'
 
 export function InterviewSessionPage() {
   const { id } = useParams<{ id: string }>()
@@ -39,16 +41,52 @@ export function InterviewSessionPage() {
 
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null)
   const [localError, setLocalError] = useState<string | null>(null)
+  const [noteText, setNoteText] = useState('')
   const [submitAnswer, { isLoading: isSubmitting }] = useSubmitAnswerMutation()
   const [completeSession, { isLoading: isCompleting }] = useCompleteSessionMutation()
+  const [navigateSession, { isLoading: isNavigating }] = useNavigateSessionMutation()
+  const [continueSession, { isLoading: isContinuing }] = useContinueSessionMutation()
   const lastNextQidRef = useRef<string | null>(null)
+  const syncedNullRef = useRef(false)
 
-  // Set module code from session
+  // Build answered question history from session.responses
+  const answeredOrder = useMemo(() => {
+    if (!session?.responses) return [] as SessionResponse[]
+    return [...session.responses].sort(
+      (a, b) => new Date(a.answered_at).getTime() - new Date(b.answered_at).getTime()
+    )
+  }, [session?.responses])
+
+  const answeredQuestionIds = useMemo(
+    () => answeredOrder.map((r) => r.question_id_str),
+    [answeredOrder]
+  )
+
+  const canGoPrev = answeredQuestionIds.length > 0
+
+  // Load note text from existing response when question changes
+  useEffect(() => {
+    const existing = session?.responses?.find(
+      (r) => r.question_id_str === currentQuestion?.question_id
+    )
+    setNoteText(existing?.text_response || '')
+  }, [currentQuestion?.question_id, session?.responses])
+
+  // Set module code from session (with fallback for corrupted sessions)
   useEffect(() => {
     if (session?.current_module_code) {
       setCurrentModuleCode(session.current_module_code)
+    } else if (session?.phase === 'diagnostic') {
+      if (session.current_question_id) {
+        // Derive module code from question_id prefix (e.g., "A1" → "A")
+        const modCode = session.current_question_id.charAt(0).toUpperCase()
+        if (modCode) setCurrentModuleCode(modCode)
+      } else {
+        // Fallback: start from module A
+        setCurrentModuleCode('A')
+      }
     }
-  }, [session?.current_module_code])
+  }, [session?.current_module_code, session?.current_question_id, session?.phase])
 
   // Find current question when module questions load
   useEffect(() => {
@@ -82,6 +120,11 @@ export function InterviewSessionPage() {
       }
       // Last resort: first question in module
       setCurrentQuestion(moduleQuestions[0])
+      // If backend had no current_question, sync it via navigate
+      if (!session?.current_question_id && !syncedNullRef.current) {
+        syncedNullRef.current = true
+        navigateSession({ sessionId, question_id: moduleQuestions[0].question_id })
+      }
     }
   }, [moduleQuestions, session?.current_question_id, currentModuleCode])
 
@@ -95,7 +138,7 @@ export function InterviewSessionPage() {
     if (!currentQuestion) return
     setLocalError(null)
     try {
-      const res = await submitAnswer({ sessionId, ...body }).unwrap()
+      const res = await submitAnswer({ sessionId, question_id: currentQuestion.question_id, ...body }).unwrap()
       if (res.next_question) {
         const nextQid = res.next_question.question_id
         lastNextQidRef.current = nextQid
@@ -103,7 +146,6 @@ export function InterviewSessionPage() {
         if (fullQ) {
           setCurrentQuestion(fullQ)
         } else {
-          // Different module — extract module code from question_id prefix (e.g. "A1" → "A", "C_intro" → "C")
           const nextModuleCode = nextQid.charAt(0)
           if (nextModuleCode && nextModuleCode !== currentModuleCode) {
             setCurrentModuleCode(nextModuleCode)
@@ -120,6 +162,32 @@ export function InterviewSessionPage() {
     }
   }
 
+  const handlePrev = async () => {
+    if (!canGoPrev) return
+    // Navigate to the most recently answered question
+    const prevId = answeredQuestionIds[answeredQuestionIds.length - 1]
+    if (!prevId) return
+    setLocalError(null)
+    try {
+      const res = await navigateSession({ sessionId, question_id: prevId }).unwrap()
+      const q = res.current_question
+      if (q) {
+        const fullQ = findQuestion(q.question_id)
+        if (fullQ) {
+          setCurrentQuestion(fullQ)
+        } else {
+          const modCode = q.question_id.charAt(0)
+          setCurrentModuleCode(modCode)
+          setCurrentQuestion(null)
+        }
+      }
+    } catch (err: any) {
+      const msg = getErrorMessage(err, t('interview.answerError'))
+      setLocalError(msg)
+      toast.error(msg)
+    }
+  }
+
   const handleComplete = async () => {
     setLocalError(null)
     try {
@@ -127,6 +195,18 @@ export function InterviewSessionPage() {
       navigate(`/interview/${sessionId}/results`)
     } catch (err: any) {
       const msg = getErrorMessage(err, t('interview.completeError'))
+      setLocalError(msg)
+      toast.error(msg)
+    }
+  }
+
+  const handleContinue = async () => {
+    setLocalError(null)
+    try {
+      await continueSession(sessionId).unwrap()
+      // Session will be refetched automatically via cache invalidation
+    } catch (err: any) {
+      const msg = getErrorMessage(err, t('sessions.continueError'))
       setLocalError(msg)
       toast.error(msg)
     }
@@ -152,6 +232,26 @@ export function InterviewSessionPage() {
         <Button variant="outline" className="mt-4" onClick={() => navigate('/interview')}>
           {t('common.back')}
         </Button>
+      </div>
+    )
+  }
+
+  // Show continue prompt for completed sessions
+  if (session.status === 'completed' && session.phase === 'diagnostic') {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 max-w-md mx-auto text-center space-y-4">
+        <CheckCircle className="h-12 w-12 text-green-500" />
+        <h2 className="text-lg font-semibold">{t('sessions.status_completed')}</h2>
+        <p className="text-sm text-[hsl(var(--muted-foreground))]">{t('interview.completedPrompt')}</p>
+        <div className="flex gap-3">
+          <Button onClick={handleContinue} isLoading={isContinuing}>
+            <Play className="ml-2 h-4 w-4" />
+            {t('sessions.continue')}
+          </Button>
+          <Button variant="outline" onClick={() => navigate(`/interview/${sessionId}/results`)}>
+            {t('interview.viewResults')}
+          </Button>
+        </div>
       </div>
     )
   }
@@ -274,20 +374,26 @@ export function InterviewSessionPage() {
         </CardHeader>
         <CardContent>
           {q.input_type === 'radio' && options.length > 0 && (
-            <div className="space-y-2">
+            <div className="space-y-3">
               {options.map((opt) => {
                 const label = isRtl && opt.label_fa ? opt.label_fa : opt.label
                 return (
                   <button
                     key={opt.id}
-                    onClick={() => handleAnswer({ selected_option_id: opt.id })}
+                    onClick={() => handleAnswer({ selected_option_id: opt.id, text_response: noteText || undefined })}
                     disabled={isSubmitting}
-                    className="w-full text-right rounded-lg border p-3 text-sm transition-all hover:shadow-sm disabled:opacity-50 border-[hsl(var(--border))] hover:border-[hsl(var(--primary))]"
+                    className="w-full text-right rounded-xl border-2 py-4 px-4 text-base font-semibold transition-all hover:shadow-md disabled:opacity-50 border-[hsl(var(--border))] hover:border-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/5"
                   >
                     {label}
                   </button>
                 )
               })}
+              <textarea
+                value={noteText}
+                onChange={(e) => setNoteText(e.target.value)}
+                placeholder={isRtl ? 'یادداشت روانشناس (اختیاری)' : 'Clinician note (optional)'}
+                className="w-full rounded-lg border border-[hsl(var(--input))] bg-transparent px-3 py-2 text-sm min-h-[60px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))] resize-none"
+              />
             </div>
           )}
 
@@ -376,7 +482,17 @@ export function InterviewSessionPage() {
         </CardContent>
       </Card>
 
-      <div className="flex justify-center pb-8">
+      <div className="flex justify-between items-center pb-8">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handlePrev}
+          disabled={!canGoPrev || isNavigating}
+          isLoading={isNavigating}
+        >
+          <ChevronRight className="ml-1 h-4 w-4" />
+          {isRtl ? 'قبلی' : 'Prev'}
+        </Button>
         <Button variant="outline" onClick={handleComplete} isLoading={isCompleting}>
           <CheckCircle className="ml-2 h-4 w-4" />
           {t('interview.complete')}

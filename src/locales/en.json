@@ -145,7 +145,9 @@
     "completeError": "Failed to complete interview",
     "notInDiagnosticPhase": "Diagnostic phase not started",
     "completeOverviewFirst": "Please complete the Overview section first.",
-    "goToOverview": "Go to Overview"
+    "goToOverview": "Go to Overview",
+    "completedPrompt": "This session has already been completed. Do you want to continue working on it?",
+    "viewResults": "View Results"
   },
   "results": {
     "title": "Diagnostic Results",
@@ -177,7 +179,13 @@
     "status_in_progress": "In Progress",
     "status_completed": "Completed",
     "status_abandoned": "Abandoned",
-    "status_cancelled": "Cancelled"
+    "status_cancelled": "Cancelled",
+    "deleteTitle": "Delete Session",
+    "deleteConfirm": "Are you sure you want to delete the session for \"{{name}}\"? This action cannot be undone.",
+    "deleteSuccess": "Session deleted successfully.",
+    "deleteError": "Failed to delete session.",
+    "continue": "Continue",
+    "continueError": "Failed to continue session."
   },
   "profile": {
     "description": "Manage your professional and personal information",
