@@ -14,10 +14,10 @@ export function DashboardPage() {
   const { data: summary, isLoading: summaryLoading } = useGetDashboardSummaryQuery()
 
   const statCards = [
-    { label: t('dashboard.totalPatients'), value: summary?.total_patients, icon: Users, color: 'text-blue-600', bg: 'bg-blue-100' },
-    { label: t('dashboard.recentSessionsCount'), value: summary?.recent_sessions_count, icon: ClipboardList, color: 'text-green-600', bg: 'bg-green-100' },
-    { label: t('dashboard.completedSessions'), value: summary?.completed_sessions, icon: Activity, color: 'text-orange-600', bg: 'bg-orange-100' },
-    { label: t('dashboard.totalSessions'), value: summary?.total_sessions, icon: CalendarDays, color: 'text-purple-600', bg: 'bg-purple-100' },
+    { label: t('dashboard.totalPatients'), value: summary?.total_patients, icon: Users, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-100 dark:bg-blue-900/50' },
+    { label: t('dashboard.recentSessionsCount'), value: summary?.recent_sessions_count, icon: ClipboardList, color: 'text-green-600 dark:text-green-400', bg: 'bg-green-100 dark:bg-green-900/50' },
+    { label: t('dashboard.completedSessions'), value: summary?.completed_sessions, icon: Activity, color: 'text-orange-600 dark:text-orange-400', bg: 'bg-orange-100 dark:bg-orange-900/50' },
+    { label: t('dashboard.totalSessions'), value: summary?.total_sessions, icon: CalendarDays, color: 'text-purple-600 dark:text-purple-400', bg: 'bg-purple-100 dark:bg-purple-900/50' },
   ]
 
   return (
@@ -111,11 +111,11 @@ export function DashboardPage() {
                         onClick={() => navigate('/sessions')}>
                         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[hsl(var(--muted))]">
                           {s.status === 'completed' ? (
-                            <CheckCircle2 className="h-4 w-4 text-green-600" />
+                            <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
                           ) : s.status === 'in_progress' ? (
-                            <Clock className="h-4 w-4 text-amber-600" />
+                            <Clock className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                           ) : (
-                            <XCircle className="h-4 w-4 text-red-600" />
+                            <XCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
                           )}
                         </div>
                         <div className="flex-1 min-w-0">

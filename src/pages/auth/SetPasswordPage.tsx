@@ -57,7 +57,7 @@ export function SetPasswordPage() {
       <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[hsl(var(--background))] to-[hsl(var(--muted))]">
         <Card className="w-full max-w-md mx-4">
           <CardContent className="p-8 text-center">
-            <Shield className="h-12 w-12 text-green-500 mx-auto mb-4" />
+            <Shield className="h-12 w-12 text-green-500 dark:text-green-400 mx-auto mb-4" />
             <h2 className="text-xl font-bold mb-2">رمز عبور با موفقیت تنظیم شد</h2>
             <p className="text-sm text-[hsl(var(--muted-foreground))]">
               {t('common.loading')}

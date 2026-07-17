@@ -40,8 +40,7 @@ export function InterviewResultsPage() {
   if (error || !data) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
-        <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
-        <p className="text-[hsl(var(--muted-foreground))]">{t('results.resultsError')}</p>
+        <AlertCircle className="h-12 w-12 text-red-500 dark:text-red-400 mb-4" /><p className="text-[hsl(var(--muted-foreground))]">{t('results.resultsError')}</p>
         <Button variant="outline" className="mt-4" onClick={() => navigate('/sessions')}>
           {t('common.back')}
         </Button>
@@ -82,9 +81,9 @@ export function InterviewResultsPage() {
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-2">
                     {result.is_met ? (
-                      <CheckCircle className="h-5 w-5 text-green-600" />
+                      <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
                     ) : (
-                      <XCircle className="h-5 w-5 text-red-400" />
+                      <XCircle className="h-5 w-5 text-red-400 dark:text-red-500" />
                     )}
                     {name}
                   </CardTitle>
@@ -103,10 +102,10 @@ export function InterviewResultsPage() {
                       className={cn(
                         'px-2 py-0.5 rounded-full text-xs font-medium',
                         result.severity === 'severe'
-                          ? 'bg-red-100 text-red-800'
+                          ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
                           : result.severity === 'moderate'
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : 'bg-green-100 text-green-800'
+                          ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'
+                          : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
                       )}
                     >
                       {result.severity === 'severe'

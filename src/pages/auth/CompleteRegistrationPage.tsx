@@ -140,7 +140,7 @@ export function CompleteRegistrationPage() {
       <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[hsl(var(--background))] to-[hsl(var(--muted))]">
         <Card className="w-full max-w-lg mx-4">
           <CardContent className="p-6 text-center">
-            <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
+            <CheckCircle className="h-12 w-12 text-green-500 dark:text-green-400 mx-auto mb-4" />
             <h3 className="text-xl font-semibold mb-2">
               {isGoogle ? 'اطلاعات با موفقیت ذخیره شد' : 'ثبت نام با موفقیت انجام شد'}
             </h3>

@@ -106,10 +106,10 @@ export function JalaliDatePicker({ value, onChange, label, error }: JalaliDatePi
           placeholder="1400/01/01"
           onFocus={() => setOpen(true)}
           className={cn(
-            'flex h-10 w-full rounded-lg border border-[hsl(var(--input))] bg-transparent px-3 py-2 text-sm',
+            'flex h-10 w-full rounded-lg border border-[hsl(var(--input))] bg-[hsl(var(--card))] px-3 py-2 text-sm',
             'placeholder:text-[hsl(var(--muted-foreground))] cursor-pointer',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]',
-            error && 'border-red-500',
+            error && 'border-red-500 dark:border-red-700',
           )}
         />
         {open && (
@@ -224,7 +224,7 @@ export function JalaliDatePicker({ value, onChange, label, error }: JalaliDatePi
           </div>
         )}
       </div>
-      {error && <p className="text-sm text-red-500">{error}</p>}
+      {error && <p className="text-sm text-red-500 dark:text-red-400">{error}</p>}
     </div>
   )
 

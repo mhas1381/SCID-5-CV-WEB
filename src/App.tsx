@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Toaster } from 'sonner'
 import { useTranslation } from 'react-i18next'
 import { useDirection } from '@/hooks/useDirection'
+import { useTheme } from '@/hooks/useTheme'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import { LandingPage } from '@/pages/landing/LandingPage'
@@ -18,9 +19,11 @@ import { InterviewSessionPage } from '@/pages/interview/InterviewSessionPage'
 import { InterviewResultsPage } from '@/pages/interview/InterviewResultsPage'
 import { SessionsListPage } from '@/pages/sessions/SessionsListPage'
 import { ProfilePage } from '@/pages/profile/ProfilePage'
+import { SettingsPage } from '@/pages/settings/SettingsPage'
 
 function AppContent() {
   useDirection()
+  useTheme()
   const { i18n } = useTranslation()
   const isRtl = i18n.language === 'fa'
 
@@ -57,6 +60,9 @@ function AppContent() {
 
           {/* Profile */}
           <Route path="/profile" element={<ProfilePage />} />
+
+          {/* Settings */}
+          <Route path="/settings" element={<SettingsPage />} />
 
           {/* Sessions History */}
           <Route path="/sessions" element={<SessionsListPage />} />

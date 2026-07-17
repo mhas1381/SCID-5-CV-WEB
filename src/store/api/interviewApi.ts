@@ -73,6 +73,16 @@ export const interviewApi = baseApi.injectEndpoints({
       invalidatesTags: ['Session'],
     }),
 
+    // PATCH /api/v1/interviews/sessions/{id}/
+    updateSession: builder.mutation<Session, { id: number; elapsed_time: number }>({
+      query: ({ id, ...body }) => ({
+        url: `v1/interviews/sessions/${id}/`,
+        method: 'PATCH',
+        body,
+      }),
+      invalidatesTags: (result, error, { id }) => [{ type: 'Session', id }],
+    }),
+
     // POST /api/v1/interviews/sessions/{id}/continue/
     continueSession: builder.mutation<Session, number>({
       query: (id) => ({
@@ -167,4 +177,5 @@ export const {
   useCreateOverviewMutation,
   useDeleteSessionMutation,
   useContinueSessionMutation,
+  useUpdateSessionMutation,
 } = interviewApi

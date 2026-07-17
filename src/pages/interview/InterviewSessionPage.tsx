@@ -10,7 +10,9 @@ import {
   useCompleteSessionMutation,
   useNavigateSessionMutation,
   useContinueSessionMutation,
+  useUpdateSessionMutation,
 } from '@/store/api/interviewApi'
+import { useElapsedTime } from '@/hooks/useElapsedTime'
 import { Button, Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
 import { AlertCircle, CheckCircle, Loader2, ArrowLeft, ChevronRight, FileText, Play } from 'lucide-react'
 import { cn } from '@/utils/cn'
@@ -46,6 +48,19 @@ export function InterviewSessionPage() {
   const [completeSession, { isLoading: isCompleting }] = useCompleteSessionMutation()
   const [navigateSession, { isLoading: isNavigating }] = useNavigateSessionMutation()
   const [continueSession, { isLoading: isContinuing }] = useContinueSessionMutation()
+  const [updateSession] = useUpdateSessionMutation()
+  const isTimerActive = session?.status === 'in_progress'
+  const elapsedDisplay = useElapsedTime({
+    sessionId,
+    initialElapsed: session?.elapsed_time ?? 0,
+    isActive: isTimerActive,
+    onUpdate: useCallback(
+      (elapsed: number) => {
+        updateSession({ id: sessionId, elapsed_time: elapsed })
+      },
+      [sessionId, updateSession],
+    ),
+  })
   const lastNextQidRef = useRef<string | null>(null)
   const syncedNullRef = useRef(false)
 
@@ -202,9 +217,9 @@ export function InterviewSessionPage() {
 
   const handleContinue = async () => {
     setLocalError(null)
+    setCurrentQuestion(null)
     try {
       await continueSession(sessionId).unwrap()
-      // Session will be refetched automatically via cache invalidation
     } catch (err: any) {
       const msg = getErrorMessage(err, t('sessions.continueError'))
       setLocalError(msg)
@@ -225,7 +240,7 @@ export function InterviewSessionPage() {
   if (sessionError || !session) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
-        <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
+        <AlertCircle className="h-12 w-12 text-red-500 dark:text-red-400 mb-4" />
         <p className="text-[hsl(var(--muted-foreground))]">
           {t('interview.sessionError')}
         </p>
@@ -240,7 +255,7 @@ export function InterviewSessionPage() {
   if (session.status === 'completed' && session.phase === 'diagnostic') {
     return (
       <div className="flex flex-col items-center justify-center py-20 max-w-md mx-auto text-center space-y-4">
-        <CheckCircle className="h-12 w-12 text-green-500" />
+        <CheckCircle className="h-12 w-12 text-green-500 dark:text-green-400" />
         <h2 className="text-lg font-semibold">{t('sessions.status_completed')}</h2>
         <p className="text-sm text-[hsl(var(--muted-foreground))]">{t('interview.completedPrompt')}</p>
         <div className="flex gap-3">
@@ -260,7 +275,7 @@ export function InterviewSessionPage() {
   if (session.phase !== 'diagnostic') {
     return (
       <div className="flex flex-col items-center justify-center py-20 max-w-md mx-auto text-center space-y-4">
-        <AlertCircle className="h-12 w-12 text-amber-500" />
+        <AlertCircle className="h-12 w-12 text-amber-500 dark:text-amber-400" />
         <h2 className="text-lg font-semibold">
           {t('interview.notInDiagnosticPhase')}
         </h2>
@@ -297,14 +312,29 @@ export function InterviewSessionPage() {
   const questionText = isRtl && q.text_fa ? q.text_fa : q.text
   const criteriaText =
     isRtl && q.criteria_text_fa ? q.criteria_text_fa : q.criteria_text
+
+  // Parse criteria text into parts
+  let criteriaPart = ''
+  let notePart = ''
+  if (criteriaText) {
+    const noteMarker = isRtl ? 'نکته:' : 'Note:'
+    const noteIdx = criteriaText.indexOf(noteMarker)
+    if (noteIdx !== -1) {
+      criteriaPart = criteriaText.slice(0, noteIdx).trim().replace(/^معیار:\s*/i, '').trim()
+      notePart = criteriaText.slice(noteIdx + noteMarker.length).trim()
+    } else {
+      criteriaPart = criteriaText.replace(/^معیار:\s*/i, '').trim()
+    }
+  }
+
   const options = q.response_options || []
   const currentModuleName = isRtl && q.module_name_fa ? q.module_name_fa : q.module_name || ''
   const progressPercent = progress?.progress_percent ?? 0
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="h-full flex flex-col space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-shrink-0">
         <div>
           <h1 className="text-xl font-bold leading-tight">
             {currentModuleName || `${t('interview.module')} ${currentModuleCode}`}
@@ -313,88 +343,141 @@ export function InterviewSessionPage() {
             {session.patient_name}
           </p>
         </div>
-        <span
-          className={cn(
-            'px-3 py-1 rounded-full text-xs font-medium',
-            session.status === 'in_progress'
-              ? 'bg-yellow-100 text-yellow-800'
+        <div className="flex items-center gap-2">
+          <span
+            className={cn(
+              'px-3 py-1 rounded-full text-xs font-medium',
+              session.status === 'in_progress'
+                ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'
+                : session.status === 'completed'
+                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+                : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300'
+            )}
+          >
+            {session.status === 'in_progress'
+              ? t('interview.inProgress')
               : session.status === 'completed'
-              ? 'bg-green-100 text-green-800'
-              : 'bg-gray-100 text-gray-800'
-          )}
-        >
-          {session.status === 'in_progress'
-            ? t('interview.inProgress')
-            : session.status === 'completed'
-            ? t('interview.completed')
-            : session.status}
-        </span>
+              ? t('interview.completed')
+              : session.status}
+          </span>
+          <span className="text-xs text-[hsl(var(--muted-foreground))] font-mono tabular-nums">
+            {Math.floor(elapsedDisplay / 60)}:{String(elapsedDisplay % 60).padStart(2, '0')}
+          </span>
+        </div>
       </div>
 
       {/* Progress */}
       {progress && (
-        <>
+        <div className="flex-shrink-0">
           <div className="w-full bg-[hsl(var(--secondary))] rounded-full h-2">
             <div
               className="bg-[hsl(var(--primary))] h-2 rounded-full transition-all duration-500"
               style={{ width: `${Math.min(progressPercent, 100)}%` }}
             />
           </div>
-          <p className="text-xs text-[hsl(var(--muted-foreground))] text-center">
+          <p className="text-xs text-[hsl(var(--muted-foreground))] text-center mt-1">
             {progress.answered_total} / {progress.total_questions_in_module} (
             {Math.round(progressPercent)}%)
           </p>
-        </>
+        </div>
       )}
 
       {/* Error */}
       {localError && (
-        <div className="flex items-center gap-2 rounded-lg bg-red-50 p-3 text-sm text-red-600">
+        <div className="flex items-center gap-2 rounded-lg bg-red-50 p-3 text-sm text-red-600 flex-shrink-0 dark:bg-red-950 dark:text-red-400">
           <AlertCircle className="h-4 w-4 shrink-0" />
           {localError}
         </div>
       )}
 
-      {/* Question */}
-      <Card>
-        <CardHeader>
+      {/* Question Card — fills remaining space */}
+      <Card className="flex-1 flex flex-col min-h-0 overflow-hidden">
+        <CardHeader className="overflow-y-auto flex-1 min-h-0">
           <div className="flex items-start justify-between gap-2">
-            <CardTitle className="text-lg leading-relaxed whitespace-pre-line">
+            <CardTitle className="text-2xl leading-relaxed whitespace-pre-line">
               {questionText}
             </CardTitle>
             <span className="shrink-0 text-xs text-[hsl(var(--muted-foreground))] font-mono">
               {q.question_id}
             </span>
           </div>
-          {criteriaText && (
-            <p className="text-sm text-[hsl(var(--muted-foreground))] mt-2 italic">
-              {t('interview.criteria')}: {criteriaText}
-            </p>
+          {(criteriaPart || notePart) && (
+            <div className="mt-4 flex flex-row gap-3 items-stretch">
+              {criteriaPart && (
+                <div className="flex-1 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))] overflow-hidden">
+                  <div className="h-1 bg-[hsl(var(--primary))]" />
+                  <div className="p-3">
+                    <span className="text-xs font-bold text-[hsl(var(--primary))] uppercase tracking-wider">
+                      {isRtl ? 'معیار' : 'Criterion'}
+                    </span>
+                    <p className="mt-1 text-sm text-[hsl(var(--foreground))] leading-relaxed">
+                      {criteriaPart}
+                    </p>
+                  </div>
+                </div>
+              )}
+              {notePart && (
+                <div className="flex-1 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))] overflow-hidden">
+                  <div className="h-1 bg-orange-500" />
+                  <div className="p-3">
+                    <span className="text-xs font-bold text-orange-600 dark:text-orange-400 uppercase tracking-wider">
+                      {isRtl ? 'نکته' : 'Note'}
+                    </span>
+                    <p className="mt-1 text-sm text-[hsl(var(--foreground))] leading-relaxed">
+                      {notePart}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
           )}
         </CardHeader>
-        <CardContent>
+
+        <hr className="border-[hsl(var(--border))] flex-shrink-0" />
+
+        <CardContent className="flex-shrink-0 space-y-3 pt-4">
           {q.input_type === 'radio' && options.length > 0 && (
-            <div className="space-y-3">
-              {options.map((opt) => {
-                const label = isRtl && opt.label_fa ? opt.label_fa : opt.label
-                return (
-                  <button
-                    key={opt.id}
-                    onClick={() => handleAnswer({ selected_option_id: opt.id, text_response: noteText || undefined })}
-                    disabled={isSubmitting}
-                    className="w-full text-right rounded-xl border-2 py-4 px-4 text-base font-semibold transition-all hover:shadow-md disabled:opacity-50 border-[hsl(var(--border))] hover:border-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/5"
-                  >
-                    {label}
-                  </button>
-                )
-              })}
+            <>
+              {options.length === 2 ? (
+                <div className="flex flex-row gap-3">
+                  {options.map((opt) => {
+                    const label = isRtl && opt.label_fa ? opt.label_fa : opt.label
+                    return (
+                      <button
+                        key={opt.id}
+                        onClick={() => handleAnswer({ selected_option_id: opt.id, text_response: noteText || undefined })}
+                        disabled={isSubmitting}
+                        className="flex-1 flex flex-col items-center justify-center gap-2 rounded-xl border-2 py-10 px-4 text-lg font-semibold transition-all hover:shadow-md disabled:opacity-50 border-[hsl(var(--border))] hover:border-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/5"
+                      >
+                        <span>{label}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {options.map((opt) => {
+                    const label = isRtl && opt.label_fa ? opt.label_fa : opt.label
+                    return (
+                      <button
+                        key={opt.id}
+                        onClick={() => handleAnswer({ selected_option_id: opt.id, text_response: noteText || undefined })}
+                        disabled={isSubmitting}
+                        className="w-full text-right rounded-xl border-2 py-4 px-4 text-base font-semibold transition-all hover:shadow-md disabled:opacity-50 border-[hsl(var(--border))] hover:border-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/5"
+                      >
+                        {label}
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
               <textarea
                 value={noteText}
                 onChange={(e) => setNoteText(e.target.value)}
                 placeholder={isRtl ? 'یادداشت روانشناس (اختیاری)' : 'Clinician note (optional)'}
-                className="w-full rounded-lg border border-[hsl(var(--input))] bg-transparent px-3 py-2 text-sm min-h-[60px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))] resize-none"
+                className="w-full rounded-lg border border-[hsl(var(--input))] bg-transparent px-4 py-3 text-sm min-h-[120px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))] resize-none"
               />
-            </div>
+            </>
           )}
 
           {q.input_type === 'radio' && options.length === 0 && (
@@ -482,19 +565,20 @@ export function InterviewSessionPage() {
         </CardContent>
       </Card>
 
-      <div className="flex justify-between items-center pb-8">
+      {/* Bottom navigation */}
+      <div className="flex justify-between items-center flex-shrink-0 pb-4 gap-3">
         <Button
           variant="outline"
-          size="sm"
+          size="lg"
           onClick={handlePrev}
           disabled={!canGoPrev || isNavigating}
           isLoading={isNavigating}
         >
-          <ChevronRight className="ml-1 h-4 w-4" />
+          <ChevronRight className="ml-2 h-5 w-5" />
           {isRtl ? 'قبلی' : 'Prev'}
         </Button>
-        <Button variant="outline" onClick={handleComplete} isLoading={isCompleting}>
-          <CheckCircle className="ml-2 h-4 w-4" />
+        <Button variant="outline" size="lg" onClick={handleComplete} isLoading={isCompleting}>
+          <CheckCircle className="ml-2 h-5 w-5" />
           {t('interview.complete')}
         </Button>
       </div>

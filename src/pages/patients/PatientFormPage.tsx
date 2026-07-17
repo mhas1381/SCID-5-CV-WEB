@@ -135,7 +135,7 @@ export function PatientFormPage() {
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             {error && (
-              <div className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm font-medium text-red-600">
+              <div className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm font-medium text-red-600 dark:border-red-800 dark:bg-red-950 dark:text-red-400">
                 {error}
               </div>
             )}
@@ -191,13 +191,13 @@ export function PatientFormPage() {
               <div className="space-y-1">
                 <label className="block text-sm font-medium text-[hsl(var(--foreground))]">{t('patients.gender')}</label>
                 <select
-                  className="flex h-10 w-full rounded-lg border border-[hsl(var(--input))] bg-transparent px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
+                  className="flex h-10 w-full rounded-lg border border-[hsl(var(--input))] bg-[hsl(var(--card))] px-3 py-2 text-sm text-[hsl(var(--foreground))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
                   {...register('gender')}
                 >
-                  <option value="male">{t('patients.male')}</option>
-                  <option value="female">{t('patients.female')}</option>
+                  <option value="male" className="bg-[hsl(var(--card))] text-[hsl(var(--foreground))]">{t('patients.male')}</option>
+                  <option value="female" className="bg-[hsl(var(--card))] text-[hsl(var(--foreground))]">{t('patients.female')}</option>
                 </select>
-                {errors.gender && <p className="text-sm text-red-500">{errors.gender.message}</p>}
+                {errors.gender && <p className="text-sm text-red-500 dark:text-red-400">{errors.gender.message}</p>}
               </div>
             </div>
 
@@ -205,7 +205,7 @@ export function PatientFormPage() {
               <div className="space-y-1">
                 <label className="block text-sm font-medium text-[hsl(var(--foreground))]">استان</label>
                 <select
-                  className="flex h-10 w-full rounded-lg border border-[hsl(var(--input))] bg-transparent px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
+                  className="flex h-10 w-full rounded-lg border border-[hsl(var(--input))] bg-[hsl(var(--card))] px-3 py-2 text-sm text-[hsl(var(--foreground))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
                   value={watchedProvince != null ? String(watchedProvince) : ''}
                   onChange={(e) => {
                     const val = e.target.value ? Number(e.target.value) : null
@@ -214,23 +214,23 @@ export function PatientFormPage() {
                     setValue('city', null)
                   }}
                 >
-                  <option value="">انتخاب استان</option>
+                  <option value="" className="bg-[hsl(var(--card))] text-[hsl(var(--foreground))]">انتخاب استان</option>
                   {provinces?.map((p) => (
-                    <option key={p.id} value={String(p.id)}>{p.name}</option>
+                    <option key={p.id} value={String(p.id)} className="bg-[hsl(var(--card))] text-[hsl(var(--foreground))]">{p.name}</option>
                   ))}
                 </select>
               </div>
               <div className="space-y-1">
                 <label className="block text-sm font-medium text-[hsl(var(--foreground))]">شهر</label>
                 <select
-                  className="flex h-10 w-full rounded-lg border border-[hsl(var(--input))] bg-transparent px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
+                  className="flex h-10 w-full rounded-lg border border-[hsl(var(--input))] bg-[hsl(var(--card))] px-3 py-2 text-sm text-[hsl(var(--foreground))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))] disabled:opacity-50"
                   value={watch('city') != null ? String(watch('city')) : ''}
                   onChange={(e) => setValue('city', e.target.value ? Number(e.target.value) : null)}
                   disabled={!watchedProvince}
                 >
-                  <option value="">انتخاب شهر</option>
+                  <option value="" className="bg-[hsl(var(--card))] text-[hsl(var(--foreground))]">انتخاب شهر</option>
                   {cities?.map((c) => (
-                    <option key={c.id} value={String(c.id)}>{c.name}</option>
+                    <option key={c.id} value={String(c.id)} className="bg-[hsl(var(--card))] text-[hsl(var(--foreground))]">{c.name}</option>
                   ))}
                 </select>
               </div>

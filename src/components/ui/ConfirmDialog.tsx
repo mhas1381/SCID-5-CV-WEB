@@ -38,8 +38,8 @@ export function ConfirmDialog({
           <X className="h-5 w-5" />
         </button>
         <div className="flex flex-col items-center text-center">
-          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
-            <AlertTriangle className="h-7 w-7 text-red-600" />
+          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-100 dark:bg-red-900">
+            <AlertTriangle className="h-7 w-7 text-red-600 dark:text-red-400" />
           </div>
           <h3 className="text-lg font-semibold">{title}</h3>
           <p className="mt-2 text-sm text-[hsl(var(--muted-foreground))]">{message}</p>

@@ -43,7 +43,7 @@ export function NewInterviewPage() {
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 rounded-lg bg-red-50 p-3 text-sm text-red-600">
+        <div className="flex items-center gap-2 rounded-lg bg-red-50 p-3 text-sm text-red-600 dark:bg-red-950 dark:text-red-400">
           <AlertCircle className="h-4 w-4" />
           {error}
         </div>
@@ -58,13 +58,13 @@ export function NewInterviewPage() {
         </CardHeader>
         <CardContent>
           <select
-            className="w-full rounded-lg border border-[hsl(var(--input))] bg-transparent px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
+            className="w-full rounded-lg border border-[hsl(var(--input))] bg-[hsl(var(--card))] px-3 py-2 text-sm text-[hsl(var(--foreground))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
             value={selectedPatient ?? ''}
             onChange={(e) => setSelectedPatient(e.target.value ? Number(e.target.value) : null)}
           >
-            <option value="">{t('interview.selectPatientPlaceholder')}</option>
+            <option value="" className="bg-[hsl(var(--card))] text-[hsl(var(--foreground))]">{t('interview.selectPatientPlaceholder')}</option>
             {patientsData?.results.map((patient) => (
-              <option key={patient.id} value={patient.id}>
+              <option key={patient.id} value={patient.id} className="bg-[hsl(var(--card))] text-[hsl(var(--foreground))]">
                 {patient.full_name} - {patient.national_id}
               </option>
             ))}

@@ -6,12 +6,13 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { GoogleLogin } from '@react-oauth/google'
 import type { CredentialResponse } from '@react-oauth/google'
-import { Brain, ArrowLeft, CheckCircle } from 'lucide-react'
+import { Brain, Smartphone, KeyRound, Globe, ArrowLeft, CheckCircle } from 'lucide-react'
 import { Button, Input, Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
 import { useSendOTPMutation, useVerifyOTPMutation, useGoogleLoginMutation, usePasswordLoginMutation } from '@/store/api/authApi'
 import { useAppDispatch } from '@/hooks/useAppStore'
 import { setCredentials } from '@/store/slices/authSlice'
 import { getErrorMessage } from '@/utils/error'
+import { cn } from '@/utils/cn'
 
 const phoneSchema = z.object({
   phone_number: z
@@ -39,12 +40,21 @@ type PhoneFormData = z.infer<typeof phoneSchema>
 type OTPFormData = z.infer<typeof otpSchema>
 type PasswordFormData = z.infer<typeof passwordSchema>
 
+const tabs = [
+  { key: 'otp', labelKey: 'auth.loginWithOTP', icon: Smartphone },
+  { key: 'password', labelKey: 'auth.loginWithPassword', icon: KeyRound },
+  { key: 'google', labelKey: 'auth.loginWithGoogle', icon: Globe },
+] as const
+
+type TabKey = (typeof tabs)[number]['key']
+
 export function LoginPage() {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const { t } = useTranslation()
 
-  const [step, setStep] = useState<'phone' | 'otp' | 'password'>('phone')
+  const [activeTab, setActiveTab] = useState<TabKey>('otp')
+  const [otpStep, setOtpStep] = useState<'phone' | 'otp'>('phone')
   const [phoneNumber, setPhoneNumber] = useState('')
   const [error, setError] = useState<string | null>(null)
 
@@ -95,7 +105,7 @@ export function LoginPage() {
       setError(null)
       await sendOTP({ phone_number: data.phone_number }).unwrap()
       setPhoneNumber(data.phone_number)
-      setStep('otp')
+      setOtpStep('otp')
     } catch (err: any) {
       setError(getErrorMessage(err, 'خطا در ارسال کد تأیید'))
     }
@@ -148,32 +158,68 @@ export function LoginPage() {
     }
   }
 
-  const handleBack = () => {
-    setStep('phone')
+  const handleTabChange = (tab: TabKey) => {
+    setActiveTab(tab)
+    setError(null)
+    setOtpStep('phone')
+    phoneForm.clearErrors()
+    otpForm.clearErrors()
+    passwordForm.clearErrors()
+  }
+
+  const handleOtpBack = () => {
+    setOtpStep('phone')
     setError(null)
   }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[hsl(var(--background))] to-[hsl(var(--muted))]">
-      <Card className="w-full max-w-lg mx-4">
+      <Card className="w-full max-w-xl mx-4">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
             <div className="rounded-2xl bg-[hsl(var(--primary))]/10 p-4">
               <Brain className="h-12 w-12 text-[hsl(var(--primary))]" />
             </div>
           </div>
-           <CardTitle className="text-3xl">
-              {step === 'phone' ? t('auth.login') : step === 'password' ? t('auth.passwordLogin') : t('auth.otpCode')}
-           </CardTitle>
-           <p className="text-sm text-[hsl(var(--muted-foreground))] mt-2">
-              {t('app.fullTitle')} {t('app.subtitle')}
-           </p>
+          <CardTitle className="text-3xl">
+            {activeTab === 'otp'
+              ? (otpStep === 'otp' ? t('auth.otpCode') : t('auth.login'))
+              : activeTab === 'password'
+                ? t('auth.passwordLogin')
+                : t('auth.loginWithGoogle')}
+          </CardTitle>
+          <p className="text-sm text-[hsl(var(--muted-foreground))] mt-2">
+            {t('app.fullTitle')} {t('app.subtitle')}
+          </p>
         </CardHeader>
-        <CardContent>
-          {step === 'phone' && (
-            <form onSubmit={phoneForm.handleSubmit(onSendOTP)} className="space-y-4">
+
+        <CardContent className="space-y-6 pb-8">
+          {/* ---- Tabs ---- */}
+          <div className="grid grid-cols-3 gap-2" role="tablist">
+            {tabs.map(({ key, labelKey, icon: Icon }) => (
+              <button
+                key={key}
+                role="tab"
+                aria-selected={activeTab === key}
+                onClick={() => handleTabChange(key)}
+                className={cn(
+                  'flex items-center justify-center gap-2 rounded-lg px-3 py-3 text-sm font-medium transition-colors',
+                  activeTab === key
+                    ? 'bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-sm'
+                    : 'border border-[hsl(var(--border))] text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]'
+                )}
+              >
+                <Icon className="h-4 w-4" />
+                <span className="hidden sm:inline">{t(labelKey)}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* ---- Tab: OTP ---- */}
+          {activeTab === 'otp' && otpStep === 'phone' && (
+            <form onSubmit={phoneForm.handleSubmit(onSendOTP)} className="space-y-5">
               {error && (
-                <div className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm font-medium text-red-600 text-center">
+                <div className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm font-medium text-red-600 text-center dark:border-red-800 dark:bg-red-950 dark:text-red-400">
                   {error}
                 </div>
               )}
@@ -183,7 +229,7 @@ export function LoginPage() {
                 label={t('auth.phoneNumber')}
                 placeholder={t('auth.phonePlaceholder')}
                 dir="ltr"
-                className="text-center"
+                className="text-center text-lg py-3"
                 error={phoneForm.formState.errors.phone_number?.message}
                 {...phoneForm.register('phone_number')}
               />
@@ -192,67 +238,24 @@ export function LoginPage() {
                 {t('auth.otpHint')}
               </p>
 
-               <Button type="submit" className="w-full" isLoading={isSending}>
-                  {t('auth.sendOTP')}
-               </Button>
-
-               <div className="relative my-6">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-[hsl(var(--border))]" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-[hsl(var(--card))] px-2 text-[hsl(var(--muted-foreground))]">
-                      {t('common.or')}
-                    </span>
-                  </div>
-                </div>
-
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => { setStep('password'); setError(null) }}
-                >
-                  {t('auth.loginWithPassword')}
-                </Button>
-
-               <div className="relative my-2">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-[hsl(var(--border))]" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-[hsl(var(--card))] px-2 text-[hsl(var(--muted-foreground))]">
-                      {t('common.or')}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex justify-center">
-                  <GoogleLogin
-                    onSuccess={onGoogleSuccess}
-                    onError={() => setError('Google Login Failed')}
-                    size="large"
-                    theme="outline"
-                    text="signin_with"
-                    shape="rectangular"
-                    width="300"
-                  />
-                </div>
+              <Button type="submit" className="w-full" size="lg" isLoading={isSending}>
+                {t('auth.sendOTP')}
+              </Button>
             </form>
           )}
 
-          {step === 'otp' && (
-            <form onSubmit={otpForm.handleSubmit(onVerifyOTP)} className="space-y-4">
+          {activeTab === 'otp' && otpStep === 'otp' && (
+            <form onSubmit={otpForm.handleSubmit(onVerifyOTP)} className="space-y-5">
               {error && (
-                <div className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm font-medium text-red-600 text-center">
+                <div className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm font-medium text-red-600 text-center dark:border-red-800 dark:bg-red-950 dark:text-red-400">
                   {error}
                 </div>
               )}
 
               <div className="text-center">
-                <CheckCircle className="h-8 w-8 text-green-500 mx-auto mb-2" />
+                <CheckCircle className="h-10 w-10 text-green-500 dark:text-green-400 mx-auto mb-3" />
                 <p className="text-sm text-[hsl(var(--muted-foreground))]">
-                   {t('auth.otpSent', { phone: phoneNumber })}
+                  {t('auth.otpSent', { phone: phoneNumber })}
                 </p>
               </div>
 
@@ -261,19 +264,19 @@ export function LoginPage() {
                 label={t('auth.otpCode')}
                 placeholder={t('auth.otpPlaceholder')}
                 dir="ltr"
-                className="text-center text-lg tracking-[0.5em]"
+                className="text-center text-2xl tracking-[1em] py-4"
                 maxLength={5}
                 error={otpForm.formState.errors.otp_code?.message}
                 {...otpForm.register('otp_code')}
               />
 
-               <Button type="submit" className="w-full" isLoading={isVerifying}>
-                  {t('auth.verifyOTP')}
-               </Button>
+              <Button type="submit" className="w-full" size="lg" isLoading={isVerifying}>
+                {t('auth.verifyOTP')}
+              </Button>
 
               <button
                 type="button"
-                onClick={handleBack}
+                onClick={handleOtpBack}
                 className="flex items-center justify-center gap-1 w-full text-sm text-[hsl(var(--muted-foreground))] hover:text-foreground transition-colors"
               >
                 <ArrowLeft className="h-4 w-4" />
@@ -282,10 +285,11 @@ export function LoginPage() {
             </form>
           )}
 
-          {step === 'password' && (
-            <form onSubmit={passwordForm.handleSubmit(onPasswordLogin)} className="space-y-4">
+          {/* ---- Tab: Password ---- */}
+          {activeTab === 'password' && (
+            <form onSubmit={passwordForm.handleSubmit(onPasswordLogin)} className="space-y-5">
               {error && (
-                <div className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm font-medium text-red-600 text-center">
+                <div className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm font-medium text-red-600 text-center dark:border-red-800 dark:bg-red-950 dark:text-red-400">
                   {error}
                 </div>
               )}
@@ -295,6 +299,7 @@ export function LoginPage() {
                 label={t('auth.phoneNumber')}
                 placeholder={t('auth.phonePlaceholder')}
                 dir="ltr"
+                className="text-lg py-3"
                 error={passwordForm.formState.errors.phone_number?.message}
                 {...passwordForm.register('phone_number')}
               />
@@ -304,23 +309,45 @@ export function LoginPage() {
                 label={t('auth.password')}
                 placeholder={t('auth.password')}
                 type="password"
+                className="text-lg py-3"
                 error={passwordForm.formState.errors.password?.message}
                 {...passwordForm.register('password')}
               />
 
-              <Button type="submit" className="w-full" isLoading={isPasswordLogging}>
+              <Button type="submit" className="w-full" size="lg" isLoading={isPasswordLogging}>
                 {t('auth.passwordLoginBtn')}
               </Button>
-
-              <button
-                type="button"
-                onClick={handleBack}
-                className="flex items-center justify-center gap-1 w-full text-sm text-[hsl(var(--muted-foreground))] hover:text-foreground transition-colors"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                {t('auth.loginWithOTP')}
-              </button>
             </form>
+          )}
+
+          {/* ---- Tab: Google ---- */}
+          {activeTab === 'google' && (
+            <div className="space-y-5">
+              {error && (
+                <div className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm font-medium text-red-600 text-center dark:border-red-800 dark:bg-red-950 dark:text-red-400">
+                  {error}
+                </div>
+              )}
+
+              <div className="text-center">
+                <Globe className="h-12 w-12 text-[hsl(var(--primary))] mx-auto mb-3" />
+                <p className="text-sm text-[hsl(var(--muted-foreground))] mb-4">
+                  {t('auth.googleLoginHint')}
+                </p>
+              </div>
+
+              <div className="flex justify-center">
+                <GoogleLogin
+                  onSuccess={onGoogleSuccess}
+                  onError={() => setError('Google Login Failed')}
+                  size="large"
+                  theme="outline"
+                  text="signin_with"
+                  shape="rectangular"
+                  width="350"
+                />
+              </div>
+            </div>
           )}
         </CardContent>
       </Card>

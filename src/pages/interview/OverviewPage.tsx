@@ -67,7 +67,7 @@ export function OverviewPage() {
   if (sessionError || !session || !overviewQuestions) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
-        <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
+        <AlertCircle className="h-12 w-12 text-red-500 dark:text-red-400 mb-4" />
         <p className="text-[hsl(var(--muted-foreground))]">{t('interview.sessionError')}</p>
         <Button variant="outline" className="mt-4" onClick={() => navigate('/interview')}>
           {t('common.back')}
@@ -166,7 +166,7 @@ export function OverviewPage() {
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 rounded-lg bg-red-50 p-3 text-sm text-red-600">
+        <div className="flex items-center gap-2 rounded-lg bg-red-50 p-3 text-sm text-red-600 dark:bg-red-950 dark:text-red-400">
           <AlertCircle className="h-4 w-4" />
           {error}
         </div>
@@ -186,7 +186,7 @@ export function OverviewPage() {
                   <div key={q.key}>
                     <label className="block text-sm font-medium mb-2">
                       {label}
-                      {q.required && <span className="text-red-500 mr-1">*</span>}
+                      {q.required && <span className="text-red-500 dark:text-red-400 mr-1">*</span>}
                     </label>
                     {renderField(q)}
                   </div>

@@ -15,7 +15,7 @@ export function LanguageSwitcher() {
       variant="ghost"
       size="sm"
       onClick={toggleLanguage}
-      className="gap-1 text-xs"
+      className="gap-0.5 px-1.5 text-xs"
       title={i18n.language === 'fa' ? 'English' : 'فارسی'}
     >
       <Languages className="h-3.5 w-3.5" />

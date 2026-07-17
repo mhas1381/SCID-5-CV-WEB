@@ -121,6 +121,10 @@ export interface UserProfile {
   organization: string
   years_of_experience: number | null
   profile_image: string | null
+  organization_card: string | null
+  clinician_type: 'none' | 'psychologist' | 'psychiatrist'
+  verification_status: 'unverified' | 'pending' | 'verified' | 'failed'
+  verified_at: string | null
   created_at: string
   updated_at: string
 }
@@ -138,6 +142,8 @@ export interface UserProfileUpdateRequest {
   specialization?: string
   organization?: string
   years_of_experience?: number | null
+  clinician_type?: 'none' | 'psychologist' | 'psychiatrist'
+  organization_card?: string | null
 }
 
 // ==========================================================
@@ -295,6 +301,7 @@ export interface Session {
   started_at: string
   completed_at: string | null
   notes?: string | null
+  elapsed_time?: number
   responses?: SessionResponse[]
   total_responses?: number
 }
@@ -493,4 +500,29 @@ export interface PaginatedResponse<T> {
   next: string | null
   previous: string | null
   results: T[]
+}
+
+// ==========================================================
+// Settings Types
+// ==========================================================
+
+export interface UserPreference {
+  notify_email: boolean
+  notify_sms: boolean
+  reminder_before_hours: number | null
+  items_per_page: number
+  auto_save_interval: number
+}
+
+export interface ChangePasswordRequest {
+  current_password: string
+  new_password: string
+  confirm_password: string
+}
+
+export interface VerifyPsychologistResponse {
+  detail: string
+  success: boolean
+  verification_status: string
+  data?: Record<string, unknown>
 }

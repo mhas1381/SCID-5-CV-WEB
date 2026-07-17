@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -6,9 +6,73 @@ import { useGetSessionsQuery, useDeleteSessionMutation, useContinueSessionMutati
 import type { Session } from '@/types'
 import { Button, Card, CardContent } from '@/components/ui'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
-import { ClipboardList, Eye, Search, Loader2, Trash2, Play } from 'lucide-react'
+import { ClipboardList, Search, Loader2, Trash2, Play, FileText } from 'lucide-react'
 import { cn } from '@/utils/cn'
-import { formatDate } from '@/utils/date'
+
+const formatElapsed = (seconds?: number) => {
+  if (seconds === undefined || seconds === null) return null
+  const m = Math.floor(seconds / 60)
+  const s = seconds % 60
+  if (m >= 60) {
+    const h = Math.floor(m / 60)
+    return `${h}:${String(m % 60).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+  }
+  return `${m}:${String(s).padStart(2, '0')}`
+}
+
+const avatarColors = [
+  'bg-blue-500', 'bg-emerald-500', 'bg-violet-500', 'bg-rose-500',
+  'bg-amber-500', 'bg-cyan-500', 'bg-pink-500', 'bg-indigo-500',
+  'bg-teal-500', 'bg-orange-500', 'bg-lime-500', 'bg-fuchsia-500',
+]
+
+const getAvatarColor = (name: string) => {
+  let hash = 0
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash)
+  }
+  return avatarColors[Math.abs(hash) % avatarColors.length]
+}
+
+const getInitials = (name: string) => {
+  const parts = name.trim().split(/\s+/)
+  if (parts.length === 0) return '?'
+  if (parts.length === 1) return parts[0].charAt(0).toUpperCase()
+  return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase()
+}
+
+const statusTopBar = (status: string) => {
+  switch (status) {
+    case 'in_progress': return 'bg-yellow-500'
+    case 'completed': return 'bg-green-500'
+    case 'abandoned': return 'bg-red-500'
+    default: return 'bg-gray-500'
+  }
+}
+
+const statusBadge = (status: string) => {
+  switch (status) {
+    case 'in_progress':
+      return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'
+    case 'completed':
+      return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+    case 'abandoned':
+      return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
+    default:
+      return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300'
+  }
+}
+
+const phaseBadge = (phase: string) => {
+  switch (phase) {
+    case 'diagnostic':
+      return 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
+    case 'overview':
+      return 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300'
+    default:
+      return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300'
+  }
+}
 
 export function SessionsListPage() {
   const { t, i18n } = useTranslation()
@@ -39,31 +103,12 @@ export function SessionsListPage() {
     }
   }
 
-  const filteredSessions = (sessionsData?.results || []).filter((s: Session) =>
-    s.patient_name.toLowerCase().includes(search.toLowerCase())
+  const filteredSessions = useMemo(
+    () => (sessionsData?.results || []).filter((s: Session) =>
+      s.patient_name.toLowerCase().includes(search.toLowerCase())
+    ),
+    [sessionsData?.results, search],
   )
-
-  const statusBadge = (status: string) => {
-    switch (status) {
-      case 'in_progress':
-        return 'bg-yellow-100 text-yellow-800'
-      case 'completed':
-        return 'bg-green-100 text-green-800'
-      case 'abandoned':
-        return 'bg-red-100 text-red-800'
-      default:
-        return 'bg-gray-100 text-gray-800'
-    }
-  }
-
-  const statusLabel = (status: string) => {
-    switch (status) {
-      case 'in_progress': return t('sessions.status_in_progress')
-      case 'completed': return t('sessions.status_completed')
-      case 'abandoned': return t('sessions.status_abandoned')
-      default: return status
-    }
-  }
 
   return (
     <div className="space-y-6">
@@ -106,58 +151,97 @@ export function SessionsListPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
           {filteredSessions.map((session: Session) => (
             <Card
               key={session.id}
-              className="hover:shadow-md transition-shadow cursor-pointer"
+              className="hover:shadow-md transition-shadow cursor-pointer overflow-hidden"
               onClick={() => navigate(`/interview/${session.id}`)}
             >
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3">
-                      <h3 className="font-medium">{session.patient_name}</h3>
-                      <span className={cn('px-2 py-0.5 rounded-full text-xs font-medium', statusBadge(session.status))}>
-                        {statusLabel(session.status)}
+              <div className={cn('h-1.5', statusTopBar(session.status))} />
+              <CardContent className="p-0">
+                <div className="flex items-center gap-3 p-3 pb-2">
+                  <div className={cn(
+                    'shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold',
+                    getAvatarColor(session.patient_name),
+                  )}>
+                    {getInitials(session.patient_name)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-sm font-semibold truncate">{session.patient_name}</h3>
+                    <div className="flex items-center gap-1 mt-0.5 flex-wrap">
+                      <span className={cn('inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium', statusBadge(session.status))}>
+                        {session.status === 'in_progress'
+                          ? t('sessions.status_in_progress')
+                          : session.status === 'completed'
+                          ? t('sessions.status_completed')
+                          : session.status === 'abandoned'
+                          ? t('sessions.status_abandoned')
+                          : session.status}
+                      </span>
+                      <span className={cn('px-1.5 py-0.5 rounded text-[10px] font-medium uppercase', phaseBadge(session.phase))}>
+                        {session.phase === 'diagnostic' ? t('sessions.phase_diagnostic') : t('sessions.phase_overview')}
                       </span>
                     </div>
-                    <div className="flex gap-4 mt-2 text-sm text-[hsl(var(--muted-foreground))]">
-                      {session.current_module_code && (
-                        <span>{t('dashboard.module' + session.current_module_code)}</span>
-                      )}
-                      <span>{formatDate(session.started_at)}</span>
-                    </div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    {session.phase === 'diagnostic' ? (
-                      <Button
-                        size="sm"
-                        variant={session.status === 'completed' ? 'outline' : 'default'}
-                        onClick={(e) => { e.stopPropagation(); handleContinue(session) }}
-                        isLoading={isContinuing}
-                      >
-                        <Play className="h-4 w-4 ml-1" />
-                        {t('sessions.continue')}
-                      </Button>
-                    ) : (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={(e) => { e.stopPropagation(); navigate(`/interview/${session.id}`) }}
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                    )}
+                </div>
+
+                <hr className="border-[hsl(var(--border))] mx-3" />
+
+                <div className="px-3 py-2 text-xs space-y-1.5">
+                  {session.current_module_code && (
+                    <p>
+                      <span className="text-[hsl(var(--foreground))] font-medium ml-1">{t('sessions.moduleLabel')}:</span>
+                      {t('dashboard.module' + session.current_module_code)}
+                    </p>
+                  )}
+                  {formatElapsed(session.elapsed_time) && (
+                    <p>
+                      <span className="text-[hsl(var(--foreground))] font-medium ml-1">{t('sessions.timeLabel')}:</span>
+                      <span className="font-mono tabular-nums">{formatElapsed(session.elapsed_time)}</span>
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2 px-3 py-3 border-t border-[hsl(var(--border))]">
+                  {session.phase === 'diagnostic' ? (
+                    <Button
+                      size="sm"
+                      variant={session.status === 'completed' ? 'outline' : 'secondary'}
+                      onClick={(e) => { e.stopPropagation(); handleContinue(session) }}
+                      isLoading={isContinuing}
+                    >
+                      <Play className="ml-1 h-4 w-4" />
+                      {t('sessions.continue')}
+                    </Button>
+                  ) : (
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={(e) => { e.stopPropagation(); setDeleteTarget(session) }}
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                      onClick={(e) => { e.stopPropagation(); navigate(`/interview/${session.id}`) }}
                     >
-                      <Trash2 className="h-4 w-4" />
+                      {i18n.language === 'fa' ? 'مشاهده' : 'View'}
                     </Button>
-                  </div>
+                  )}
+                  {session.status === 'completed' && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={(e) => { e.stopPropagation(); navigate(`/interview/${session.id}/results`) }}
+                    >
+                      <FileText className="ml-1 h-4 w-4" />
+                      {i18n.language === 'fa' ? 'نتایج' : 'Results'}
+                    </Button>
+                  )}
+                  <div className="flex-1" />
+                  <Button
+                    size="sm"
+                    variant="danger"
+                    onClick={(e) => { e.stopPropagation(); setDeleteTarget(session) }}
+                  >
+                    <Trash2 className="ml-1 h-4 w-4" />
+                    {t('common.delete')}
+                  </Button>
                 </div>
               </CardContent>
             </Card>
