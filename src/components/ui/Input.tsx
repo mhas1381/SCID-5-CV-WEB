@@ -31,6 +31,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               endAdornment && 'ltr:pr-10 rtl:pl-10',
               className
             )}
+            type={type}
             dir={type === 'password' ? 'ltr' : undefined}
             {...props}
           />
