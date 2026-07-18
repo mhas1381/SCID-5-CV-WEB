@@ -178,7 +178,6 @@ export interface PatientCreateRequest {
   email?: string
   birth_date?: string
   gender?: 'male' | 'female'
-  marital_status?: string
   education?: string
   occupation?: string
   address?: string
