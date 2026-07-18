@@ -17,7 +17,7 @@ const patientSchema = z.object({
   last_name: z.string().min(2, 'نام خانوادگی حداقل ۲ کاراکتر'),
   national_id: z.string().length(10, 'کد ملی ۱۰ رقم').optional().or(z.literal('')),
   phone_number: z.string().min(10, 'شماره تماس معتبر'),
-  date_of_birth: z.string().min(10, 'تاریخ تولد معتبر').optional().or(z.literal('')),
+  birth_date: z.string().min(10, 'تاریخ تولد معتبر').optional().or(z.literal('')),
   gender: z.enum(['male', 'female']),
   address: z.string().optional(),
   province: z.number().optional().nullable(),
@@ -60,7 +60,7 @@ export function PatientFormPage() {
       last_name: patient.last_name,
       national_id: patient.national_id,
       phone_number: patient.phone_number,
-      date_of_birth: patient.date_of_birth || '',
+      birth_date: patient.birth_date || '',
       gender: patient.gender,
       address: patient.address || '',
       province: patient.province,
@@ -177,14 +177,14 @@ export function PatientFormPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Controller
-                name="date_of_birth"
+                name="birth_date"
                 control={control}
                 render={({ field }) => (
                   <JalaliDatePicker
                     label={t('patients.birthDate')}
                     value={field.value || ''}
                     onChange={field.onChange}
-                    error={errors.date_of_birth?.message}
+                    error={errors.birth_date?.message}
                   />
                 )}
               />
