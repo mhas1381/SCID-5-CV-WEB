@@ -135,10 +135,6 @@ export function PatientsPage() {
                       {formatDate(patient.birth_date)}
                     </p>
                   )}
-                  <p>
-                    <span className="text-[hsl(var(--foreground))] font-medium ml-1">{t('patients.interviewCode')}:</span>
-                    {patient.patient_code}
-                  </p>
                 </div>
 
                 <div className="flex items-center gap-2 px-3 py-3 border-t border-[hsl(var(--border))]">
