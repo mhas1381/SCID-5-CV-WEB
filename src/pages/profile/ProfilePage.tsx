@@ -5,13 +5,13 @@ import {
   useUpdateProfileMutation,
   useVerifyPsychologistMutation,
 } from '@/store/api/profileApi'
-import { useGetMeQuery, useSetPasswordMutation } from '@/store/api/authApi'
+import { useGetMeQuery } from '@/store/api/authApi'
 import { Card, CardHeader, CardTitle, CardContent, VerifiedBadge } from '@/components/ui'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui'
 import { JalaliDatePicker } from '@/components/ui/JalaliDatePicker'
 import { toast } from 'sonner'
-import { Loader2, User, Save, Camera, KeyRound, ShieldCheck, Upload, X, Image, GraduationCap, Stethoscope, IdCard, BadgeCheck } from 'lucide-react'
+import { Loader2, User, Save, Camera, ShieldCheck, Upload, X, Image, GraduationCap, Stethoscope, IdCard, BadgeCheck } from 'lucide-react'
 import { getErrorMessage } from '@/utils/error'
 import type { UserProfileUpdateRequest } from '@/types'
 
@@ -28,10 +28,8 @@ export function ProfilePage() {
   } = useGetProfileQuery()
   const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation()
   const [verifyPsychologist, { isLoading: isVerifying }] = useVerifyPsychologistMutation()
-  const [setPassword, { isLoading: isSettingPassword }] = useSetPasswordMutation()
 
   const [form, setForm] = useState<UserProfileUpdateRequest>({})
-  const [passwordForm, setPasswordForm] = useState({ password: '', confirm_password: '' })
   const [profileImage, setProfileImage] = useState<File | null>(null)
   const [profileImagePreview, setProfileImagePreview] = useState<string | null>(null)
   const [orgCardImage, setOrgCardImage] = useState<File | null>(null)
@@ -78,24 +76,6 @@ export function ProfilePage() {
 
   const handleChange = (field: string, value: string | number | null) => {
     setForm((prev) => ({ ...prev, [field]: value ?? '' }))
-  }
-
-  const handleSetPassword = async () => {
-    try {
-      if (passwordForm.password.length < 8) {
-        toast.error('رمز عبور باید حداقل ۸ کاراکتر باشد')
-        return
-      }
-      if (passwordForm.password !== passwordForm.confirm_password) {
-        toast.error('رمز عبور و تکرار آن یکسان نیستند')
-        return
-      }
-      await setPassword(passwordForm).unwrap()
-      toast.success('رمز عبور با موفقیت تنظیم شد')
-      setPasswordForm({ password: '', confirm_password: '' })
-    } catch (err: any) {
-      toast.error(getErrorMessage(err, 'خطا در تنظیم رمز عبور'))
-    }
   }
 
   const handleSubmit = async () => {
@@ -512,48 +492,6 @@ export function ProfilePage() {
           </div>
         </CardContent>
       </Card>
-
-      {!meLoading && me?.has_password !== true && (
-        <Card className="overflow-hidden">
-          <div className="h-2 bg-gradient-to-r from-violet-500 to-purple-600" />
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <KeyRound className="h-5 w-5 text-[hsl(var(--primary))]" />
-              {t('auth.setPassword')}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-sm text-[hsl(var(--muted-foreground))]">
-              {t('auth.setPasswordHint')}
-            </p>
-            <Input
-              id="set_password"
-              label={t('auth.password')}
-              placeholder={t('auth.password')}
-              type="password"
-              value={passwordForm.password}
-              onChange={(e) =>
-                setPasswordForm((prev) => ({ ...prev, password: e.target.value }))
-              }
-            />
-            <Input
-              id="set_confirm_password"
-              label={t('auth.confirmPassword')}
-              placeholder={t('auth.confirmPassword')}
-              type="password"
-              value={passwordForm.confirm_password}
-              onChange={(e) =>
-                setPasswordForm((prev) => ({ ...prev, confirm_password: e.target.value }))
-              }
-            />
-            <div className="flex justify-end">
-              <Button onClick={handleSetPassword} isLoading={isSettingPassword}>
-                {t('auth.setPasswordBtn')}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       <div className="flex items-center justify-end">
         <Button onClick={handleSubmit} disabled={isUpdating}>
