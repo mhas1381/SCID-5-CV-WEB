@@ -9,7 +9,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ className, label, error, id, required, endAdornment, ...props }, ref) => {
+  ({ className, label, error, id, required, endAdornment, type, ...props }, ref) => {
     return (
       <div className="space-y-1">
         {label && (
@@ -31,6 +31,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               endAdornment && 'ltr:pr-10 rtl:pl-10',
               className
             )}
+            dir={type === 'password' ? 'ltr' : undefined}
             {...props}
           />
           {endAdornment && (
