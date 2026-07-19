@@ -149,6 +149,11 @@ export const interviewApi = baseApi.injectEndpoints({
       providesTags: (result, error, patientId) => [{ type: 'Overview', id: patientId }],
     }),
 
+    getOverviewDetail: builder.query<Overview, number>({
+      query: (id) => `v1/accounts/overviews/${id}/`,
+      providesTags: (result, error, id) => [{ type: 'Overview', id }],
+    }),
+
     createOverview: builder.mutation<Overview, { patientId: number; data: OverviewCreateRequest }>({
       query: ({ patientId, data }) => ({
         url: `v1/accounts/patients/${patientId}/overviews/`,
@@ -174,6 +179,7 @@ export const {
   useGetSessionProgressQuery,
   useGetDiagnosticResultsQuery,
   useGetPatientOverviewsQuery,
+  useGetOverviewDetailQuery,
   useCreateOverviewMutation,
   useDeleteSessionMutation,
   useContinueSessionMutation,

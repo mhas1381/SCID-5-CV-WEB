@@ -1,5 +1,6 @@
 import { forwardRef, type InputHTMLAttributes } from 'react'
 import { cn } from '@/utils/cn'
+import { toEnglishDigits } from '@/utils/string'
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string
@@ -9,7 +10,15 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ className, label, error, id, required, endAdornment, type, ...props }, ref) => {
+  ({ className, label, error, id, required, endAdornment, type, onChange, ...props }, ref) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const converted = toEnglishDigits(e.target.value)
+      if (converted !== e.target.value) {
+        e.target.value = converted
+      }
+      onChange?.(e)
+    }
+
     return (
       <div className="space-y-1">
         {label && (
@@ -33,6 +42,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             )}
             type={type}
             dir={type === 'password' ? 'ltr' : undefined}
+            onChange={handleChange}
             {...props}
           />
           {endAdornment && (

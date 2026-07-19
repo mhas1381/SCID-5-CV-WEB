@@ -11,6 +11,7 @@ import { useUpdateProfileMutation } from '@/store/api/profileApi'
 import { useAppDispatch, useAppSelector } from '@/hooks/useAppStore'
 import { setCredentials } from '@/store/slices/authSlice'
 import { getErrorMessage } from '@/utils/error'
+import { toEnglishDigits } from '@/utils/string'
 
 const otpSchema = z.object({
   first_name: z.string().min(1, 'نام الزامی است'),
@@ -24,7 +25,13 @@ const otpSchema = z.object({
 })
 
 const googleSchema = z.object({
-  phone_number: z.string().min(10, 'شماره تماس معتبر وارد کنید').regex(/^09\d{9}$/, 'شماره باید با 09 شروع شود و 11 رقم باشد'),
+  phone_number: z
+    .string()
+    .transform(toEnglishDigits)
+    .refine(
+      (val) => /^09\d{9}$/.test(val),
+      'شماره باید با 09 شروع شود و 11 رقم باشد'
+    ),
 })
 
 type OTPFormData = z.infer<typeof otpSchema>

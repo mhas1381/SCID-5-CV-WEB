@@ -121,7 +121,9 @@
     "deleteConfirm": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
     "createSuccess": "New patient created successfully",
     "updateSuccess": "Patient information updated successfully",
-    "saveError": "Error saving patient information"
+    "saveError": "Error saving patient information",
+    "encryptionHint": "If the page loads slowly, it is due to the encryption of sensitive patient data.",
+    "requiredFieldsHint": "Some fields such as education and marital status are mandatory and are used for statistical analysis and big data."
   },
   "interview": {
     "title": "New Interview",
@@ -155,7 +157,8 @@
     "completeOverviewFirst": "Please complete the Overview section first.",
     "goToOverview": "Go to Overview",
     "completedPrompt": "This session has already been completed. Do you want to continue working on it?",
-    "viewResults": "View Results"
+    "viewResults": "View Results",
+    "noQuestionsAvailable": "No overview questions available. Please contact your administrator."
   },
   "results": {
     "title": "Diagnostic Results",
@@ -227,14 +230,16 @@
     "verificationFailed": "Credential Verification Failed",
     "credentialVerified": "Verified",
     "verificationSuccess": "License verified successfully",
-    "verificationFailedMessage": "License verification failed. Check your information.",
+    "verificationFailedMessage": "Verification failed. Please enter your details and documents accurately.",
     "verificationError": "Error during verification",
     "organizationCardPsychologist": "Psychology Organization Card",
     "organizationCardPsychiatrist": "Medical Council Card",
     "chooseFile": "Choose file...",
+    "profileImageRequired": "Please upload your profile image first",
     "orgCardRequired": "Please upload your organization card image first",
     "licenseRequired": "Please enter your license number",
     "verificationSection": "Credential Verification",
+    "verificationHint": "For credential verification, please upload your profile image, enter your first and last name, license number, and organization card. The entered information is automatically checked against the Psychology/Medical Council database.",
     "otherInfo": "Other Information"
   },
   "settings": {

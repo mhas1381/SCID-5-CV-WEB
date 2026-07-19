@@ -4,6 +4,7 @@ import { Toaster } from 'sonner'
 import { useTranslation } from 'react-i18next'
 import { useDirection } from '@/hooks/useDirection'
 import { useTheme } from '@/hooks/useTheme'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import { LandingPage } from '@/pages/landing/LandingPage'
@@ -28,7 +29,7 @@ function AppContent() {
   const isRtl = i18n.language === 'fa'
 
   return (
-    <>
+    <ErrorBoundary>
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<LandingPage />} />
@@ -69,7 +70,7 @@ function AppContent() {
         </Route>
       </Routes>
       <Toaster richColors position={isRtl ? 'top-left' : 'top-right'} />
-    </>
+    </ErrorBoundary>
   )
 }
 

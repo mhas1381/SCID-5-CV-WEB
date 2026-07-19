@@ -1,8 +1,10 @@
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Brain, ClipboardList, ShieldCheck, BarChart3, Users, Languages, Lock, ArrowLeft, ChevronLeft, GraduationCap } from 'lucide-react'
 import { Button, Card, CardContent } from '@/components/ui'
 import { ThemeToggle } from '@/components/layout/ThemeToggle'
+import { useAppSelector } from '@/hooks/useAppStore'
 
 const stats = [
   { value: '۴۱', label: 'اختلال DSM-5' },
@@ -86,7 +88,14 @@ const steps = [
 export function LandingPage() {
   const navigate = useNavigate()
   const { i18n } = useTranslation()
+  const { isAuthenticated } = useAppSelector((state) => state.auth)
   const isRtl = i18n.language === 'fa'
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard', { replace: true })
+    }
+  }, [isAuthenticated, navigate])
 
   return (
     <div className="min-h-screen bg-[hsl(var(--background))] flex flex-col">

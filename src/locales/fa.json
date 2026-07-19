@@ -121,7 +121,9 @@
     "deleteConfirm": "آیا از حذف \"{{name}}\" اطمینان دارید؟ این عمل غیرقابل برگشت است.",
     "createSuccess": "بیمار جدید با موفقیت ثبت شد",
     "updateSuccess": "اطلاعات بیمار با موفقیت به‌روزرسانی شد",
-    "saveError": "خطا در ذخیره اطلاعات"
+    "saveError": "خطا در ذخیره اطلاعات",
+    "encryptionHint": "در صورت مشاهده کندی در بارگذاری صفحه، به دلیل رمزنگاری اطلاعات حساس بیماران است.",
+    "requiredFieldsHint": "تکمیل برخی فیلدها مانند تحصیلات و وضعیت تأهل الزامی است و برای تحلیل‌های آماری و big data استفاده می‌شود."
   },
   "interview": {
     "title": "مصاحبه جدید",
@@ -155,7 +157,8 @@
     "completeOverviewFirst": "لطفاً ابتدا بخش اطلاعات زمینه‌ای (Overview) را تکمیل کنید.",
     "goToOverview": "رفتن به بخش Overview",
     "completedPrompt": "این جلسه قبلاً تکمیل شده است. آیا می‌خواهید دوباره روی آن کار کنید؟",
-    "viewResults": "مشاهده نتایج"
+    "viewResults": "مشاهده نتایج",
+    "noQuestionsAvailable": "سوالات بخش Overview در دسترس نیست. لطفاً با مدیر سیستم تماس بگیرید."
   },
   "results": {
     "title": "نتایج تشخیصی",
@@ -227,14 +230,16 @@
     "verificationFailed": "احراز صلاحیت ناموفق",
     "credentialVerified": "تأیید شده",
     "verificationSuccess": "پروانه با موفقیت تأیید شد",
-    "verificationFailedMessage": "تأیید پروانه ناموفق بود. اطلاعات خود را بررسی کنید.",
+    "verificationFailedMessage": "تأیید پروانه ناموفق بود. لطفاً مشخصات و مدارک خود را دقیق وارد کنید.",
     "verificationError": "خطا در تأیید",
     "organizationCardPsychologist": "کارت سازمان نظام روانشناسی",
     "organizationCardPsychiatrist": "کارت سازمان نظام پزشکی",
     "chooseFile": "انتخاب فایل...",
+    "profileImageRequired": "لطفاً ابتدا تصویر پروفایل خود را آپلود کنید",
     "orgCardRequired": "لطفاً ابتدا تصویر کارت سازمان خود را آپلود کنید",
     "licenseRequired": "لطفاً شماره پروانه را وارد کنید",
     "verificationSection": "احراز صلاحیت",
+    "verificationHint": "برای احراز صلاحیت، لطفاً عکس پروفایل، نام و نام خانوادگی، شماره پروانه و کارت سازمان خود را وارد کنید. اطلاعات وارد شده به‌صورت خودکار با سامانه سازمان نظام روانشناسی/پزشکی تطبیق داده می‌شود.",
     "otherInfo": "سایر اطلاعات"
   },
   "settings": {

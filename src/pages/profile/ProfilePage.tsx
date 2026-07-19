@@ -34,13 +34,15 @@ export function ProfilePage() {
   const [profileImagePreview, setProfileImagePreview] = useState<string | null>(null)
   const [orgCardImage, setOrgCardImage] = useState<File | null>(null)
   const [orgCardImagePreview, setOrgCardImagePreview] = useState<string | null>(null)
+  const [removeProfileImage, setRemoveProfileImage] = useState(false)
   const [removeOrgCard, setRemoveOrgCard] = useState(false)
   const serverImage = profile?.profile_image || me?.profile_image
   const [cacheBuster] = useState(Date.now())
 
   const profileImageSrc = useMemo(() => {
+    if (removeProfileImage) return null
     return profileImagePreview || (serverImage ? `${serverImage}?t=${cacheBuster}` : null)
-  }, [profileImagePreview, serverImage, cacheBuster])
+  }, [profileImagePreview, serverImage, cacheBuster, removeProfileImage])
 
   useEffect(() => {
     if (profile) {
@@ -92,6 +94,7 @@ export function ProfilePage() {
         }
         if (profileImage) fd.append('profile_image', profileImage)
         if (orgCardImage) fd.append('organization_card', orgCardImage)
+        if (removeProfileImage && !profileImage) fd.append('profile_image', '')
         if (removeOrgCard && !orgCardImage) fd.append('organization_card', '')
         body = fd
       } else {
@@ -101,14 +104,18 @@ export function ProfilePage() {
             delete cleanForm[key as keyof typeof cleanForm]
           }
         }
-        body = removeOrgCard ? { ...cleanForm, organization_card: null } : cleanForm
+        if (removeProfileImage) cleanForm.profile_image = null as any
+        if (removeOrgCard) cleanForm.organization_card = null as any
+        body = cleanForm
       }
 
       await updateProfile(body).unwrap()
       toast.success(t('profile.saveSuccess'))
       setProfileImage(null)
       setOrgCardImage(null)
+      setProfileImagePreview(null)
       setOrgCardImagePreview(null)
+      setRemoveProfileImage(false)
       setRemoveOrgCard(false)
       refetch()
     } catch (err: any) {
@@ -121,7 +128,11 @@ export function ProfilePage() {
       toast.error(t('profile.licenseRequired'))
       return
     }
-    if (form.clinician_type === 'psychologist' && !profile?.organization_card && !orgCardImage) {
+    if (!profileImage && !serverImage) {
+      toast.error(t('profile.profileImageRequired'))
+      return
+    }
+    if (form.clinician_type !== 'none' && !profile?.organization_card && !orgCardImage) {
       toast.error(t('profile.orgCardRequired'))
       return
     }
@@ -136,6 +147,7 @@ export function ProfilePage() {
         }
         if (profileImage) fd.append('profile_image', profileImage)
         if (orgCardImage) fd.append('organization_card', orgCardImage)
+        if (removeProfileImage && !profileImage) fd.append('profile_image', '')
         await updateProfile(fd).unwrap()
       } else {
         const cleanForm = { ...form }
@@ -205,6 +217,19 @@ export function ProfilePage() {
                 </div>
               )}
             </div>
+            {(profileImageSrc || profileImage || serverImage) && (
+              <button
+                type="button"
+                onClick={() => {
+                  setProfileImage(null)
+                  setProfileImagePreview(null)
+                  if (serverImage) setRemoveProfileImage(true)
+                }}
+                className="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white shadow hover:bg-red-600 dark:bg-red-700 dark:hover:bg-red-600"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            )}
             <label
               htmlFor="profile_image"
               className="absolute -bottom-1 -left-1 cursor-pointer rounded-full bg-[hsl(var(--primary))] p-2 text-[hsl(var(--primary-foreground))] shadow-md hover:brightness-110"
@@ -316,6 +341,9 @@ export function ProfilePage() {
               <ShieldCheck className="h-4 w-4 text-amber-500 dark:text-amber-400" />
               {t('profile.verificationSection')}
             </h3>
+            <p className="mb-4 text-xs leading-relaxed text-[hsl(var(--muted-foreground))]">
+              {t('profile.verificationHint')}
+            </p>
             <div className="space-y-4 rounded-lg border border-amber-200 bg-amber-50/50 p-4 dark:border-[hsl(var(--border))] dark:bg-[hsl(var(--muted))/0.3]">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <Input

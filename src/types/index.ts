@@ -144,6 +144,7 @@ export interface UserProfileUpdateRequest {
   years_of_experience?: number | null
   clinician_type?: 'none' | 'psychologist' | 'psychiatrist'
   organization_card?: string | null
+  profile_image?: string | null
 }
 
 // ==========================================================
@@ -162,9 +163,10 @@ export interface Patient {
   gender: 'male' | 'female'
   birth_date: string | null
   date_of_birth: string | null
-  address: string
-  province: number | null
-  city: number | null
+  education: string
+  marital_status: string
+  province: number
+  city: number
   created_by_name: string
   created_at: string
   is_active: boolean
@@ -179,12 +181,9 @@ export interface PatientCreateRequest {
   birth_date?: string
   gender?: 'male' | 'female'
   education?: string
-  occupation?: string
-  address?: string
-  province?: number | null
-  city?: number | null
-  emergency_contact_name?: string
-  emergency_contact_phone?: string
+  marital_status?: string
+  province?: number
+  city?: number
 }
 
 export interface PatientCreateResponse {
@@ -239,10 +238,10 @@ export interface OverviewQuestion {
   key: string
   text: string
   text_fa?: string
-  input_type: 'radio' | 'date' | 'number' | 'text' | 'textarea'
+  input_type: 'radio' | 'boolean' | 'select' | 'date' | 'number' | 'text' | 'textarea'
   required: boolean
   order: number
-  choices: { label: string; value: string }[] | null
+  choices: ({ label: string; value: string } | { value: string; label_en: string; label_fa: string })[] | null
   depends_on: string | null
 }
 
@@ -273,6 +272,9 @@ export interface Overview {
   clinician_name?: string
   patient_name?: string
   answers: Record<string, string | boolean | number>
+  is_completed?: boolean
+  session?: number | null
+  answers_count?: number
   created_at: string
   updated_at: string
 }

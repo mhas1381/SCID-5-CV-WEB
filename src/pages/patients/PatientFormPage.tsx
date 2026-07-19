@@ -9,19 +9,35 @@ import { useGetProvincesQuery, useGetAllCitiesQuery } from '@/store/api/location
 import { Button, Input, Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
 import { JalaliDatePicker } from '@/components/ui/JalaliDatePicker'
 import { getErrorMessage } from '@/utils/error'
+import { cn } from '@/utils/cn'
+import { toEnglishDigits } from '@/utils/string'
 import { toast } from 'sonner'
 import { UserPlus, User, ArrowRight, Loader2 } from 'lucide-react'
+import type { FieldPath } from 'react-hook-form'
 
 const patientSchema = z.object({
   first_name: z.string().min(2, 'نام حداقل ۲ کاراکتر'),
   last_name: z.string().min(2, 'نام خانوادگی حداقل ۲ کاراکتر'),
-  national_id: z.string().length(10, 'کد ملی ۱۰ رقم').optional().or(z.literal('')),
-  phone_number: z.string().min(10, 'شماره تماس معتبر'),
-  birth_date: z.string().min(10, 'تاریخ تولد معتبر').optional().or(z.literal('')),
+  national_id: z
+    .string()
+    .transform(toEnglishDigits)
+    .refine(
+      (val) => val === '' || val.length === 10,
+      'کد ملی ۱۰ رقم'
+    ),
+  phone_number: z
+    .string()
+    .transform(toEnglishDigits)
+    .refine(
+      (val) => val.length >= 10,
+      'شماره تماس معتبر'
+    ),
+  birth_date: z.string().min(10, 'تاریخ تولد الزامی است'),
   gender: z.enum(['male', 'female']),
-  address: z.string().optional(),
-  province: z.number().optional().nullable(),
-  city: z.number().optional().nullable(),
+  education: z.string().min(1, 'تحصیلات الزامی است'),
+  marital_status: z.string().min(1, 'وضعیت تأهل الزامی است'),
+  province: z.number({ message: 'استان الزامی است' }),
+  city: z.number({ message: 'شهر الزامی است' }),
 })
 
 type PatientFormData = z.infer<typeof patientSchema>
@@ -37,12 +53,13 @@ export function PatientFormPage() {
   const { data: provinces } = useGetProvincesQuery()
   const { data: allCities } = useGetAllCitiesQuery()
   const [selectedProvince, setSelectedProvince] = useState<number | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [pageError, setPageError] = useState<string | null>(null)
 
   const cities = allCities?.filter((c) => c.province === selectedProvince)
 
   useEffect(() => {
     if (patient?.province) setSelectedProvince(patient.province)
+    else setSelectedProvince(null)
   }, [patient?.province])
 
   const {
@@ -50,19 +67,21 @@ export function PatientFormPage() {
     handleSubmit,
     control,
     setValue,
+    setError,
     watch,
     formState: { errors },
   } = useForm<PatientFormData>({
     resolver: zodResolver(patientSchema),
-    defaultValues: isEdit ? undefined : { gender: 'male', province: null, city: null },
+    defaultValues: isEdit ? undefined : { gender: 'male', birth_date: '' },
     values: patient ? {
       first_name: patient.first_name,
       last_name: patient.last_name,
-      national_id: patient.national_id,
+      national_id: patient.national_id || '',
       phone_number: patient.phone_number,
       birth_date: patient.birth_date || '',
       gender: patient.gender,
-      address: patient.address || '',
+      education: patient.education || '',
+      marital_status: patient.marital_status || '',
       province: patient.province,
       city: patient.city,
     } : undefined,
@@ -72,16 +91,14 @@ export function PatientFormPage() {
 
   const onSubmit = async (data: PatientFormData) => {
     try {
-      setError(null)
+      setPageError(null)
       if (!isEdit && !data.national_id) {
-        setError('کد ملی الزامی است')
+        setPageError('کد ملی الزامی است')
         return
       }
       const body = {
         ...data,
         national_id: data.national_id || undefined,
-        province: data.province || undefined,
-        city: data.city || undefined,
       }
       if (isEdit && id) {
         await updatePatient({ id: Number(id), data: body }).unwrap()
@@ -94,7 +111,15 @@ export function PatientFormPage() {
     } catch (err: any) {
       const msg = getErrorMessage(err, t('patients.saveError'))
       toast.error(msg)
-      setError(msg)
+      setPageError(msg)
+      const errorData = err?.data
+      if (errorData && typeof errorData === 'object') {
+        for (const key of Object.keys(errorData)) {
+          const val = errorData[key]
+          const message = Array.isArray(val) ? String(val[0]) : String(val)
+          setError(key as FieldPath<PatientFormData>, { type: 'manual', message })
+        }
+      }
     }
   }
 
@@ -134,9 +159,9 @@ export function PatientFormPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-            {error && (
+            {pageError && (
               <div className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm font-medium text-red-600 dark:border-red-800 dark:bg-red-950 dark:text-red-400">
-                {error}
+                {pageError}
               </div>
             )}
 
@@ -203,15 +228,57 @@ export function PatientFormPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="block text-sm font-medium text-[hsl(var(--foreground))]">استان</label>
+                <label className="block text-sm font-medium text-[hsl(var(--foreground))]">تحصیلات <span className="text-red-500 mr-0.5"> *</span></label>
                 <select
-                  className="flex h-10 w-full rounded-lg border border-[hsl(var(--input))] bg-[hsl(var(--card))] px-3 py-2 text-sm text-[hsl(var(--foreground))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
-                  value={watchedProvince != null ? String(watchedProvince) : ''}
+                  className={cn(
+                    'flex h-10 w-full rounded-lg border border-[hsl(var(--input))] bg-[hsl(var(--card))] px-3 py-2 text-sm text-[hsl(var(--foreground))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]',
+                    errors.education && 'border-red-500 dark:border-red-700',
+                  )}
+                  {...register('education')}
+                >
+                  <option value="" className="bg-[hsl(var(--card))] text-[hsl(var(--foreground))]">انتخاب کنید</option>
+                  <option value="none" className="bg-[hsl(var(--card))] text-[hsl(var(--foreground))]">بدون تحصیلات</option>
+                  <option value="diploma" className="bg-[hsl(var(--card))] text-[hsl(var(--foreground))]">دیپلم</option>
+                  <option value="associate" className="bg-[hsl(var(--card))] text-[hsl(var(--foreground))]">کاردانی</option>
+                  <option value="bachelor" className="bg-[hsl(var(--card))] text-[hsl(var(--foreground))]">کارشناسی</option>
+                  <option value="master" className="bg-[hsl(var(--card))] text-[hsl(var(--foreground))]">کارشناسی ارشد</option>
+                  <option value="doctorate" className="bg-[hsl(var(--card))] text-[hsl(var(--foreground))]">دکتری</option>
+                </select>
+                {errors.education && <p className="text-sm text-red-500 dark:text-red-400">{errors.education.message}</p>}
+              </div>
+              <div className="space-y-1">
+                <label className="block text-sm font-medium text-[hsl(var(--foreground))]">وضعیت تأهل <span className="text-red-500 mr-0.5"> *</span></label>
+                <select
+                  className={cn(
+                    'flex h-10 w-full rounded-lg border border-[hsl(var(--input))] bg-[hsl(var(--card))] px-3 py-2 text-sm text-[hsl(var(--foreground))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]',
+                    errors.marital_status && 'border-red-500 dark:border-red-700',
+                  )}
+                  {...register('marital_status')}
+                >
+                  <option value="" className="bg-[hsl(var(--card))] text-[hsl(var(--foreground))]">انتخاب کنید</option>
+                  <option value="single" className="bg-[hsl(var(--card))] text-[hsl(var(--foreground))]">مجرد</option>
+                  <option value="married" className="bg-[hsl(var(--card))] text-[hsl(var(--foreground))]">متأهل</option>
+                  <option value="divorced" className="bg-[hsl(var(--card))] text-[hsl(var(--foreground))]">مطلقه</option>
+                  <option value="widowed" className="bg-[hsl(var(--card))] text-[hsl(var(--foreground))]">همسر فوت شده</option>
+                </select>
+                {errors.marital_status && <p className="text-sm text-red-500 dark:text-red-400">{errors.marital_status.message}</p>}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className="block text-sm font-medium text-[hsl(var(--foreground))]">استان <span className="text-red-500 mr-0.5"> *</span></label>
+                <select
+                  className={cn(
+                    'flex h-10 w-full rounded-lg border border-[hsl(var(--input))] bg-[hsl(var(--card))] px-3 py-2 text-sm text-[hsl(var(--foreground))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]',
+                    errors.province && 'border-red-500 dark:border-red-700',
+                  )}
+                  value={watchedProvince ? String(watchedProvince) : ''}
                   onChange={(e) => {
-                    const val = e.target.value ? Number(e.target.value) : null
-                    setValue('province', val)
-                    setSelectedProvince(val)
-                    setValue('city', null)
+                    const val = e.target.value ? Number(e.target.value) : 0
+                    setValue('province', val as any)
+                    setSelectedProvince(val || null)
+                    setValue('city', 0 as any)
                   }}
                 >
                   <option value="" className="bg-[hsl(var(--card))] text-[hsl(var(--foreground))]">انتخاب استان</option>
@@ -219,13 +286,17 @@ export function PatientFormPage() {
                     <option key={p.id} value={String(p.id)} className="bg-[hsl(var(--card))] text-[hsl(var(--foreground))]">{p.name}</option>
                   ))}
                 </select>
+                {errors.province && <p className="text-sm text-red-500 dark:text-red-400">{errors.province.message}</p>}
               </div>
               <div className="space-y-1">
-                <label className="block text-sm font-medium text-[hsl(var(--foreground))]">شهر</label>
+                <label className="block text-sm font-medium text-[hsl(var(--foreground))]">شهر <span className="text-red-500 mr-0.5"> *</span></label>
                 <select
-                  className="flex h-10 w-full rounded-lg border border-[hsl(var(--input))] bg-[hsl(var(--card))] px-3 py-2 text-sm text-[hsl(var(--foreground))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))] disabled:opacity-50"
-                  value={watch('city') != null ? String(watch('city')) : ''}
-                  onChange={(e) => setValue('city', e.target.value ? Number(e.target.value) : null)}
+                  className={cn(
+                    'flex h-10 w-full rounded-lg border border-[hsl(var(--input))] bg-[hsl(var(--card))] px-3 py-2 text-sm text-[hsl(var(--foreground))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))] disabled:opacity-50',
+                    errors.city && 'border-red-500 dark:border-red-700',
+                  )}
+                  value={watch('city') ? String(watch('city')) : ''}
+                  onChange={(e) => setValue('city', (e.target.value ? Number(e.target.value) : 0) as any)}
                   disabled={!watchedProvince}
                 >
                   <option value="" className="bg-[hsl(var(--card))] text-[hsl(var(--foreground))]">انتخاب شهر</option>
@@ -233,16 +304,9 @@ export function PatientFormPage() {
                     <option key={c.id} value={String(c.id)} className="bg-[hsl(var(--card))] text-[hsl(var(--foreground))]">{c.name}</option>
                   ))}
                 </select>
+                {errors.city && <p className="text-sm text-red-500 dark:text-red-400">{errors.city.message}</p>}
               </div>
             </div>
-
-            <Input
-              id="address"
-              label={t('patients.address')}
-              placeholder={t('patients.address')}
-              error={errors.address?.message}
-              {...register('address')}
-            />
 
             <div className="flex gap-4 pt-4 border-t border-[hsl(var(--border))]">
               <Button type="submit" isLoading={isCreating || isUpdating} className="min-w-[120px]">

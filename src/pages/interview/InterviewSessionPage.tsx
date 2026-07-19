@@ -17,6 +17,7 @@ import { Button, Card, CardHeader, CardTitle, CardContent } from '@/components/u
 import { AlertCircle, CheckCircle, Loader2, ArrowLeft, ChevronRight, FileText, Play } from 'lucide-react'
 import { cn } from '@/utils/cn'
 import { getErrorMessage } from '@/utils/error'
+import { toEnglishDigits } from '@/utils/string'
 import type { Question, SubmitAnswerRequest, SessionResponse } from '@/types'
 
 export function InterviewSessionPage() {
@@ -50,7 +51,7 @@ export function InterviewSessionPage() {
   const [continueSession, { isLoading: isContinuing }] = useContinueSessionMutation()
   const [updateSession] = useUpdateSessionMutation()
   const isTimerActive = session?.status === 'in_progress'
-  const elapsedDisplay = useElapsedTime({
+  const { displayTime: elapsedDisplay } = useElapsedTime({
     sessionId,
     initialElapsed: session?.elapsed_time ?? 0,
     isActive: isTimerActive,
@@ -526,7 +527,8 @@ export function InterviewSessionPage() {
               onSubmit={(e) => {
                 e.preventDefault()
                 const fd = new FormData(e.currentTarget)
-                const val = Number(fd.get('numeric_response'))
+                const rawVal = (fd.get('numeric_response') as string) || ''
+                const val = Number(toEnglishDigits(rawVal))
                 if (!isNaN(val)) handleAnswer({ numeric_response: val })
               }}
               className="flex gap-2"

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { useGetPatientsQuery, useDeletePatientMutation } from '@/store/api/patientApi'
 import { Button, Card, CardContent } from '@/components/ui'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
-import { Plus, Search, Edit2, Trash2, User, Loader2 } from 'lucide-react'
+import { Plus, Search, Edit2, Trash2, User, Loader2, Info } from 'lucide-react'
 import { cn } from '@/utils/cn'
 import { formatDate } from '@/utils/date'
 
@@ -57,6 +57,13 @@ export function PatientsPage() {
           <Plus className="ml-2 h-4 w-4" />
           {t('patients.newPatient')}
         </Button>
+      </div>
+
+      <div className="rounded-lg border border-blue-200 bg-blue-50/50 p-3 text-sm text-blue-800 dark:border-blue-800 dark:bg-blue-950/50 dark:text-blue-300">
+        <div className="flex items-start gap-2">
+          <Info className="mt-0.5 h-4 w-4 shrink-0" />
+          <p>{t('patients.encryptionHint')}</p>
+        </div>
       </div>
 
       <div className="flex gap-4">

@@ -33,6 +33,14 @@ export function useElapsedTime({
     }
   }, [calcElapsed, onUpdate])
 
+  const flush = useCallback(() => {
+    if (startRef.current !== null) {
+      baseRef.current += Math.floor((Date.now() - startRef.current) / 1000)
+      startRef.current = Date.now()
+    }
+    save()
+  }, [save])
+
   // Initialize / re-sync when backend value changes
   useEffect(() => {
     const baseWas = baseRef.current
@@ -110,5 +118,5 @@ export function useElapsedTime({
     return () => window.removeEventListener('beforeunload', onUnload)
   }, [sessionId])
 
-  return displayTime
+  return { displayTime, flush }
 }

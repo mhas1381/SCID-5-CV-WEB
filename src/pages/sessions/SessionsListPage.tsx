@@ -204,7 +204,16 @@ export function SessionsListPage() {
                 </div>
 
                 <div className="flex items-center gap-2 px-3 py-3 border-t border-[hsl(var(--border))]">
-                  {session.phase === 'diagnostic' ? (
+                  {session.phase === 'overview' ? (
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={(e) => { e.stopPropagation(); navigate(`/interview/${session.id}/overview`) }}
+                    >
+                      <Play className="ml-1 h-4 w-4" />
+                      {t('sessions.continue')}
+                    </Button>
+                  ) : session.phase === 'diagnostic' ? (
                     <Button
                       size="sm"
                       variant={session.status === 'completed' ? 'outline' : 'secondary'}

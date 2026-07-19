@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -9,30 +9,40 @@ import type { CredentialResponse } from '@react-oauth/google'
 import { Brain, Smartphone, KeyRound, Globe, ArrowLeft, CheckCircle } from 'lucide-react'
 import { Button, Input, Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
 import { useSendOTPMutation, useVerifyOTPMutation, useGoogleLoginMutation, usePasswordLoginMutation } from '@/store/api/authApi'
-import { useAppDispatch } from '@/hooks/useAppStore'
+import { useAppDispatch, useAppSelector } from '@/hooks/useAppStore'
 import { setCredentials } from '@/store/slices/authSlice'
 import { getErrorMessage } from '@/utils/error'
 import { cn } from '@/utils/cn'
+import { toEnglishDigits } from '@/utils/string'
 
 const phoneSchema = z.object({
   phone_number: z
     .string()
-    .min(10, 'شماره تماس معتبر وارد کنید')
-    .regex(/^09\d{9}$/, 'شماره باید با 09 شروع شود و 11 رقم باشد'),
+    .transform(toEnglishDigits)
+    .refine(
+      (val) => /^09\d{9}$/.test(val),
+      'شماره باید با 09 شروع شود و 11 رقم باشد'
+    ),
 })
 
 const otpSchema = z.object({
   otp_code: z
     .string()
-    .length(5, 'کد تأیید ۵ رقمی است')
-    .regex(/^\d{5}$/, 'کد تأیید فقط شامل اعداد است'),
+    .transform(toEnglishDigits)
+    .refine(
+      (val) => val.length === 5 && /^\d+$/.test(val),
+      'کد تأیید ۵ رقمی است'
+    ),
 })
 
 const passwordSchema = z.object({
   phone_number: z
     .string()
-    .min(10, 'شماره تماس معتبر وارد کنید')
-    .regex(/^09\d{9}$/, 'شماره باید با 09 شروع شود و 11 رقم باشد'),
+    .transform(toEnglishDigits)
+    .refine(
+      (val) => /^09\d{9}$/.test(val),
+      'شماره باید با 09 شروع شود و 11 رقم باشد'
+    ),
   password: z.string().min(1, 'رمز عبور را وارد کنید'),
 })
 
@@ -52,6 +62,13 @@ export function LoginPage() {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const { t } = useTranslation()
+  const { isAuthenticated } = useAppSelector((state) => state.auth)
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard', { replace: true })
+    }
+  }, [isAuthenticated, navigate])
 
   const [activeTab, setActiveTab] = useState<TabKey>('otp')
   const [otpStep, setOtpStep] = useState<'phone' | 'otp'>('phone')
