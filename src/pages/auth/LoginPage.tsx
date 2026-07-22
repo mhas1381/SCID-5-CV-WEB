@@ -66,13 +66,17 @@ export function LoginPage() {
   const [pendingRedirect, setPendingRedirect] = useState<string | null>(null)
 
   useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard', { replace: true })
+    }
+  }, [])
+
+  useEffect(() => {
     if (pendingRedirect) {
       navigate(pendingRedirect, { replace: true })
       setPendingRedirect(null)
-    } else if (isAuthenticated) {
-      navigate('/dashboard', { replace: true })
     }
-  }, [isAuthenticated, pendingRedirect, navigate])
+  }, [pendingRedirect, navigate])
 
   const [activeTab, setActiveTab] = useState<TabKey>('otp')
   const [otpStep, setOtpStep] = useState<'phone' | 'otp'>('phone')
