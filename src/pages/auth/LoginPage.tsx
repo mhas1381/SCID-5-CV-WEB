@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState } from 'react'
+import { useNavigate, Navigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -62,13 +62,11 @@ export function LoginPage() {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const { t } = useTranslation()
-  const { isAuthenticated } = useAppSelector((state) => state.auth)
+  const { isAuthenticated, user } = useAppSelector((state) => state.auth)
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/dashboard', { replace: true })
-    }
-  }, [isAuthenticated, navigate])
+  if (isAuthenticated) {
+    return <Navigate to={user?.has_password && user?.first_name ? '/dashboard' : '/complete-registration'} replace />
+  }
 
   const [activeTab, setActiveTab] = useState<TabKey>('otp')
   const [otpStep, setOtpStep] = useState<'phone' | 'otp'>('phone')
