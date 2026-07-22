@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useNavigate, Navigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -62,11 +62,17 @@ export function LoginPage() {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const { t } = useTranslation()
-  const { isAuthenticated, user } = useAppSelector((state) => state.auth)
+  const { isAuthenticated } = useAppSelector((state) => state.auth)
+  const [pendingRedirect, setPendingRedirect] = useState<string | null>(null)
 
-  if (isAuthenticated) {
-    return <Navigate to={user?.has_password && user?.first_name ? '/dashboard' : '/complete-registration'} replace />
-  }
+  useEffect(() => {
+    if (pendingRedirect) {
+      navigate(pendingRedirect, { replace: true })
+      setPendingRedirect(null)
+    } else if (isAuthenticated) {
+      navigate('/dashboard', { replace: true })
+    }
+  }, [isAuthenticated, pendingRedirect, navigate])
 
   const [activeTab, setActiveTab] = useState<TabKey>('otp')
   const [otpStep, setOtpStep] = useState<'phone' | 'otp'>('phone')
@@ -91,13 +97,11 @@ export function LoginPage() {
         user: result.user,
         tokens: { access: result.access, refresh: result.refresh },
       }))
-      if (!result.user.has_password || result.user.phone_number?.startsWith('0990')) {
-        navigate('/complete-registration', {
-          state: { isGoogle: true, user: result.user },
-        })
-      } else {
-        navigate('/dashboard')
-      }
+      setPendingRedirect(
+        !result.user.has_password || result.user.phone_number?.startsWith('0990')
+          ? '/complete-registration'
+          : '/dashboard'
+      )
     } catch (err: any) {
       setError(getErrorMessage(err, 'خطا در ورود با گوگل'))
     }
@@ -138,17 +142,11 @@ export function LoginPage() {
         user: result.user,
         tokens: { access: result.access, refresh: result.refresh },
       }))
-
-      if (result.is_new_user && !result.user?.first_name) {
-        navigate('/complete-registration', {
-          state: {
-            phone: phoneNumber,
-            tokens: { access: result.access, refresh: result.refresh }
-          }
-        })
-      } else {
-        navigate('/dashboard')
-      }
+      setPendingRedirect(
+        result.is_new_user && !result.user?.first_name
+          ? '/complete-registration'
+          : '/dashboard'
+      )
     } catch (err: any) {
       setError(getErrorMessage(err, 'کد تأیید نادرست است'))
     }
@@ -166,8 +164,7 @@ export function LoginPage() {
         user: result.user,
         tokens: { access: result.access, refresh: result.refresh },
       }))
-
-      navigate('/dashboard')
+      setPendingRedirect('/dashboard')
     } catch (err: any) {
       setError(getErrorMessage(err, 'خطا در ورود'))
     }
