@@ -41,7 +41,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               className
             )}
             type={type}
-            dir={type === 'password' ? 'ltr' : undefined}
+            dir={type === 'password' ? 'rtl' : undefined}
             onChange={handleChange}
             {...props}
           />
