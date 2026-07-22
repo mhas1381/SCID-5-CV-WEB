@@ -1,10 +1,10 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation, useBlocker } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Brain, ArrowLeft, CheckCircle, User, Camera, Loader2 } from 'lucide-react'
+import { Brain, ArrowLeft, CheckCircle, User, Camera, Loader2, AlertTriangle } from 'lucide-react'
 import { Button, Input, Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
 import { useCompleteProfileMutation } from '@/store/api/authApi'
 import { useUpdateProfileMutation } from '@/store/api/profileApi'
@@ -72,6 +72,30 @@ export function CompleteRegistrationPage() {
   const otpForm = useForm<OTPFormData>({
     resolver: zodResolver(otpSchema),
   })
+
+  const isDirty = otpForm.formState.isDirty
+  const blocker = useBlocker(isDirty && !success)
+
+  useEffect(() => {
+    if (blocker.state === 'blocked') {
+      const leave = confirm('اطلاعات ثبت‌نام شما ذخیره نشده است. آیا مطمئن هستید که می‌خواهید خارج شوید؟')
+      if (leave) {
+        blocker.proceed()
+      } else {
+        blocker.reset()
+      }
+    }
+  }, [blocker])
+
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (isDirty && !success) {
+        e.preventDefault()
+      }
+    }
+    window.addEventListener('beforeunload', handler)
+    return () => window.removeEventListener('beforeunload', handler)
+  }, [isDirty, success])
 
   const googleForm = useForm<GoogleFormData>({
     resolver: zodResolver(googleSchema),
