@@ -1,6 +1,6 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useLocation, useBlocker } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -74,28 +74,23 @@ export function CompleteRegistrationPage() {
   })
 
   const isDirty = otpForm.formState.isDirty
-  const blocker = useBlocker(isDirty && !success)
 
   useEffect(() => {
-    if (blocker.state === 'blocked') {
-      const leave = confirm('اطلاعات ثبت‌نام شما ذخیره نشده است. آیا مطمئن هستید که می‌خواهید خارج شوید؟')
-      if (leave) {
-        blocker.proceed()
-      } else {
-        blocker.reset()
-      }
-    }
-  }, [blocker])
-
-  useEffect(() => {
+    if (!isDirty || success) return
     const handler = (e: BeforeUnloadEvent) => {
-      if (isDirty && !success) {
-        e.preventDefault()
-      }
+      e.preventDefault()
     }
     window.addEventListener('beforeunload', handler)
     return () => window.removeEventListener('beforeunload', handler)
   }, [isDirty, success])
+
+  const back = useCallback(() => {
+    if (isDirty && !success) {
+      const leave = confirm('اطلاعات ثبت‌نام شما ذخیره نشده است. آیا مطمئن هستید که می‌خواهید خارج شوید؟')
+      if (!leave) return
+    }
+    navigate('/login')
+  }, [isDirty, success, navigate])
 
   const googleForm = useForm<GoogleFormData>({
     resolver: zodResolver(googleSchema),
@@ -335,7 +330,7 @@ export function CompleteRegistrationPage() {
 
               <button
                 type="button"
-                onClick={() => navigate('/login')}
+                onClick={back}
                 className="flex items-center justify-center gap-1 w-full text-sm text-[hsl(var(--muted-foreground))] hover:text-foreground transition-colors"
               >
                 <ArrowLeft className="h-4 w-4" />
