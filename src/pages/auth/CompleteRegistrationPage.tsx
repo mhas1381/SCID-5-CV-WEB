@@ -4,8 +4,8 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Brain, ArrowLeft, CheckCircle, User, Camera, Loader2, AlertTriangle } from 'lucide-react'
-import { Button, Input, Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
+import { Brain, ArrowLeft, CheckCircle, User, Camera, Loader2 } from 'lucide-react'
+import { Button, Input, Card, CardHeader, CardTitle, CardContent, ConfirmDialog } from '@/components/ui'
 import { useCompleteProfileMutation } from '@/store/api/authApi'
 import { useUpdateProfileMutation } from '@/store/api/profileApi'
 import { useAppDispatch, useAppSelector } from '@/hooks/useAppStore'
@@ -47,6 +47,7 @@ export function CompleteRegistrationPage() {
   const [success, setSuccess] = useState(false)
   const [profileImage, setProfileImage] = useState<File | null>(null)
   const [profileImagePreview, setProfileImagePreview] = useState<string | null>(null)
+  const [showExitConfirm, setShowExitConfirm] = useState(false)
 
   const authUser = useAppSelector((state) => state.auth.user)
   const authTokens = useAppSelector((state) => ({
@@ -86,8 +87,8 @@ export function CompleteRegistrationPage() {
 
   const back = useCallback(() => {
     if (isDirty && !success) {
-      const leave = confirm('اطلاعات ثبت‌نام شما ذخیره نشده است. آیا مطمئن هستید که می‌خواهید خارج شوید؟')
-      if (!leave) return
+      setShowExitConfirm(true)
+      return
     }
     navigate('/login')
   }, [isDirty, success, navigate])
@@ -341,5 +342,18 @@ export function CompleteRegistrationPage() {
         </CardContent>
       </Card>
     </div>
+      <ConfirmDialog
+        open={showExitConfirm}
+        title="خروج از صفحه ثبت‌نام"
+        message="اطلاعات ثبت‌نام شما ذخیره نشده است. آیا مطمئن هستید که می‌خواهید خارج شوید؟"
+        confirmLabel="خروج"
+        cancelLabel="ماندن در صفحه"
+        variant="danger"
+        onConfirm={() => {
+          setShowExitConfirm(false)
+          navigate('/login')
+        }}
+        onCancel={() => setShowExitConfirm(false)}
+      />
   )
 }
