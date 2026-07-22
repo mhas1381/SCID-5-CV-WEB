@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useRef } from 'react'
+import { useNavigate, Navigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -63,20 +63,11 @@ export function LoginPage() {
   const dispatch = useAppDispatch()
   const { t } = useTranslation()
   const { isAuthenticated } = useAppSelector((state) => state.auth)
-  const [pendingRedirect, setPendingRedirect] = useState<string | null>(null)
+  const isLoggingInRef = useRef(false)
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/dashboard', { replace: true })
-    }
-  }, [])
-
-  useEffect(() => {
-    if (pendingRedirect) {
-      navigate(pendingRedirect, { replace: true })
-      setPendingRedirect(null)
-    }
-  }, [pendingRedirect, navigate])
+  if (isAuthenticated && !isLoggingInRef.current) {
+    return <Navigate to="/dashboard" replace />
+  }
 
   const [activeTab, setActiveTab] = useState<TabKey>('otp')
   const [otpStep, setOtpStep] = useState<'phone' | 'otp'>('phone')
@@ -97,15 +88,21 @@ export function LoginPage() {
         return
       }
       const result = await googleLoginMutation({ id_token: idToken }).unwrap()
+      isLoggingInRef.current = true
       dispatch(setCredentials({
         user: result.user,
         tokens: { access: result.access, refresh: result.refresh },
       }))
-      setPendingRedirect(
-        !result.user.has_password || result.user.phone_number?.startsWith('0990')
-          ? '/complete-registration'
-          : '/dashboard'
-      )
+      setTimeout(() => {
+        if (!result.user.has_password || result.user.phone_number?.startsWith('0990')) {
+          navigate('/complete-registration', {
+            state: { isGoogle: true, user: result.user },
+          })
+        } else {
+          navigate('/dashboard')
+        }
+        isLoggingInRef.current = false
+      }, 0)
     } catch (err: any) {
       setError(getErrorMessage(err, 'خطا در ورود با گوگل'))
     }
@@ -142,15 +139,16 @@ export function LoginPage() {
         otp_code: data.otp_code,
       }).unwrap()
 
+      const targetPath = result.is_new_user ? '/complete-registration' : '/dashboard'
+      isLoggingInRef.current = true
       dispatch(setCredentials({
         user: result.user,
         tokens: { access: result.access, refresh: result.refresh },
       }))
-      setPendingRedirect(
-        result.is_new_user && !result.user?.first_name
-          ? '/complete-registration'
-          : '/dashboard'
-      )
+      setTimeout(() => {
+        navigate(targetPath, { replace: true })
+        isLoggingInRef.current = false
+      }, 0)
     } catch (err: any) {
       setError(getErrorMessage(err, 'کد تأیید نادرست است'))
     }
@@ -164,11 +162,15 @@ export function LoginPage() {
         password: data.password,
       }).unwrap()
 
+      isLoggingInRef.current = true
       dispatch(setCredentials({
         user: result.user,
         tokens: { access: result.access, refresh: result.refresh },
       }))
-      setPendingRedirect('/dashboard')
+      setTimeout(() => {
+        navigate('/dashboard', { replace: true })
+        isLoggingInRef.current = false
+      }, 0)
     } catch (err: any) {
       setError(getErrorMessage(err, 'خطا در ورود'))
     }
