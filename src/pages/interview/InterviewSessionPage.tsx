@@ -13,8 +13,8 @@ import {
   useUpdateSessionMutation,
 } from '@/store/api/interviewApi'
 import { useElapsedTime } from '@/hooks/useElapsedTime'
-import { Button, Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
-import { AlertCircle, CheckCircle, Loader2, ArrowLeft, ChevronRight, FileText, Play } from 'lucide-react'
+import { Button, Card, CardHeader, CardTitle, CardContent, PageLoader, LoadingSpinner } from '@/components/ui'
+import { AlertCircle, CheckCircle, ArrowLeft, ChevronRight, FileText, Play } from 'lucide-react'
 import { cn } from '@/utils/cn'
 import { getErrorMessage } from '@/utils/error'
 import { toEnglishDigits } from '@/utils/string'
@@ -231,11 +231,7 @@ export function InterviewSessionPage() {
   // ---- Render logic ----
 
   if (sessionLoading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-[hsl(var(--muted-foreground))]" />
-      </div>
-    )
+    return <PageLoader />
   }
 
   if (sessionError || !session) {
@@ -300,11 +296,8 @@ export function InterviewSessionPage() {
 
   if (!currentQuestion) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-[hsl(var(--muted-foreground))]" />
-        <span className="mr-3 text-[hsl(var(--muted-foreground))]">
-          {t('common.loading')}
-        </span>
+      <div className="flex items-center justify-center py-10">
+        <LoadingSpinner size="lg" label={t('common.loading')} />
       </div>
     )
   }

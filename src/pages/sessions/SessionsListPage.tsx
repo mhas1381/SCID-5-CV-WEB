@@ -1,12 +1,13 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { AnimatePresence, motion } from 'framer-motion'
 import { toast } from 'sonner'
 import { useGetSessionsQuery, useDeleteSessionMutation, useContinueSessionMutation } from '@/store/api/interviewApi'
 import type { Session } from '@/types'
-import { Button, Card, CardContent } from '@/components/ui'
+import { Button, Card, CardContent, LoadingSpinner } from '@/components/ui'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
-import { ClipboardList, Search, Loader2, Trash2, Play, FileText, Eye } from 'lucide-react'
+import { ClipboardList, Search, Trash2, Play, FileText, Eye } from 'lucide-react'
 import { cn } from '@/utils/cn'
 
 const formatElapsed = (seconds?: number) => {
@@ -74,25 +75,42 @@ const phaseBadge = (phase: string) => {
   }
 }
 
+const cardVariants = {
+  hidden: { opacity: 0, y: 12 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.25, delay: i * 0.04 },
+  }),
+  exit: { opacity: 0, scale: 0.85, transition: { duration: 0.25 } },
+}
+
 export function SessionsListPage() {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const [deleteTarget, setDeleteTarget] = useState<Session | null>(null)
-  const [deleteSession, { isLoading: isDeleting }] = useDeleteSessionMutation()
+  const [deletingId, setDeletingId] = useState<number | null>(null)
+  const [deleteSession] = useDeleteSessionMutation()
   const [continueSession, { isLoading: isContinuing }] = useContinueSessionMutation()
   const { data: sessionsData, isLoading } = useGetSessionsQuery({})
 
-  const handleDelete = async () => {
+  const handleDelete = useCallback(async () => {
     if (!deleteTarget) return
-    try {
-      await deleteSession(deleteTarget.id).unwrap()
-      toast.success(t('sessions.deleteSuccess'))
-      setDeleteTarget(null)
-    } catch {
-      toast.error(t('sessions.deleteError'))
-    }
-  }
+    const targetId = deleteTarget.id
+    setDeletingId(targetId)
+    setDeleteTarget(null)
+    setTimeout(async () => {
+      try {
+        await deleteSession(targetId).unwrap()
+        toast.success(t('sessions.deleteSuccess'))
+      } catch {
+        toast.error(t('sessions.deleteError'))
+      } finally {
+        setDeletingId(null)
+      }
+    }, 300)
+  }, [deleteTarget, deleteSession, t])
 
   const handleContinue = async (session: Session) => {
     try {
@@ -137,135 +155,150 @@ export function SessionsListPage() {
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center py-12">
-          <Loader2 className="h-6 w-6 animate-spin text-[hsl(var(--muted-foreground))]" />
-        </div>
+        <LoadingSpinner size="xl" className="py-12" />
       ) : filteredSessions.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <ClipboardList className="h-12 w-12 text-[hsl(var(--muted-foreground))] mb-4" />
-            <p className="text-[hsl(var(--muted-foreground))]">{t('sessions.noSessions')}</p>
-            <Button variant="outline" className="mt-4" onClick={() => navigate('/interview')}>
-              {t('sessions.newSession')}
-            </Button>
-          </CardContent>
-        </Card>
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center py-12">
+              <ClipboardList className="h-12 w-12 text-[hsl(var(--muted-foreground))] mb-4" />
+              <p className="text-[hsl(var(--muted-foreground))]">{t('sessions.noSessions')}</p>
+              <Button variant="outline" className="mt-4" onClick={() => navigate('/interview')}>
+                {t('sessions.newSession')}
+              </Button>
+            </CardContent>
+          </Card>
+        </motion.div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-          {filteredSessions.map((session: Session) => (
-            <Card
-              key={session.id}
-              className="hover:shadow-md transition-shadow cursor-pointer overflow-hidden"
-              onClick={() => navigate(`/interview/${session.id}`)}
-            >
-              <div className={cn('h-1.5', statusTopBar(session.status))} />
-              <CardContent className="p-0">
-                <div className="flex items-center gap-3 p-3 pb-2">
-                  <div className={cn(
-                    'shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold',
-                    getAvatarColor(session.patient_name),
-                  )}>
-                    {getInitials(session.patient_name)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-semibold truncate">{session.patient_name}</h3>
-                    <div className="flex items-center gap-1 mt-0.5 flex-wrap">
-                      <span className={cn('inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium', statusBadge(session.status))}>
-                        {session.status === 'in_progress'
-                          ? t('sessions.status_in_progress')
-                          : session.status === 'completed'
-                          ? t('sessions.status_completed')
-                          : session.status === 'abandoned'
-                          ? t('sessions.status_abandoned')
-                          : session.status}
-                      </span>
-                      <span className={cn('px-1.5 py-0.5 rounded text-[10px] font-medium uppercase', phaseBadge(session.phase))}>
-                        {session.phase === 'diagnostic' ? t('sessions.phase_diagnostic') : t('sessions.phase_overview')}
-                      </span>
+        <AnimatePresence mode="popLayout">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+            {filteredSessions.map((session: Session, index: number) => (
+              <motion.div
+                key={session.id}
+                layout
+                variants={cardVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                custom={index}
+              >
+                <Card
+                  className="hover:shadow-md transition-shadow cursor-pointer overflow-hidden"
+                  onClick={() => navigate(`/interview/${session.id}`)}
+                >
+                  <div className={cn('h-1.5', statusTopBar(session.status))} />
+                  <CardContent className="p-0">
+                    <div className="flex items-center gap-3 p-3 pb-2">
+                      <div className={cn(
+                        'shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold',
+                        getAvatarColor(session.patient_name),
+                      )}>
+                        {getInitials(session.patient_name)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-sm font-semibold truncate">{session.patient_name}</h3>
+                        <div className="flex items-center gap-1 mt-0.5 flex-wrap">
+                          <span className={cn('inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium', statusBadge(session.status))}>
+                            {session.status === 'in_progress'
+                              ? t('sessions.status_in_progress')
+                              : session.status === 'completed'
+                              ? t('sessions.status_completed')
+                              : session.status === 'abandoned'
+                              ? t('sessions.status_abandoned')
+                              : session.status}
+                          </span>
+                          <span className={cn('px-1.5 py-0.5 rounded text-[10px] font-medium uppercase', phaseBadge(session.phase))}>
+                            {session.phase === 'diagnostic' ? t('sessions.phase_diagnostic') : t('sessions.phase_overview')}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
 
-                <hr className="border-[hsl(var(--border))] mx-3" />
+                    <hr className="border-[hsl(var(--border))] mx-3" />
 
-                <div className="px-3 py-2 text-xs space-y-1.5">
-                  {session.current_module_code && (
-                    <p>
-                      <span className="text-[hsl(var(--foreground))] font-medium ml-1">{t('sessions.moduleLabel')}:</span>
-                      {t('dashboard.module' + session.current_module_code)}
-                    </p>
-                  )}
-                  {formatElapsed(session.elapsed_time) && (
-                    <p>
-                      <span className="text-[hsl(var(--foreground))] font-medium ml-1">{t('sessions.timeLabel')}:</span>
-                      <span className="font-mono tabular-nums">{formatElapsed(session.elapsed_time)}</span>
-                    </p>
-                  )}
-                </div>
+                    <div className="px-3 py-2 text-xs space-y-1.5">
+                      {session.current_module_code && (
+                        <p>
+                          <span className="text-[hsl(var(--foreground))] font-medium ml-1">{t('sessions.moduleLabel')}:</span>
+                          {t('dashboard.module' + session.current_module_code)}
+                        </p>
+                      )}
+                      {formatElapsed(session.elapsed_time) && (
+                        <p>
+                          <span className="text-[hsl(var(--foreground))] font-medium ml-1">{t('sessions.timeLabel')}:</span>
+                          <span className="font-mono tabular-nums">{formatElapsed(session.elapsed_time)}</span>
+                        </p>
+                      )}
+                    </div>
 
-                <div className="flex items-center gap-2 px-3 py-3 border-t border-[hsl(var(--border))]">
-                  {session.phase === 'overview' ? (
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      onClick={(e) => { e.stopPropagation(); navigate(`/interview/${session.id}/overview`) }}
-                    >
-                      <Play className="ml-1 h-4 w-4" />
-                      {t('sessions.continue')}
-                    </Button>
-                  ) : session.phase === 'diagnostic' ? (
-                    <Button
-                      size="sm"
-                      variant={session.status === 'completed' ? 'outline' : 'secondary'}
-                      onClick={(e) => { e.stopPropagation(); handleContinue(session) }}
-                      isLoading={isContinuing}
-                    >
-                      <Play className="ml-1 h-4 w-4" />
-                      {t('sessions.continue')}
-                    </Button>
-                  ) : (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={(e) => { e.stopPropagation(); navigate(`/interview/${session.id}`) }}
-                    >
-                      {i18n.language === 'fa' ? 'مشاهده' : 'View'}
-                    </Button>
-                  )}
-                  {session.overview_id && session.status !== 'completed' && (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={(e) => { e.stopPropagation(); navigate(`/interview/${session.id}/results`) }}
-                    >
-                      <Eye className="ml-1 h-4 w-4" />
-                      {i18n.language === 'fa' ? 'اطلاعات زمینه‌ای' : 'Overview'}
-                    </Button>
-                  )}
-                  {session.status === 'completed' && (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={(e) => { e.stopPropagation(); navigate(`/interview/${session.id}/results`) }}
-                    >
-                      <FileText className="ml-1 h-4 w-4" />
-                      {i18n.language === 'fa' ? 'نتایج' : 'Results'}
-                    </Button>
-                  )}
-                  <div className="flex-1" />
-                  <Button
-                    size="sm"
-                    variant="danger"
-                    onClick={(e) => { e.stopPropagation(); setDeleteTarget(session) }}
-                  >
-                    <Trash2 className="ml-1 h-4 w-4" />
-                    {t('common.delete')}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                    <div className="flex items-center gap-2 px-3 py-3 border-t border-[hsl(var(--border))]">
+                      {session.phase === 'overview' ? (
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={(e) => { e.stopPropagation(); navigate(`/interview/${session.id}/overview`) }}
+                        >
+                          <Play className="ml-1 h-4 w-4" />
+                          {t('sessions.continue')}
+                        </Button>
+                      ) : session.phase === 'diagnostic' ? (
+                        <Button
+                          size="sm"
+                          variant={session.status === 'completed' ? 'outline' : 'secondary'}
+                          onClick={(e) => { e.stopPropagation(); handleContinue(session) }}
+                          isLoading={isContinuing}
+                        >
+                          <Play className="ml-1 h-4 w-4" />
+                          {t('sessions.continue')}
+                        </Button>
+                      ) : (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={(e) => { e.stopPropagation(); navigate(`/interview/${session.id}`) }}
+                        >
+                          {i18n.language === 'fa' ? 'مشاهده' : 'View'}
+                        </Button>
+                      )}
+                      {session.overview_id && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={(e) => { e.stopPropagation(); navigate(`/interview/${session.id}/background`) }}
+                        >
+                          <Eye className="ml-1 h-4 w-4" />
+                          {i18n.language === 'fa' ? 'اطلاعات زمینه‌ای' : 'Overview'}
+                        </Button>
+                      )}
+                      {session.status === 'completed' && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={(e) => { e.stopPropagation(); navigate(`/interview/${session.id}/results`) }}
+                        >
+                          <FileText className="ml-1 h-4 w-4" />
+                          {i18n.language === 'fa' ? 'نتایج' : 'Results'}
+                        </Button>
+                      )}
+                      <div className="flex-1" />
+                      <Button
+                        size="sm"
+                        variant="danger"
+                        onClick={(e) => { e.stopPropagation(); setDeleteTarget(session) }}
+                      >
+                        <Trash2 className="ml-1 h-4 w-4" />
+                        {t('common.delete')}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </AnimatePresence>
       )}
       <ConfirmDialog
         open={!!deleteTarget}
@@ -275,7 +308,6 @@ export function SessionsListPage() {
         cancelLabel={t('common.cancel')}
         onConfirm={handleDelete}
         onCancel={() => setDeleteTarget(null)}
-        isLoading={isDeleting}
       />
     </div>
   )

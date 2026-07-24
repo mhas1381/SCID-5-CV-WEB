@@ -16,6 +16,7 @@
     "axios": "^1.18.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",
+    "framer-motion": "^12.42.2",
     "i18next": "^26.3.4",
     "jalaali-js": "^2.0.0",
     "lucide-react": "^1.23.0",

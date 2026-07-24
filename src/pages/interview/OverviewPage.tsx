@@ -13,8 +13,8 @@ import {
 } from '@/store/api/interviewApi'
 import { useAppDispatch } from '@/hooks/useAppStore'
 import { useElapsedTime } from '@/hooks/useElapsedTime'
-import { Button, Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
-import { AlertCircle, ArrowLeft, ArrowRight, CheckCircle, Loader2, Clock } from 'lucide-react'
+import { Button, Card, CardHeader, CardTitle, CardContent, PageLoader } from '@/components/ui'
+import { AlertCircle, ArrowLeft, ArrowRight, CheckCircle, Clock } from 'lucide-react'
 import { getErrorMessage } from '@/utils/error'
 import { cn } from '@/utils/cn'
 import type { OverviewSection, OverviewQuestion } from '@/types'
@@ -142,11 +142,7 @@ export function OverviewPage() {
   }
 
   if (sessionLoading || questionsLoading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-[hsl(var(--muted-foreground))]" />
-      </div>
-    )
+    return <PageLoader />
   }
 
   if (sessionError || !session || !overviewQuestions) {

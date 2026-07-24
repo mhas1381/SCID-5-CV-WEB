@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import { Loader2, Save, Bell, Monitor, KeyRound, ShieldAlert, Eye, EyeOff } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle, Button, Input, PasswordStrength } from '@/components/ui'
+import { Save, Bell, Monitor, KeyRound, ShieldAlert, Eye, EyeOff } from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle, Button, Input, PasswordStrength, PageLoader } from '@/components/ui'
 import { useGetSettingsQuery, useUpdateSettingsMutation, useChangePasswordMutation } from '@/store/api/settingsApi'
 import { useGetMeQuery, useSendOTPMutation, useVerifyOTPMutation, useSetPasswordMutation } from '@/store/api/authApi'
 import { getErrorMessage } from '@/utils/error'
@@ -166,11 +166,7 @@ export function SettingsPage() {
   }
 
   if (loadingSettings) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-[hsl(var(--muted-foreground))]" />
-      </div>
-    )
+    return <PageLoader />
   }
 
   return (

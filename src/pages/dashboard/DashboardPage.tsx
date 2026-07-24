@@ -2,9 +2,9 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useGetMeQuery } from '@/store/api/authApi'
 import { useGetDashboardSummaryQuery } from '@/store/api/dashboardApi'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
+import { Card, CardHeader, CardTitle, CardContent, LoadingSpinner } from '@/components/ui'
 import { Button } from '@/components/ui'
-import { Users, ClipboardList, Activity, CalendarDays, Loader2, ChevronRight, User, CheckCircle2, Clock, XCircle } from 'lucide-react'
+import { Users, ClipboardList, Activity, CalendarDays, ChevronRight, User, CheckCircle2, Clock, XCircle } from 'lucide-react'
 import { formatDate } from '@/utils/date'
 
 export function DashboardPage() {
@@ -34,9 +34,7 @@ export function DashboardPage() {
       </div>
 
       {summaryLoading ? (
-        <div className="flex items-center justify-center py-10">
-          <Loader2 className="h-8 w-8 animate-spin text-[hsl(var(--primary))]" />
-        </div>
+        <LoadingSpinner size="xl" className="py-10" />
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

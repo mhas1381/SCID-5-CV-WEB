@@ -6,7 +6,7 @@ import {
   useVerifyPsychologistMutation,
 } from '@/store/api/profileApi'
 import { useGetMeQuery } from '@/store/api/authApi'
-import { Card, CardHeader, CardTitle, CardContent, VerifiedBadge } from '@/components/ui'
+import { Card, CardHeader, CardTitle, CardContent, VerifiedBadge, PageLoader } from '@/components/ui'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui'
 import { JalaliDatePicker } from '@/components/ui/JalaliDatePicker'
@@ -173,11 +173,7 @@ export function ProfilePage() {
   }
 
   if (profileLoading || meLoading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-[hsl(var(--primary))]" />
-      </div>
-    )
+    return <PageLoader />
   }
 
   return (
@@ -522,18 +518,9 @@ export function ProfilePage() {
       </Card>
 
       <div className="flex items-center justify-end">
-        <Button onClick={handleSubmit} disabled={isUpdating}>
-          {isUpdating ? (
-            <>
-              <Loader2 className="ml-2 h-4 w-4 animate-spin" />
-              {t('common.loading')}
-            </>
-          ) : (
-            <>
-              <Save className="ml-2 h-4 w-4" />
-              {t('common.save')}
-            </>
-          )}
+        <Button onClick={handleSubmit} isLoading={isUpdating}>
+          <Save className="ml-2 h-4 w-4" />
+          {t('common.save')}
         </Button>
       </div>
     </div>

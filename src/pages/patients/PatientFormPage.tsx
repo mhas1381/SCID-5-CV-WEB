@@ -6,13 +6,13 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useCreatePatientMutation, useUpdatePatientMutation, useGetPatientQuery } from '@/store/api/patientApi'
 import { useGetProvincesQuery, useGetAllCitiesQuery } from '@/store/api/locationApi'
-import { Button, Input, Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
+import { Button, Input, Card, CardHeader, CardTitle, CardContent, PageLoader } from '@/components/ui'
 import { JalaliDatePicker } from '@/components/ui/JalaliDatePicker'
 import { getErrorMessage } from '@/utils/error'
 import { cn } from '@/utils/cn'
 import { toEnglishDigits } from '@/utils/string'
 import { toast } from 'sonner'
-import { UserPlus, User, ArrowRight, Loader2 } from 'lucide-react'
+import { UserPlus, User, ArrowRight } from 'lucide-react'
 import type { FieldPath } from 'react-hook-form'
 
 const patientSchema = z.object({
@@ -124,11 +124,7 @@ export function PatientFormPage() {
   }
 
   if (isEdit && isLoadingPatient) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-[hsl(var(--primary))]" />
-      </div>
-    )
+    return <PageLoader />
   }
 
   return (

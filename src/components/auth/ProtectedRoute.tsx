@@ -1,6 +1,7 @@
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAppSelector } from '@/hooks/useAppStore'
 import { useGetMeQuery } from '@/store/api/authApi'
+import { LoadingSpinner } from '@/components/ui'
 
 interface ProtectedRouteProps {
   children: React.ReactNode
@@ -14,10 +15,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   if (authLoading || (isAuthenticated && userLoading)) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[hsl(var(--primary))] mx-auto"></div>
-          <p className="mt-4 text-sm text-[hsl(var(--muted-foreground))]">در حال بررسی احراز هویت...</p>
-        </div>
+        <LoadingSpinner size="xl" label="در حال بررسی احراز هویت..." />
       </div>
     )
   }

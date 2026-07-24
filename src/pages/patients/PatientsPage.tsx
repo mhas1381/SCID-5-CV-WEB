@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useGetPatientsQuery, useDeletePatientMutation } from '@/store/api/patientApi'
-import { Button, Card, CardContent } from '@/components/ui'
+import { Button, Card, CardContent, LoadingSpinner } from '@/components/ui'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
-import { Plus, Search, Edit2, Trash2, User, Loader2, Info } from 'lucide-react'
+import { Plus, Search, Edit2, Trash2, User, Info } from 'lucide-react'
 import { cn } from '@/utils/cn'
 import { formatDate } from '@/utils/date'
 
@@ -29,20 +30,39 @@ const getInitials = (name: string) => {
   return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase()
 }
 
+const cardVariants = {
+  hidden: { opacity: 0, y: 12 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.25, delay: i * 0.04 },
+  }),
+  exit: { opacity: 0, scale: 0.85, transition: { duration: 0.25 } },
+}
+
 export function PatientsPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
   const [deleteTarget, setDeleteTarget] = useState<{ id: number; name: string } | null>(null)
+  const [deletingId, setDeletingId] = useState<number | null>(null)
   const { data, isLoading } = useGetPatientsQuery({ page, search })
   const [deletePatient, { isLoading: isDeleting }] = useDeletePatientMutation()
 
-  const handleDelete = async () => {
+  const handleDelete = useCallback(async () => {
     if (!deleteTarget) return
-    await deletePatient(deleteTarget.id)
+    const targetId = deleteTarget.id
+    setDeletingId(targetId)
     setDeleteTarget(null)
-  }
+    setTimeout(async () => {
+      try {
+        await deletePatient(targetId).unwrap()
+      } finally {
+        setDeletingId(null)
+      }
+    }, 300)
+  }, [deleteTarget, deletePatient])
 
   return (
     <div className="space-y-6">
@@ -80,97 +100,117 @@ export function PatientsPage() {
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center py-12">
-          <Loader2 className="h-6 w-6 animate-spin text-[hsl(var(--muted-foreground))]" />
-        </div>
+        <LoadingSpinner size="xl" className="py-12" />
       ) : data?.results.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <User className="h-12 w-12 text-[hsl(var(--muted-foreground))] mb-4" />
-            <p className="text-[hsl(var(--muted-foreground))]">{t('patients.noPatients')}</p>
-            <Button variant="outline" className="mt-4" onClick={() => navigate('/patients/new')}>
-              {t('patients.registerPatient')}
-            </Button>
-          </CardContent>
-        </Card>
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center py-12">
+              <User className="h-12 w-12 text-[hsl(var(--muted-foreground))] mb-4" />
+              <p className="text-[hsl(var(--muted-foreground))]">{t('patients.noPatients')}</p>
+              <Button variant="outline" className="mt-4" onClick={() => navigate('/patients/new')}>
+                {t('patients.registerPatient')}
+              </Button>
+            </CardContent>
+          </Card>
+        </motion.div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-          {data?.results.map((patient) => (
-            <Card
-              key={patient.id}
-              className="hover:shadow-md transition-shadow cursor-pointer overflow-hidden"
-              onClick={() => navigate(`/patients/${patient.id}`)}
-            >
-              <div className="h-1.5 bg-blue-500" />
-              <CardContent className="p-0">
-                <div className="flex items-center gap-3 p-3 pb-2">
-                  <div className={cn(
-                    'shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold',
-                    getAvatarColor(patient.full_name || `${patient.first_name} ${patient.last_name}`),
-                  )}>
-                    {getInitials(patient.full_name || `${patient.first_name} ${patient.last_name}`)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-semibold truncate">
-                      {patient.full_name || `${patient.first_name || ''} ${patient.last_name || ''}`.trim()}
-                    </h3>
-                    <span className={cn(
-                      'inline-flex px-1.5 py-0.5 rounded text-[10px] font-medium mt-0.5',
-                      patient.gender === 'male'
-                        ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
-                        : 'bg-pink-100 text-pink-700 dark:bg-pink-900 dark:text-pink-300'
-                    )}>
-                      {patient.gender === 'male' ? t('patients.male') : t('patients.female')}
-                    </span>
-                  </div>
-                </div>
+        <AnimatePresence mode="popLayout">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+            {data?.results.map((patient, index) => (
+              <motion.div
+                key={patient.id}
+                layout
+                variants={cardVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                custom={index}
+              >
+                <Card
+                  className="hover:shadow-md transition-shadow cursor-pointer overflow-hidden"
+                  onClick={() => navigate(`/patients/${patient.id}`)}
+                >
+                  <div className="h-1.5 bg-blue-500" />
+                  <CardContent className="p-0">
+                    <div className="flex items-center gap-3 p-3 pb-2">
+                      <div className={cn(
+                        'shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold',
+                        getAvatarColor(patient.full_name || `${patient.first_name} ${patient.last_name}`),
+                      )}>
+                        {getInitials(patient.full_name || `${patient.first_name} ${patient.last_name}`)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-sm font-semibold truncate">
+                          {patient.full_name || `${patient.first_name || ''} ${patient.last_name || ''}`.trim()}
+                        </h3>
+                        <span className={cn(
+                          'inline-flex px-1.5 py-0.5 rounded text-[10px] font-medium mt-0.5',
+                          patient.gender === 'male'
+                            ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
+                            : 'bg-pink-100 text-pink-700 dark:bg-pink-900 dark:text-pink-300'
+                        )}>
+                          {patient.gender === 'male' ? t('patients.male') : t('patients.female')}
+                        </span>
+                      </div>
+                    </div>
 
-                <hr className="border-[hsl(var(--border))] mx-3" />
+                    <hr className="border-[hsl(var(--border))] mx-3" />
 
-                <div className="px-3 py-2 text-xs space-y-1.5">
-                  <p>
-                    <span className="text-[hsl(var(--foreground))] font-medium ml-1">{t('patients.phone')}:</span>
-                    <span dir="ltr">{patient.phone_number}</span>
-                  </p>
-                  <p>
-                    <span className="text-[hsl(var(--foreground))] font-medium ml-1">{t('patients.nationalId')}:</span>
-                    <span dir="ltr">{patient.national_id}</span>
-                  </p>
-                  {patient.birth_date && (
-                    <p>
-                      <span className="text-[hsl(var(--foreground))] font-medium ml-1">{t('patients.birthDate')}:</span>
-                      {formatDate(patient.birth_date)}
-                    </p>
-                  )}
-                </div>
+                    <div className="px-3 py-2 text-xs space-y-1.5">
+                      <p>
+                        <span className="text-[hsl(var(--foreground))] font-medium ml-1">{t('patients.phone')}:</span>
+                        <span dir="ltr">{patient.phone_number}</span>
+                      </p>
+                      <p>
+                        <span className="text-[hsl(var(--foreground))] font-medium ml-1">{t('patients.nationalId')}:</span>
+                        <span dir="ltr">{patient.national_id}</span>
+                      </p>
+                      {patient.birth_date && (
+                        <p>
+                          <span className="text-[hsl(var(--foreground))] font-medium ml-1">{t('patients.birthDate')}:</span>
+                          {formatDate(patient.birth_date)}
+                        </p>
+                      )}
+                    </div>
 
-                <div className="flex items-center gap-2 px-3 py-3 border-t border-[hsl(var(--border))]">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={(e) => { e.stopPropagation(); navigate(`/patients/${patient.id}/edit`) }}
-                  >
-                    <Edit2 className="ml-1 h-4 w-4" />
-                    {t('common.edit')}
-                  </Button>
-                  <div className="flex-1" />
-                  <Button
-                    size="sm"
-                    variant="danger"
-                    onClick={(e) => { e.stopPropagation(); setDeleteTarget({ id: patient.id, name: patient.full_name || `${patient.first_name || ''} ${patient.last_name || ''}`.trim() }) }}
-                  >
-                    <Trash2 className="ml-1 h-4 w-4" />
-                    {t('common.delete')}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                    <div className="flex items-center gap-2 px-3 py-3 border-t border-[hsl(var(--border))]">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={(e) => { e.stopPropagation(); navigate(`/patients/${patient.id}/edit`) }}
+                      >
+                        <Edit2 className="ml-1 h-4 w-4" />
+                        {t('common.edit')}
+                      </Button>
+                      <div className="flex-1" />
+                      <Button
+                        size="sm"
+                        variant="danger"
+                        onClick={(e) => { e.stopPropagation(); setDeleteTarget({ id: patient.id, name: patient.full_name || `${patient.first_name || ''} ${patient.last_name || ''}`.trim() }) }}
+                      >
+                        <Trash2 className="ml-1 h-4 w-4" />
+                        {t('common.delete')}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </AnimatePresence>
       )}
 
       {data && data.count > 20 && (
-        <div className="flex justify-center gap-2 mt-6">
+        <motion.div
+          className="flex justify-center gap-2 mt-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3, delay: 0.2 }}
+        >
           <Button
             variant="outline"
             disabled={!data.previous}
@@ -188,7 +228,7 @@ export function PatientsPage() {
           >
             {t('common.next')}
           </Button>
-        </div>
+        </motion.div>
       )}
 
       <ConfirmDialog

@@ -6,3 +6,5 @@ export { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 export { VerifiedBadge } from './VerifiedBadge'
 export { ConfirmDialog } from './ConfirmDialog'
 export { PasswordStrength } from './PasswordStrength'
+export { LoadingSpinner } from './LoadingSpinner'
+export { PageLoader } from './PageLoader'

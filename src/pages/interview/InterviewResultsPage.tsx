@@ -1,9 +1,8 @@
-import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { useGetDiagnosticResultsQuery, useGetSessionQuery, useGetOverviewDetailQuery, useGetOverviewQuestionsQuery } from '@/store/api/interviewApi'
-import { Button, Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
-import { AlertCircle, ArrowLeft, CheckCircle, XCircle, AlertTriangle, Loader2, ChevronDown, ChevronUp } from 'lucide-react'
+import { useGetDiagnosticResultsQuery } from '@/store/api/interviewApi'
+import { Button, Card, CardHeader, CardTitle, CardContent, PageLoader } from '@/components/ui'
+import { AlertCircle, ArrowLeft, CheckCircle, XCircle, AlertTriangle } from 'lucide-react'
 import { cn } from '@/utils/cn'
 
 function formatCriteriaVal(val: unknown, isRtl: boolean): string {
@@ -21,58 +20,21 @@ function formatCriteriaVal(val: unknown, isRtl: boolean): string {
   return s
 }
 
-function formatOverviewValue(value: unknown, question: { choices?: { value?: string; label?: string; label_en?: string; label_fa?: string }[] | null }, isRtl: boolean): string {
-  if (value === null || value === undefined || value === '') return '-'
-  const strVal = String(value)
-
-  if (question.choices && question.choices.length > 0) {
-    const choice = question.choices.find((c) => String(c.value) === strVal)
-    if (choice) {
-      if (isRtl && choice.label_fa) return choice.label_fa
-      if (choice.label_en) return choice.label_en
-      if (choice.label) return choice.label
-    }
-  }
-
-  if (strVal === 'true') return isRtl ? 'بله' : 'Yes'
-  if (strVal === 'false') return isRtl ? 'خیر' : 'No'
-
-  return strVal
-}
-
 export function InterviewResultsPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { t, i18n } = useTranslation()
   const sessionId = Number(id)
   const isRtl = i18n.language === 'fa'
-  const [overviewOpen, setOverviewOpen] = useState(false)
 
-  const { data: resultsData, isLoading, error } = useGetDiagnosticResultsQuery(sessionId)
-  const { data: session } = useGetSessionQuery(sessionId)
-  const overviewId = session?.overview_id
-  const { data: overview } = useGetOverviewDetailQuery(overviewId!, { skip: !overviewId })
-  const { data: overviewQuestions } = useGetOverviewQuestionsQuery({ lang: isRtl ? 'fa' : 'en' })
+  const { data: resultsData, isLoading } = useGetDiagnosticResultsQuery(sessionId)
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-[hsl(var(--muted-foreground))]" />
-      </div>
-    )
+    return <PageLoader />
   }
 
   const results = resultsData?.results || []
   const metCount = results.filter((r) => r.is_met).length
-
-  const sectionIcons: Record<string, string> = {
-    demographic: '👤',
-    illness_history: '🩺',
-    treatment_history: '💊',
-    medical: '🏥',
-    suicidal: '⚠️',
-    other: '📋',
-  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -88,67 +50,6 @@ export function InterviewResultsPage() {
           {t('results.fullReport')}
         </Button>
       </div>
-
-      {/* ---- Overview Answers Section ---- */}
-      {overview && overviewQuestions && (
-        <Card>
-          <button
-            type="button"
-            onClick={() => setOverviewOpen(!overviewOpen)}
-            className="w-full text-left"
-          >
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2 text-base">
-                  <AlertTriangle className="h-5 w-5 text-[hsl(var(--primary))]" />
-                  {isRtl ? 'اطلاعات زمینه‌ای بیمار' : 'Patient Background Information'}
-                </CardTitle>
-                {overviewOpen ? (
-                  <ChevronUp className="h-5 w-5 text-[hsl(var(--muted-foreground))]" />
-                ) : (
-                  <ChevronDown className="h-5 w-5 text-[hsl(var(--muted-foreground))]" />
-                )}
-              </div>
-            </CardHeader>
-          </button>
-          {overviewOpen && (
-            <CardContent className="space-y-6">
-              {overviewQuestions.sections.map((section) => {
-                const sectionAnswers = section.questions.filter((q) => q.key in overview.answers && overview.answers[q.key] !== '' && overview.answers[q.key] !== null && overview.answers[q.key] !== undefined)
-                if (sectionAnswers.length === 0) return null
-                return (
-                  <div key={section.id}>
-                    <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-[hsl(var(--foreground))]">
-                      <span>{sectionIcons[section.id] || '📄'}</span>
-                      <span>{isRtl && section.title_fa ? section.title_fa : section.title}</span>
-                    </h3>
-                    <div className="divide-y divide-[hsl(var(--border))] rounded-lg border border-[hsl(var(--border))]">
-                      {sectionAnswers.map((q) => {
-                        const answerVal = overview.answers[q.key]
-                        const displayVal = formatOverviewValue(answerVal, q, isRtl)
-                        const questionText = isRtl && q.text_fa ? q.text_fa : q.text
-                        return (
-                          <div key={q.key} className="flex items-start justify-between gap-4 px-4 py-2.5 text-sm">
-                            <span className="text-[hsl(var(--muted-foreground))] flex-1">{questionText}</span>
-                            <span className="font-medium text-[hsl(var(--foreground))] shrink-0 max-w-[50%] text-left" dir="ltr">{displayVal}</span>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </div>
-                )
-              })}
-              {overviewQuestions.sections.every(
-                (s) => !s.questions.some((q) => q.key in overview.answers && overview.answers[q.key] !== '' && overview.answers[q.key] !== null && overview.answers[q.key] !== undefined)
-              ) && (
-                <p className="text-sm text-[hsl(var(--muted-foreground))] text-center py-4">
-                  {isRtl ? 'اطلاعات زمینه‌ای ثبت نشده است.' : 'No background information recorded.'}
-                </p>
-              )}
-            </CardContent>
-          )}
-        </Card>
-      )}
 
       {/* ---- Diagnostic Results (only for completed sessions) ---- */}
       {resultsData && results.length === 0 && (
