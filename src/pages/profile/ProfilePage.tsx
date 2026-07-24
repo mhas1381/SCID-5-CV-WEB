@@ -256,7 +256,7 @@ export function ProfilePage() {
               <BadgeCheck className="h-4 w-4 text-green-500 dark:text-green-400" />
             )}
           </div>
-          <p className="text-xs text-[hsl(var(--muted-foreground))]">{me?.email}</p>
+          <p className="text-xs text-[hsl(var(--muted-foreground))]" dir="ltr">{me?.phone_number}</p>
         </CardContent>
       </Card>
 

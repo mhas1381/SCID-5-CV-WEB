@@ -6,7 +6,7 @@ import { useGetSessionsQuery, useDeleteSessionMutation, useContinueSessionMutati
 import type { Session } from '@/types'
 import { Button, Card, CardContent } from '@/components/ui'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
-import { ClipboardList, Search, Loader2, Trash2, Play, FileText } from 'lucide-react'
+import { ClipboardList, Search, Loader2, Trash2, Play, FileText, Eye } from 'lucide-react'
 import { cn } from '@/utils/cn'
 
 const formatElapsed = (seconds?: number) => {
@@ -230,6 +230,16 @@ export function SessionsListPage() {
                       onClick={(e) => { e.stopPropagation(); navigate(`/interview/${session.id}`) }}
                     >
                       {i18n.language === 'fa' ? 'مشاهده' : 'View'}
+                    </Button>
+                  )}
+                  {session.overview_id && session.status !== 'completed' && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={(e) => { e.stopPropagation(); navigate(`/interview/${session.id}/results`) }}
+                    >
+                      <Eye className="ml-1 h-4 w-4" />
+                      {i18n.language === 'fa' ? 'اطلاعات زمینه‌ای' : 'Overview'}
                     </Button>
                   )}
                   {session.status === 'completed' && (

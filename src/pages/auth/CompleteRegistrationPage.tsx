@@ -4,19 +4,19 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Brain, ArrowLeft, CheckCircle, User, Camera, Loader2 } from 'lucide-react'
-import { Button, Input, Card, CardHeader, CardTitle, CardContent, ConfirmDialog } from '@/components/ui'
-import { useCompleteProfileMutation } from '@/store/api/authApi'
+import { Brain, ArrowLeft, CheckCircle, User, Camera, Loader2, Eye, EyeOff } from 'lucide-react'
+import { Button, Input, Card, CardHeader, CardTitle, CardContent, ConfirmDialog, PasswordStrength } from '@/components/ui'
+import { useCompleteProfileMutation, useGetMeQuery } from '@/store/api/authApi'
 import { useUpdateProfileMutation } from '@/store/api/profileApi'
 import { useAppDispatch, useAppSelector } from '@/hooks/useAppStore'
-import { setCredentials } from '@/store/slices/authSlice'
+import { setCredentials, logout } from '@/store/slices/authSlice'
 import { getErrorMessage } from '@/utils/error'
 import { toEnglishDigits } from '@/utils/string'
 
 const otpSchema = z.object({
   first_name: z.string().min(1, 'نام الزامی است'),
   last_name: z.string().min(1, 'نام خانوادگی الزامی است'),
-  email: z.string().email('ایمیل معتبر وارد کنید').optional().or(z.literal('')),
+  email: z.string().email('ایمیل معتبر وارد کنید').min(1, 'ایمیل الزامی است'),
   password: z.string().min(8, 'رمز عبور باید حداقل ۸ کاراکتر باشد'),
   confirm_password: z.string().min(8, 'تکرار رمز عبور باید حداقل ۸ کاراکتر باشد'),
 }).refine((data) => data.password === data.confirm_password, {
@@ -42,12 +42,16 @@ export function CompleteRegistrationPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const dispatch = useAppDispatch()
+  const { refetch: refetchMe } = useGetMeQuery(undefined, { skip: true })
 
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [profileImage, setProfileImage] = useState<File | null>(null)
   const [profileImagePreview, setProfileImagePreview] = useState<string | null>(null)
   const [showExitConfirm, setShowExitConfirm] = useState(false)
+  const [passwordVal, setPasswordVal] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPass, setShowConfirmPass] = useState(false)
 
   const authUser = useAppSelector((state) => state.auth.user)
   const authTokens = useAppSelector((state) => ({
@@ -85,13 +89,20 @@ export function CompleteRegistrationPage() {
     return () => window.removeEventListener('beforeunload', handler)
   }, [isDirty, success])
 
+  useEffect(() => {
+    if (!success) return
+    const timer = setTimeout(() => navigate('/dashboard'), 2000)
+    return () => clearTimeout(timer)
+  }, [success, navigate])
+
   const back = useCallback(() => {
     if (isDirty && !success) {
       setShowExitConfirm(true)
       return
     }
+    dispatch(logout())
     navigate('/login')
-  }, [isDirty, success, navigate])
+  }, [isDirty, success, navigate, dispatch])
 
   const googleForm = useForm<GoogleFormData>({
     resolver: zodResolver(googleSchema),
@@ -117,9 +128,8 @@ export function CompleteRegistrationPage() {
       }))
 
       setSuccess(true)
-      setTimeout(() => navigate('/dashboard'), 2000)
     } catch (err: any) {
-      setError(getErrorMessage(err, 'خطا در ثبت نام کاربر'))
+      setError(getErrorMessage(err, t('completeRegistration.errorRegister', 'Registration error')))
       const data = err?.data
       if (data && typeof data === 'object') {
         for (const key of Object.keys(data)) {
@@ -143,9 +153,8 @@ export function CompleteRegistrationPage() {
       }
       await updateProfile(fd).unwrap()
       setSuccess(true)
-      setTimeout(() => navigate('/dashboard'), 2000)
     } catch (err: any) {
-      setError(getErrorMessage(err, 'خطا در ذخیره اطلاعات'))
+      setError(getErrorMessage(err, t('completeRegistration.errorSave', 'Error saving information')))
     }
   }
 
@@ -154,8 +163,8 @@ export function CompleteRegistrationPage() {
       <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[hsl(var(--background))] to-[hsl(var(--muted))]">
         <Card className="w-full max-w-lg mx-4">
           <CardContent className="p-6 text-center">
-            <p className="text-destructive mb-4">اطلاعات مورد نیاز یافت نشد. لطفاً دوباره از صفحه ورود اقدام کنید.</p>
-            <Button onClick={() => navigate('/login')}>بازگشت به صفحه ورود</Button>
+            <p className="text-destructive mb-4">{t('completeRegistration.notFoundMessage')}</p>
+            <Button onClick={() => { dispatch(logout()); navigate('/login') }}>{t('completeRegistration.backToLogin')}</Button>
           </CardContent>
         </Card>
       </div>
@@ -169,7 +178,7 @@ export function CompleteRegistrationPage() {
           <CardContent className="p-6 text-center">
             <CheckCircle className="h-12 w-12 text-green-500 dark:text-green-400 mx-auto mb-4" />
             <h3 className="text-xl font-semibold mb-2">
-              {isGoogle ? 'اطلاعات با موفقیت ذخیره شد' : 'ثبت نام با موفقیت انجام شد'}
+              {isGoogle ? t('completeRegistration.successGoogle') : t('completeRegistration.successOtp')}
             </h3>
             <p className="text-[hsl(var(--muted-foreground))]">{t('common.loading')}</p>
           </CardContent>
@@ -179,6 +188,7 @@ export function CompleteRegistrationPage() {
   }
 
   return (
+    <>
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[hsl(var(--background))] to-[hsl(var(--muted))]">
       <Card className="w-full max-w-lg mx-4">
         <CardHeader className="text-center">
@@ -187,9 +197,9 @@ export function CompleteRegistrationPage() {
               <Brain className="h-12 w-12 text-[hsl(var(--primary))]" />
             </div>
           </div>
-          <CardTitle className="text-3xl">تکمیل اطلاعات</CardTitle>
+          <CardTitle className="text-3xl">{t('completeRegistration.title')}</CardTitle>
           <p className="text-sm text-[hsl(var(--muted-foreground))] mt-2">
-            لطفاً اطلاعات خود را تکمیل کنید
+            {t('completeRegistration.subtitle')}
           </p>
         </CardHeader>
         <CardContent>
@@ -269,7 +279,7 @@ export function CompleteRegistrationPage() {
                 {isUpdating ? (
                   <><Loader2 className="ml-2 h-4 w-4 animate-spin" />{t('common.loading')}</>
                 ) : (
-                  'تکمیل ثبت نام'
+                  t('completeRegistration.submitBtnGoogle')
                 )}
               </Button>
             </form>
@@ -285,14 +295,14 @@ export function CompleteRegistrationPage() {
                 <Input
                   id="first_name"
                   label={t('patients.firstName')}
-                  placeholder="نام خود را وارد کنید"
+                  placeholder={t('completeRegistration.firstNamePlaceholder')}
                   error={otpForm.formState.errors.first_name?.message}
                   {...otpForm.register('first_name')}
                 />
                 <Input
                   id="last_name"
                   label={t('patients.lastName')}
-                  placeholder="نام خانوادگی خود را وارد کنید"
+                  placeholder={t('completeRegistration.lastNamePlaceholder')}
                   error={otpForm.formState.errors.last_name?.message}
                   {...otpForm.register('last_name')}
                 />
@@ -300,33 +310,63 @@ export function CompleteRegistrationPage() {
 
               <Input
                 id="email"
-                label="ایمیل (اختیاری)"
+                label={t('completeRegistration.emailLabel')}
                 placeholder="example@email.com"
                 type="email"
                 error={otpForm.formState.errors.email?.message}
                 {...otpForm.register('email')}
               />
 
+              <input
+                type="hidden"
+                name="username"
+                autoComplete="username"
+                value={phone}
+                readOnly
+              />
               <Input
                 id="password"
                 label={t('auth.password')}
-                placeholder="رمز عبور خود را وارد کنید"
-                type="password"
+                placeholder={t('completeRegistration.passwordPlaceholder')}
+                type={showPassword ? 'text' : 'password'}
+                autoComplete="new-password"
                 error={otpForm.formState.errors.password?.message}
-                {...otpForm.register('password')}
+                endAdornment={
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                }
+                {...otpForm.register('password', {
+                  onChange: (e) => setPasswordVal(e.target.value),
+                })}
               />
+              <PasswordStrength password={passwordVal} />
 
               <Input
                 id="confirm_password"
                 label={t('auth.confirmPassword')}
-                placeholder="رمز عبور خود را تکرار کنید"
-                type="password"
+                placeholder={t('completeRegistration.confirmPasswordPlaceholder')}
+                type={showConfirmPass ? 'text' : 'password'}
+                autoComplete="new-password"
                 error={otpForm.formState.errors.confirm_password?.message}
+                endAdornment={
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPass(!showConfirmPass)}
+                    className="text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
+                  >
+                    {showConfirmPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                }
                 {...otpForm.register('confirm_password')}
               />
 
               <Button type="submit" className="w-full" isLoading={isCompleting}>
-                تکمیل ثبت نام
+                {t('completeRegistration.submitBtn')}
               </Button>
 
               <button
@@ -335,7 +375,7 @@ export function CompleteRegistrationPage() {
                 className="flex items-center justify-center gap-1 w-full text-sm text-[hsl(var(--muted-foreground))] hover:text-foreground transition-colors"
               >
                 <ArrowLeft className="h-4 w-4" />
-                بازگشت به صفحه ورود
+                {t('completeRegistration.backToLogin')}
               </button>
             </form>
           )}
@@ -344,16 +384,18 @@ export function CompleteRegistrationPage() {
     </div>
       <ConfirmDialog
         open={showExitConfirm}
-        title="خروج از صفحه ثبت‌نام"
-        message="اطلاعات ثبت‌نام شما ذخیره نشده است. آیا مطمئن هستید که می‌خواهید خارج شوید؟"
-        confirmLabel="خروج"
-        cancelLabel="ماندن در صفحه"
+        title={t('completeRegistration.exitTitle')}
+        message={t('completeRegistration.exitMessage')}
+        confirmLabel={t('completeRegistration.exitConfirm')}
+        cancelLabel={t('completeRegistration.exitCancel')}
         variant="danger"
         onConfirm={() => {
           setShowExitConfirm(false)
+          dispatch(logout())
           navigate('/login')
         }}
         onCancel={() => setShowExitConfirm(false)}
       />
+    </>
   )
 }

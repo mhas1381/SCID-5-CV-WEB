@@ -299,6 +299,7 @@ export interface Session {
   current_question_id: string | null
   current_module: number | null
   current_module_code: string | null
+  overview_id: number | null
   started_at: string
   completed_at: string | null
   notes?: string | null

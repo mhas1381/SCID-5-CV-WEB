@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { Loader2, Save, Bell, Monitor, KeyRound, ShieldAlert, Eye, EyeOff } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle, Button, Input } from '@/components/ui'
+import { Card, CardContent, CardHeader, CardTitle, Button, Input, PasswordStrength } from '@/components/ui'
 import { useGetSettingsQuery, useUpdateSettingsMutation, useChangePasswordMutation } from '@/store/api/settingsApi'
 import { useGetMeQuery, useSendOTPMutation, useVerifyOTPMutation, useSetPasswordMutation } from '@/store/api/authApi'
 import { getErrorMessage } from '@/utils/error'
@@ -222,6 +222,7 @@ export function SettingsPage() {
                   </button>
                 }
               />
+              <PasswordStrength password={newPassword} />
               <Input
                 label={t('settings.confirmPassword')}
                 type={showConfirm ? 'text' : 'password'}
@@ -261,6 +262,7 @@ export function SettingsPage() {
                   </button>
                 }
               />
+              <PasswordStrength password={setPass} />
               <Input
                 label={t('settings.confirmPassword')}
                 type={showConfirm ? 'text' : 'password'}
@@ -358,6 +360,7 @@ export function SettingsPage() {
                   </button>
                 }
               />
+              <PasswordStrength password={forgotPass} />
               <Input
                 label={t('settings.confirmPassword')}
                 type={showConfirm ? 'text' : 'password'}

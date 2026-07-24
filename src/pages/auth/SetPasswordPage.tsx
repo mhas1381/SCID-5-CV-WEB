@@ -4,8 +4,8 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useTranslation } from 'react-i18next'
-import { Brain, Shield } from 'lucide-react'
-import { Button, Input, Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
+import { Brain, Shield, Eye, EyeOff } from 'lucide-react'
+import { Button, Input, Card, CardHeader, CardTitle, CardContent, PasswordStrength } from '@/components/ui'
 import { useSetPasswordMutation } from '@/store/api/authApi'
 import { getErrorMessage } from '@/utils/error'
 
@@ -26,6 +26,9 @@ export function SetPasswordPage() {
   const [setPassword, { isLoading }] = useSetPasswordMutation()
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const [passwordVal, setPasswordVal] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPass, setShowConfirmPass] = useState(false)
 
   // Phone from login/register state (optional fallback)
   const phone = (location.state as any)?.phone || ''
@@ -48,7 +51,7 @@ export function SetPasswordPage() {
       setSuccess(true)
       setTimeout(() => navigate('/dashboard'), 1500)
     } catch (err: any) {
-      setError(getErrorMessage(err, 'خطا در تنظیم رمز عبور'))
+      setError(getErrorMessage(err, t('settings.setPasswordError')))
     }
   }
 
@@ -58,7 +61,7 @@ export function SetPasswordPage() {
         <Card className="w-full max-w-md mx-4">
           <CardContent className="p-8 text-center">
             <Shield className="h-12 w-12 text-green-500 dark:text-green-400 mx-auto mb-4" />
-            <h2 className="text-xl font-bold mb-2">رمز عبور با موفقیت تنظیم شد</h2>
+            <h2 className="text-xl font-bold mb-2">{t('settings.passwordSet')}</h2>
             <p className="text-sm text-[hsl(var(--muted-foreground))]">
               {t('common.loading')}
             </p>
@@ -98,18 +101,39 @@ export function SetPasswordPage() {
             <Input
               id="password"
               label={t('auth.password')}
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               placeholder={t('auth.passwordMinLength')}
               error={errors.password?.message}
-              {...register('password')}
+              endAdornment={
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              }
+              {...register('password', {
+                onChange: (e) => setPasswordVal(e.target.value),
+              })}
             />
+            <PasswordStrength password={passwordVal} />
 
             <Input
               id="confirm_password"
               label={t('auth.confirmPassword')}
-              type="password"
+              type={showConfirmPass ? 'text' : 'password'}
               placeholder={t('auth.confirmPassword')}
               error={errors.confirm_password?.message}
+              endAdornment={
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPass(!showConfirmPass)}
+                  className="text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
+                >
+                  {showConfirmPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              }
               {...register('confirm_password')}
             />
 

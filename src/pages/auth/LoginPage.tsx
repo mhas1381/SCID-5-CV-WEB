@@ -141,12 +141,17 @@ export function LoginPage() {
 
       const targetPath = result.is_new_user ? '/complete-registration' : '/dashboard'
       isLoggingInRef.current = true
+      const access = result.access
+      const refresh = result.refresh
       dispatch(setCredentials({
         user: result.user,
-        tokens: { access: result.access, refresh: result.refresh },
+        tokens: { access, refresh },
       }))
       setTimeout(() => {
-        navigate(targetPath, { replace: true })
+        navigate(targetPath, {
+          replace: true,
+          state: { phone: phoneNumber, tokens: { access, refresh } },
+        })
         isLoggingInRef.current = false
       }, 0)
     } catch (err: any) {
