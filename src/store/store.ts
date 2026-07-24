@@ -4,7 +4,7 @@ import { baseApi } from './api/baseApi'
 
 const apiResetMiddleware: import('@reduxjs/toolkit').Middleware = () => (next) => (action) => {
   const result = next(action)
-  if (action.type === 'auth/logout') {
+  if ((action as { type: string }).type === 'auth/logout') {
     next(baseApi.util.resetApiState())
   }
   return result

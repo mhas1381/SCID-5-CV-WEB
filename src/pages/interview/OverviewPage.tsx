@@ -248,7 +248,7 @@ export function OverviewPage() {
     }
   }
 
-  const sectionTitle = lang === 'fa' && currentSection.title_fa ? currentSection.title_fa : currentSection.title
+  const sectionTitle = currentSection ? (lang === 'fa' && currentSection.title_fa ? currentSection.title_fa : currentSection.title) : ''
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
@@ -317,7 +317,7 @@ export function OverviewPage() {
           <CardTitle className="text-lg">{sectionTitle}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-5">
-          {[...currentSection.questions]
+          {[...(currentSection?.questions || [])]
             .sort((a, b) => (a.order || 0) - (b.order || 0))
             .map((q) => {
               const label = lang === 'fa' && q.text_fa ? q.text_fa : q.text

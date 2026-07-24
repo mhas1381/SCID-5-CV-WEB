@@ -16,7 +16,7 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
       {...props}
     >
       <div className={cn(
-        'h-1.5 rounded-t-xl liquid-bar bg-gradient-to-r from-[hsl(var(--primary))] via-[hsl(var(--primary))/0.6] to-[hsl(var(--primary))]',
+        'h-1.5 rounded-t-xl bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--primary))]',
         barClassName
       )} />
       {children}

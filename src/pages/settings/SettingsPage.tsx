@@ -177,7 +177,7 @@ export function SettingsPage() {
       </div>
 
       {/* ---- Password Section ---- */}
-      <Card barClassName="!animate-none">
+      <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <KeyRound className="h-5 w-5 text-[hsl(var(--primary))]" />
@@ -284,7 +284,7 @@ export function SettingsPage() {
       </Card>
 
       {/* ---- Forgot Password Card ---- */}
-      <Card barClassName="!animate-none">
+      <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <ShieldAlert className="h-5 w-5 text-amber-500" />
@@ -381,7 +381,7 @@ export function SettingsPage() {
       </Card>
 
       {/* ---- Notifications ---- */}
-      <Card barClassName="!from-cyan-500 !via-cyan-400 !to-cyan-500 !animate-none">
+      <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Bell className="h-5 w-5 text-[hsl(var(--primary))]" />
@@ -430,7 +430,7 @@ export function SettingsPage() {
       </Card>
 
       {/* ---- Display Preferences ---- */}
-      <Card barClassName="!from-violet-500 !via-violet-400 !to-violet-500 !animate-none">
+      <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Monitor className="h-5 w-5 text-[hsl(var(--primary))]" />

@@ -179,7 +179,13 @@
     "backToSessions": "بازگشت به لیست جلسات",
     "newInterview": "شروع مصاحبه جدید",
     "resultsError": "خطا در بارگذاری نتایج",
-    "calculating": "در حال محاسبه نتایج..."
+    "calculating": "در حال محاسبه نتایج...",
+    "questions": "سوالات مرتبط",
+    "noResponse": "بدون پاسخ",
+    "notes": "راهنمای بالینی",
+    "response": "پاسخ",
+    "diagnoses": "تشخیص‌ها",
+    "ruledOut": "رد شده"
   },
   "sessions": {
     "title": "تاریخچه جلسات",

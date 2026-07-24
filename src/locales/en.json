@@ -179,7 +179,13 @@
     "backToSessions": "Back to Sessions",
     "newInterview": "Start New Interview",
     "resultsError": "Error loading results",
-    "calculating": "Calculating results..."
+    "calculating": "Calculating results...",
+    "questions": "Related Questions",
+    "noResponse": "No response",
+    "notes": "Clinician Notes",
+    "response": "Response",
+    "diagnoses": "Diagnoses",
+    "ruledOut": "Ruled Out"
   },
   "sessions": {
     "title": "Session History",

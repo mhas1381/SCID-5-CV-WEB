@@ -480,12 +480,34 @@ export interface DiagnosticResultItem {
   criteria_details: Record<string, unknown>
   clinician_confirmed: boolean
   confirmation_status: string
+  questions?: DiagnosticQuestionInfo[]
+}
+
+export interface DiagnosticQuestionInfo {
+  question_id: string
+  text: string
+  text_fa: string
+  criteria_text: string
+  criteria_text_fa: string
+  notes: string
+  notes_fa: string
+  response_value: string | null
+  response_label: string | null
+  response_label_fa: string | null
+  text_response: string | null
+}
+
+export interface ModuleGroupResult {
+  module_code: string
+  module_name: string
+  module_name_fa: string
+  results: DiagnosticResultItem[]
 }
 
 export interface DiagnosticResultsResponse {
   session_id: number
   status: string
-  results: DiagnosticResultItem[]
+  modules: ModuleGroupResult[]
 }
 
 // ==========================================================
