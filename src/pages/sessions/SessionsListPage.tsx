@@ -42,12 +42,12 @@ const getInitials = (name: string) => {
   return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase()
 }
 
-const statusTopBar = (status: string) => {
+const statusBarColor = (status: string) => {
   switch (status) {
-    case 'in_progress': return 'bg-yellow-500'
-    case 'completed': return 'bg-green-500'
-    case 'abandoned': return 'bg-red-500'
-    default: return 'bg-gray-500'
+    case 'in_progress': return '!from-yellow-500 !via-yellow-400 !to-yellow-500'
+    case 'completed': return '!from-green-500 !via-green-400 !to-green-500'
+    case 'abandoned': return '!from-red-500 !via-red-400 !to-red-500'
+    default: return '!from-gray-500 !via-gray-400 !to-gray-500'
   }
 }
 
@@ -187,9 +187,9 @@ export function SessionsListPage() {
               >
                 <Card
                   className="hover:shadow-md transition-shadow cursor-pointer overflow-hidden"
+                  barClassName={statusBarColor(session.status)}
                   onClick={() => navigate(`/interview/${session.id}`)}
                 >
-                  <div className={cn('h-1.5', statusTopBar(session.status))} />
                   <CardContent className="p-0">
                     <div className="flex items-center gap-3 p-3 pb-2">
                       <div className={cn(

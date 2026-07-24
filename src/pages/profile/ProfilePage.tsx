@@ -196,8 +196,7 @@ export function ProfilePage() {
       </div>
 
       {/* ---- Avatar Card ---- */}
-      <Card className="overflow-hidden">
-        <div className="h-2 bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--primary))/0.6]" />
+      <Card className="overflow-hidden" barClassName="!from-indigo-500 !via-indigo-400 !to-indigo-500">
         <CardContent className="flex flex-col items-center py-6">
           <div className="relative">
             <div className="h-24 w-24 overflow-hidden rounded-full border-2 border-[hsl(var(--border))]">
@@ -257,8 +256,7 @@ export function ProfilePage() {
       </Card>
 
       {/* ---- Personal Info Card ---- */}
-      <Card>
-        <div className="h-2 bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--primary))/0.4]" />
+      <Card barClassName="!from-teal-500 !via-teal-400 !to-teal-500">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <User className="h-5 w-5 text-[hsl(var(--primary))]" />
@@ -322,8 +320,7 @@ export function ProfilePage() {
       </Card>
 
       {/* ---- Professional Info Card ---- */}
-      <Card>
-        <div className="h-2 bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--primary))/0.4]" />
+      <Card barClassName="!from-amber-500 !via-amber-400 !to-amber-500">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <GraduationCap className="h-5 w-5 text-[hsl(var(--primary))]" />

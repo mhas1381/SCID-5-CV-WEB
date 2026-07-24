@@ -177,8 +177,7 @@ export function SettingsPage() {
       </div>
 
       {/* ---- Password Section ---- */}
-      <Card>
-        <div className="h-2 rounded-t-xl bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--primary))/0.5]" />
+      <Card barClassName="!animate-none">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <KeyRound className="h-5 w-5 text-[hsl(var(--primary))]" />
@@ -285,8 +284,7 @@ export function SettingsPage() {
       </Card>
 
       {/* ---- Forgot Password Card ---- */}
-      <Card>
-        <div className="h-2 rounded-t-xl bg-gradient-to-r from-amber-500 to-orange-500" />
+      <Card barClassName="!animate-none">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <ShieldAlert className="h-5 w-5 text-amber-500" />
@@ -383,8 +381,7 @@ export function SettingsPage() {
       </Card>
 
       {/* ---- Notifications ---- */}
-      <Card>
-        <div className="h-2 rounded-t-xl bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--primary))/0.5]" />
+      <Card barClassName="!from-cyan-500 !via-cyan-400 !to-cyan-500 !animate-none">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Bell className="h-5 w-5 text-[hsl(var(--primary))]" />
@@ -433,8 +430,7 @@ export function SettingsPage() {
       </Card>
 
       {/* ---- Display Preferences ---- */}
-      <Card>
-        <div className="h-2 rounded-t-xl bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--primary))/0.5]" />
+      <Card barClassName="!from-violet-500 !via-violet-400 !to-violet-500 !animate-none">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Monitor className="h-5 w-5 text-[hsl(var(--primary))]" />

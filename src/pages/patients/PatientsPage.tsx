@@ -132,9 +132,9 @@ export function PatientsPage() {
               >
                 <Card
                   className="hover:shadow-md transition-shadow cursor-pointer overflow-hidden"
+                  barClassName="!from-emerald-500 !via-emerald-400 !to-emerald-500"
                   onClick={() => navigate(`/patients/${patient.id}`)}
                 >
-                  <div className="h-1.5 bg-blue-500" />
                   <CardContent className="p-0">
                     <div className="flex items-center gap-3 p-3 pb-2">
                       <div className={cn(

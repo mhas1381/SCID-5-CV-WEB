@@ -11,7 +11,7 @@ export function AppLayout() {
   const isRtl = i18n.language === 'fa'
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen relative">
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       {sidebarOpen && (

@@ -22,7 +22,7 @@ const patientSchema = z.object({
     .string()
     .transform(toEnglishDigits)
     .refine(
-      (val) => val === '' || val.length === 10,
+      (val) => val.length === 10,
       'کد ملی ۱۰ رقم'
     ),
   phone_number: z
@@ -92,19 +92,11 @@ export function PatientFormPage() {
   const onSubmit = async (data: PatientFormData) => {
     try {
       setPageError(null)
-      if (!isEdit && !data.national_id) {
-        setPageError('کد ملی الزامی است')
-        return
-      }
-      const body = {
-        ...data,
-        national_id: data.national_id || undefined,
-      }
       if (isEdit && id) {
-        await updatePatient({ id: Number(id), data: body }).unwrap()
+        await updatePatient({ id: Number(id), data }).unwrap()
         toast.success(t('patients.updateSuccess'))
       } else {
-        await createPatient(body as any).unwrap()
+        await createPatient(data as any).unwrap()
         toast.success(t('patients.createSuccess'))
       }
       navigate('/patients')
@@ -224,7 +216,7 @@ export function PatientFormPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="block text-sm font-medium text-[hsl(var(--foreground))]">تحصیلات <span className="text-red-500 mr-0.5"> *</span></label>
+                <label className="block text-sm font-medium text-[hsl(var(--foreground))]">تحصیلات</label>
                 <select
                   className={cn(
                     'flex h-10 w-full rounded-lg border border-[hsl(var(--input))] bg-[hsl(var(--card))] px-3 py-2 text-sm text-[hsl(var(--foreground))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]',
@@ -243,7 +235,7 @@ export function PatientFormPage() {
                 {errors.education && <p className="text-sm text-red-500 dark:text-red-400">{errors.education.message}</p>}
               </div>
               <div className="space-y-1">
-                <label className="block text-sm font-medium text-[hsl(var(--foreground))]">وضعیت تأهل <span className="text-red-500 mr-0.5"> *</span></label>
+                <label className="block text-sm font-medium text-[hsl(var(--foreground))]">وضعیت تأهل</label>
                 <select
                   className={cn(
                     'flex h-10 w-full rounded-lg border border-[hsl(var(--input))] bg-[hsl(var(--card))] px-3 py-2 text-sm text-[hsl(var(--foreground))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]',
@@ -263,7 +255,7 @@ export function PatientFormPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="block text-sm font-medium text-[hsl(var(--foreground))]">استان <span className="text-red-500 mr-0.5"> *</span></label>
+                <label className="block text-sm font-medium text-[hsl(var(--foreground))]">استان</label>
                 <select
                   className={cn(
                     'flex h-10 w-full rounded-lg border border-[hsl(var(--input))] bg-[hsl(var(--card))] px-3 py-2 text-sm text-[hsl(var(--foreground))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]',
@@ -285,7 +277,7 @@ export function PatientFormPage() {
                 {errors.province && <p className="text-sm text-red-500 dark:text-red-400">{errors.province.message}</p>}
               </div>
               <div className="space-y-1">
-                <label className="block text-sm font-medium text-[hsl(var(--foreground))]">شهر <span className="text-red-500 mr-0.5"> *</span></label>
+                <label className="block text-sm font-medium text-[hsl(var(--foreground))]">شهر</label>
                 <select
                   className={cn(
                     'flex h-10 w-full rounded-lg border border-[hsl(var(--input))] bg-[hsl(var(--card))] px-3 py-2 text-sm text-[hsl(var(--foreground))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))] disabled:opacity-50',

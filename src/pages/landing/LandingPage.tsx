@@ -98,9 +98,9 @@ export function LandingPage() {
   }, [isAuthenticated, navigate])
 
   return (
-    <div className="min-h-screen bg-[hsl(var(--background))] flex flex-col">
+    <div className="min-h-screen flex flex-col">
       {/* ── Header ── */}
-      <header className="border-b border-[hsl(var(--border))] sticky top-0 bg-[hsl(var(--background))/80] backdrop-blur-md z-50 shadow-[0_1px_3px_0_hsl(var(--border)/0.3)]">
+      <header className="border-b border-[var(--glass-border)] sticky top-0 bg-[var(--glass-bg)] backdrop-blur-xl z-50 shadow-[var(--glass-shadow)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="rounded-lg bg-[hsl(var(--primary))]/10 p-1.5">
@@ -157,7 +157,7 @@ export function LandingPage() {
       </section>
 
       {/* ── Stats ── */}
-      <section className="border-y border-[hsl(var(--border))] bg-[hsl(var(--muted))/0.3]">
+      <section className="border-y border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-sm">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat) => (
@@ -198,7 +198,7 @@ export function LandingPage() {
       </section>
 
       {/* ── How It Works ── */}
-      <section className="border-y border-[hsl(var(--border))] bg-[hsl(var(--muted))/0.2]">
+      <section className="border-y border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-sm">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="text-center mb-12">
             <h2 className="text-2xl md:text-3xl font-bold">چطور کار می‌کند</h2>
@@ -210,7 +210,7 @@ export function LandingPage() {
             <div className="hidden md:block absolute top-8 left-[calc(12.5%+2rem)] right-[calc(12.5%+2rem)] h-px border-t-2 border-dashed border-[hsl(var(--border))]" />
             {steps.map((step, index) => (
               <div key={step.number} className="relative text-center">
-                <div className="relative inline-flex items-center justify-center h-16 w-16 rounded-full bg-[hsl(var(--card))] mb-4 shadow-sm">
+                <div className="relative inline-flex items-center justify-center h-16 w-16 rounded-full bg-[var(--glass-bg)] backdrop-blur-md mb-4 shadow-[var(--glass-shadow)]">
                   <div className="absolute inset-0 rounded-full bg-[hsl(var(--primary))]/10" />
                   <step.icon className="h-7 w-7 text-[hsl(var(--primary))]" />
                 </div>
@@ -231,7 +231,7 @@ export function LandingPage() {
 
       {/* ── CTA ── */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-[hsl(var(--primary))]/5 to-[hsl(var(--primary))]/10" />
+        <div className="absolute inset-0 bg-[var(--glass-bg)] backdrop-blur-sm" />
         <div className="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
           <h2 className="text-2xl md:text-3xl font-bold mb-4">
             آماده شروع هستید؟
@@ -252,7 +252,7 @@ export function LandingPage() {
       </section>
 
       {/* ── Footer ── */}
-      <footer className="border-t border-[hsl(var(--border))] py-8">
+      <footer className="border-t border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-sm py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-[hsl(var(--muted-foreground))]">
           <p>Smart SCID-5-CV &copy; {new Date().getFullYear()} &mdash; سامانه هوشمند مصاحبه بالینی</p>
         </div>

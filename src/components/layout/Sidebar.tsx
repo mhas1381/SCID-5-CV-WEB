@@ -49,7 +49,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     <aside
       data-darkreader-skip
       className={cn(
-        'fixed top-0 z-40 flex h-screen w-64 flex-col border-[hsl(var(--border))] bg-[hsl(var(--card))] transition-transform duration-300 [color-scheme:only_normal]',
+        'fixed top-0 z-40 flex h-screen w-64 flex-col border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-2xl shadow-[var(--glass-shadow)] transition-transform duration-300 [color-scheme:only_normal]',
         isRtl ? 'right-0 border-l' : 'left-0 border-r',
         'md:translate-x-0',
         open ? 'translate-x-0' : (isRtl ? 'translate-x-full' : '-translate-x-full')

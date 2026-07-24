@@ -196,7 +196,7 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[hsl(var(--background))] to-[hsl(var(--muted))]">
+    <div className="flex min-h-screen items-center justify-center">
       <Card className="w-full max-w-xl mx-4">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">

@@ -1,16 +1,26 @@
 import { type HTMLAttributes, forwardRef } from 'react'
 import { cn } from '@/utils/cn'
 
-const Card = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => (
+interface CardProps extends HTMLAttributes<HTMLDivElement> {
+  barClassName?: string
+}
+
+const Card = forwardRef<HTMLDivElement, CardProps>(
+  ({ className, children, barClassName, ...props }, ref) => (
     <div
       ref={ref}
       className={cn(
-        'rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] text-[hsl(var(--card-foreground))] shadow-sm',
+        'rounded-xl border border-[var(--glass-border)] bg-[var(--glass-bg)] text-[hsl(var(--card-foreground))] shadow-[var(--glass-shadow)] backdrop-blur-xl',
         className
       )}
       {...props}
-    />
+    >
+      <div className={cn(
+        'h-1.5 rounded-t-xl liquid-bar bg-gradient-to-r from-[hsl(var(--primary))] via-[hsl(var(--primary))/0.6] to-[hsl(var(--primary))]',
+        barClassName
+      )} />
+      {children}
+    </div>
   )
 )
 Card.displayName = 'Card'

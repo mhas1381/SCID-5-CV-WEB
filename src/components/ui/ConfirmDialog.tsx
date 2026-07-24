@@ -50,7 +50,7 @@ export function ConfirmDialog({
             onClick={onCancel}
           />
           <motion.div
-            className="relative z-10 mx-4 w-full max-w-md rounded-xl bg-[hsl(var(--card))] p-6 shadow-lg"
+            className="relative z-10 mx-4 w-full max-w-md rounded-xl bg-[var(--glass-bg)] backdrop-blur-xl p-6 shadow-[var(--glass-shadow)] border border-[var(--glass-border)]"
             variants={modalVariants}
             initial="hidden"
             animate="visible"
