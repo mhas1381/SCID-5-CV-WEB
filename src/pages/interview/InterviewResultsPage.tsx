@@ -138,13 +138,19 @@ function DisorderCard({
           {result.is_met && result.criteria_details && Object.keys(result.criteria_details).length > 0 && (
             <div>
               <h4 className="text-sm font-medium mb-1">{t('results.criteria')}:</h4>
-              <div className="space-y-0.5">
-                {Object.entries(result.criteria_details).map(([key, val]) => (
-                  <div key={key} className="flex items-center gap-2 text-sm">
-                    <span className="text-[hsl(var(--muted-foreground))]">{key}:</span>
-                    <span>{formatCriteriaVal(val, isRtl)}</span>
-                  </div>
-                ))}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {Object.entries(result.criteria_details).map(([key, val]) => {
+                  const raw = typeof val === 'object' ? String((val as Record<string, unknown>).response ?? (val as Record<string, unknown>).value ?? '') : String(val)
+                  const isYes = raw === 'yes' || raw === 'true'
+                  const isNo = raw === 'no' || raw === 'false'
+                  return (
+                    <div key={key} className="flex items-center gap-2 text-sm p-2 rounded-lg bg-muted/30 border">
+                      <span className={cn('h-2.5 w-2.5 rounded-full shrink-0', isYes ? 'bg-green-500' : isNo ? 'bg-red-400' : 'bg-muted-foreground/30')} />
+                      <span className="text-[hsl(var(--muted-foreground))] shrink-0">{key}:</span>
+                      <span>{formatCriteriaVal(val, isRtl)}</span>
+                    </div>
+                  )
+                })}
               </div>
             </div>
           )}
@@ -198,7 +204,7 @@ function QuestionItem({
   const displayText = (!expanded && hasDetail) ? criteriaText : qText
 
   return (
-    <div className="flex items-start gap-2 text-sm py-0.5">
+    <div className="flex items-start gap-2 text-sm p-3 rounded-lg bg-muted/50 border">
       <span className="font-mono text-xs text-[hsl(var(--muted-foreground))] shrink-0 mt-0.5">
         {question.question_id}
       </span>
@@ -215,17 +221,17 @@ function QuestionItem({
           </button>
         )}
         <span className={cn(
-          'inline-block mt-0.5 text-xs font-medium',
+          'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-0.5',
           question.response_value === 'yes' || question.response_label === 'YES'
-            ? 'text-green-600 dark:text-green-400'
+            ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300'
             : question.response_value === 'no' || question.response_label === 'NO'
-            ? 'text-red-500 dark:text-red-400'
-            : 'text-[hsl(var(--muted-foreground))]'
+            ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300'
+            : 'bg-muted text-[hsl(var(--muted-foreground))]'
         )}>
           {respLabel || question.response_value || t('results.noResponse')}
         </span>
         {question.text_response && (
-          <span className="block mt-1 text-xs text-[hsl(var(--muted-foreground))] italic border-l-2 border-[hsl(var(--border))] pl-2">
+          <span className="block mt-1.5 text-xs text-[hsl(var(--muted-foreground))] italic bg-muted/30 rounded px-2 py-1">
             {question.text_response}
           </span>
         )}
