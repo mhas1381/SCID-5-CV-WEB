@@ -180,6 +180,8 @@ export function OverviewPage() {
         return (
           <input
             type="text"
+            name={q.key}
+            data-qkey={q.key}
             value={value as string}
             onChange={(e) => set(e.target.value)}
             className="w-full rounded-lg border border-[hsl(var(--input))] bg-transparent px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
@@ -188,6 +190,8 @@ export function OverviewPage() {
       case 'textarea':
         return (
           <textarea
+            name={q.key}
+            data-qkey={q.key}
             value={value as string}
             onChange={(e) => set(e.target.value)}
             className="w-full rounded-lg border border-[hsl(var(--input))] bg-transparent px-3 py-2 text-sm min-h-[80px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
@@ -197,6 +201,8 @@ export function OverviewPage() {
         return (
           <input
             type="number"
+            name={q.key}
+            data-qkey={q.key}
             value={value as number}
             onChange={(e) => set(Number(e.target.value))}
             className="w-full rounded-lg border border-[hsl(var(--input))] bg-transparent px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
@@ -206,6 +212,8 @@ export function OverviewPage() {
         return (
           <input
             type="date"
+            name={q.key}
+            data-qkey={q.key}
             value={value as string}
             onChange={(e) => set(e.target.value)}
             className="w-full rounded-lg border border-[hsl(var(--input))] bg-transparent px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
@@ -215,7 +223,7 @@ export function OverviewPage() {
       case 'boolean':
       case 'select':
         return (
-          <div className="space-y-2">
+          <div className="space-y-2" data-qkey={q.key}>
             {(q.choices && q.choices.length > 0 ? q.choices : [
               { value: 'yes', label_en: 'Yes', label_fa: 'بله' } as any,
               { value: 'no', label_en: 'No', label_fa: 'خیر' } as any,
@@ -223,6 +231,7 @@ export function OverviewPage() {
               <button
                 key={choice.value}
                 type="button"
+                data-value={choice.value}
                 onClick={() => set(choice.value)}
                 className={cn(
                   'w-full text-right rounded-lg border p-3 text-sm transition-all',
@@ -240,6 +249,8 @@ export function OverviewPage() {
         return (
           <input
             type="text"
+            name={q.key}
+            data-qkey={q.key}
             value={value as string}
             onChange={(e) => set(e.target.value)}
             className="w-full rounded-lg border border-[hsl(var(--input))] bg-transparent px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"

@@ -176,14 +176,13 @@ export interface PatientCreateRequest {
   first_name: string
   last_name: string
   national_id: string
-  phone_number?: string
-  email?: string
-  birth_date?: string
-  gender?: 'male' | 'female'
-  education?: string
-  marital_status?: string
-  province?: number
-  city?: number
+  phone_number: string
+  birth_date: string
+  gender: 'male' | 'female'
+  education: string
+  marital_status: string
+  province: number
+  city: number
 }
 
 export interface PatientCreateResponse {
