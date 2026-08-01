@@ -2,14 +2,33 @@ import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import { useGetSessionQuery, useGetDiagnosticResultsQuery } from '@/store/api/interviewApi'
+import {
+  useGetSessionQuery,
+  useGetDiagnosticResultsQuery,
+  useConfirmDiagnosticResultMutation,
+  useConfirmAllDiagnosticResultsMutation,
+  useSubmitSystemFeedbackMutation,
+} from '@/store/api/interviewApi'
 import { Button, Card, CardHeader, CardTitle, CardContent, PageLoader } from '@/components/ui'
-import { ArrowLeft, CheckCircle, XCircle, AlertTriangle, ChevronDown, Info, User, FileText, Download } from 'lucide-react'
+import {
+  ArrowLeft,
+  Check,
+  X,
+  CheckCircle,
+  XCircle,
+  ChevronDown,
+  Info,
+  User,
+  FileText,
+  Download,
+  ShieldCheck,
+  MessageSquare,
+} from 'lucide-react'
 import { cn } from '@/utils/cn'
 import { formatDate } from '@/utils/date'
 import { downloadSessionPdf } from '@/utils/download'
 import { getErrorMessage } from '@/utils/error'
-import type { DiagnosticResultItem, DiagnosticQuestionInfo, ModuleGroupResult } from '@/types'
+import type { DiagnosticResultItem, DiagnosticQuestionInfo, ModuleGroupResult, AgreementData } from '@/types'
 
 function formatCriteriaVal(val: unknown, isRtl: boolean): string {
   if (val === null || val === undefined) return '-'
@@ -36,6 +55,20 @@ function getSeverityLabel(severity: string | null, t: (key: string) => string): 
   if (severity === 'severe') return t('results.severe')
   if (severity === 'moderate') return t('results.moderate')
   return t('results.mild')
+}
+
+function getConfirmationLabel(
+  status: string | null,
+  t: (key: string) => string,
+  isRtl: boolean
+): string {
+  if (!status) return ''
+  const map: Record<string, string> = {
+    CONFIRMED: isRtl ? 'تأیید شده' : 'Confirmed',
+    PROVISIONAL: isRtl ? 'احتمالی' : 'Provisional',
+    RULED_OUT: isRtl ? 'رد شده' : 'Ruled out',
+  }
+  return map[status] ?? status
 }
 
 function QuestionNotesPopover({
@@ -80,31 +113,77 @@ function DisorderCard({
   result,
   isRtl,
   t,
+  onConfirm,
+  isConfirming,
 }: {
   result: DiagnosticResultItem
   isRtl: boolean
   t: (key: string) => string
+  onConfirm: (result: DiagnosticResultItem, action: 'confirm' | 'unconfirm' | 'disagree') => void
+  isConfirming: boolean
 }) {
   const [expanded, setExpanded] = useState(false)
   const name = isRtl && result.disorder_name_fa ? result.disorder_name_fa : result.disorder_name
   const questions = result.questions ?? []
 
   return (
-    <div className="rounded-lg border border-l-4 bg-card text-card-foreground shadow-sm overflow-hidden"
+    <div className="rounded-lg border border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-xl shadow-[var(--glass-shadow)] border-l-4 overflow-hidden"
       style={{ borderLeftColor: result.is_met ? 'hsl(142, 76%, 36%)' : 'hsl(var(--border))' }}>
-      <button
-        type="button"
-        onClick={() => setExpanded((v) => !v)}
-        className="w-full flex items-center justify-between p-4 text-left hover:bg-accent/50 transition-colors"
-      >
-        <div className="flex items-center gap-2 min-w-0">
+      <div className="w-full flex flex-wrap items-center gap-2 px-4 py-3 hover:bg-accent/50 transition-colors">
+        <button
+          type="button"
+          onClick={() => setExpanded((v) => !v)}
+          className="flex items-center gap-2 shrink-0"
+        >
           {result.is_met ? (
             <CheckCircle className="h-5 w-5 shrink-0 text-green-600 dark:text-green-400" />
           ) : (
             <XCircle className="h-5 w-5 shrink-0 text-red-400 dark:text-red-500" />
           )}
-          <span className="font-semibold text-sm">{name}</span>
+        </button>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              onConfirm(result, result.clinician_confirmed ? 'unconfirm' : 'confirm')
+            }}
+            disabled={isConfirming}
+            className={cn(
+              'inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors',
+              result.clinician_confirmed
+                ? 'border-green-500/50 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
+                : 'border-[var(--glass-border)] text-[hsl(var(--muted-foreground))] hover:border-green-500/50 hover:bg-green-100 hover:text-green-700 dark:hover:bg-green-900 dark:hover:text-green-300'
+            )}
+          >
+            <Check className="h-3.5 w-3.5" />
+            {result.clinician_confirmed ? t('results.approveActive') : t('results.approve')}
+          </button>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              onConfirm(result, result.clinician_disagreed ? 'unconfirm' : 'disagree')
+            }}
+            disabled={isConfirming}
+            className={cn(
+              'inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors',
+              result.clinician_disagreed
+                ? 'border-red-500/50 bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
+                : 'border-[var(--glass-border)] text-[hsl(var(--muted-foreground))] hover:border-red-500/50 hover:bg-red-100 hover:text-red-700 dark:hover:bg-red-900 dark:hover:text-red-300'
+            )}
+          >
+            <X className="h-3.5 w-3.5" />
+            {result.clinician_disagreed ? t('results.rejectActive') : t('results.reject')}
+          </button>
         </div>
+        <button
+          type="button"
+          onClick={() => setExpanded((v) => !v)}
+          className="flex items-center gap-2 min-w-0 text-left flex-1"
+        >
+          <span className="font-semibold text-sm">{name}</span>
+        </button>
         <div className="flex items-center gap-2 shrink-0">
           <span className="text-xs text-[hsl(var(--muted-foreground))] font-mono">
             {result.diagnosis_code}
@@ -114,7 +193,7 @@ function DisorderCard({
             expanded && 'rotate-180'
           )} />
         </div>
-      </button>
+      </div>
       {expanded && (
         <div className="border-t px-4 pb-4 pt-3 space-y-3">
           {result.is_met && result.severity && (
@@ -177,8 +256,22 @@ function DisorderCard({
           )}
 
           {result.confirmation_status && (
-            <div className="text-xs text-[hsl(var(--muted-foreground))]">
-              {t('results.confirmationStatus')}: {result.confirmation_status}
+            <div className="flex flex-wrap items-center gap-2 pt-1">
+              <span className="text-xs text-[hsl(var(--muted-foreground))]">
+                {t('results.confirmationStatus')}: {getConfirmationLabel(result.confirmation_status, t, isRtl)}
+              </span>
+              {result.clinician_confirmed && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
+                  <CheckCircle className="h-3 w-3" />
+                  {t('results.confirmed')}
+                </span>
+              )}
+              {result.clinician_disagreed && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300">
+                  <XCircle className="h-3 w-3" />
+                  {t('results.disagreed')}
+                </span>
+              )}
             </div>
           )}
         </div>
@@ -249,10 +342,14 @@ function ModuleAccordion({
   module,
   isRtl,
   t,
+  onConfirm,
+  confirmingResultId,
 }: {
   module: ModuleGroupResult
   isRtl: boolean
   t: (key: string) => string
+  onConfirm: (result: DiagnosticResultItem, action: 'confirm' | 'unconfirm' | 'disagree') => void
+  confirmingResultId: number | null
 }) {
   const hasMet = module.results.some((r) => r.is_met)
   const metCount = module.results.filter((r) => r.is_met).length
@@ -260,7 +357,7 @@ function ModuleAccordion({
 
   return (
     <details
-      className="group rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden"
+      className="group rounded-lg border border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-xl shadow-[var(--glass-shadow)] overflow-hidden"
     >
       <summary className="flex items-center justify-between p-4 cursor-pointer list-none hover:bg-accent/50 transition-colors">
         <div className="flex items-center gap-3 min-w-0">
@@ -287,10 +384,269 @@ function ModuleAccordion({
       </summary>
       <div className="border-t px-4 pb-4 pt-3 space-y-3">
         {module.results.map((result) => (
-          <DisorderCard key={result.id} result={result} isRtl={isRtl} t={t} />
+          <DisorderCard
+            key={result.id}
+            result={result}
+            isRtl={isRtl}
+            t={t}
+            onConfirm={onConfirm}
+            isConfirming={confirmingResultId === result.id}
+          />
         ))}
       </div>
     </details>
+  )
+}
+
+function getCategoryLabel(
+  category: string,
+  t: (key: string) => string,
+  isRtl: boolean
+): string {
+  const map: Record<string, string> = {
+    true_positive: t('results.truePositive'),
+    true_negative: t('results.trueNegative'),
+    false_positive: t('results.falsePositive'),
+    false_negative: t('results.falseNegative'),
+  }
+  const label = map[category] ?? category
+  const match = category === 'true_positive' || category === 'true_negative'
+  return isRtl
+    ? `${label} (${match ? '✓ مطابق' : '✗ نامطابق'})`
+    : `${label} (${match ? '✓ match' : '✗ mismatch'})`
+}
+
+function ValidityCard({
+  agreement,
+  isRtl,
+  t,
+}: {
+  agreement: AgreementData
+  isRtl: boolean
+  t: (key: string) => string
+}) {
+  const percent = agreement.agreement_percent
+  const [openCategory, setOpenCategory] = useState<string | null>(null)
+  const barColor =
+    percent === null || percent === undefined
+      ? 'bg-[hsl(var(--muted))]'
+      : percent >= 75
+        ? 'bg-green-500'
+        : percent >= 50
+          ? 'bg-yellow-500'
+          : 'bg-red-500'
+
+  const categories = [
+    { key: 'true_positive', count: agreement.true_positive },
+    { key: 'true_negative', count: agreement.true_negative },
+    { key: 'false_positive', count: agreement.false_positive },
+    { key: 'false_negative', count: agreement.false_negative },
+  ]
+
+  const itemsByCategory = (key: string) =>
+    agreement.items.filter((item) => item.category === key)
+
+  const toggleCategory = (key: string) =>
+    setOpenCategory((cur) => (cur === key ? null : key))
+
+  return (
+    <details className="group rounded-lg border border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-xl shadow-[var(--glass-shadow)] overflow-hidden">
+      <summary className="flex items-center justify-between p-4 cursor-pointer list-none hover:bg-accent/50 transition-colors">
+        <div className="flex items-center gap-3 min-w-0">
+          <ChevronDown className="h-4 w-4 shrink-0 transition-transform group-open:rotate-0 -rotate-90 text-[hsl(var(--muted-foreground))]" />
+          <ShieldCheck className="h-5 w-5 shrink-0 text-[hsl(var(--primary))]" />
+          <div className="min-w-0">
+            <p className="font-semibold leading-tight">{t('results.validity')}</p>
+            <p className="text-xs text-[hsl(var(--muted-foreground))]">
+              {t('results.validityDescription')}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          {percent !== null && percent !== undefined && (
+            <span className={cn(
+              'inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-bold',
+              percent >= 75
+                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+                : percent >= 50
+                  ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'
+                  : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
+            )}>
+              {percent}%
+            </span>
+          )}
+        </div>
+      </summary>
+      <div className="border-t px-4 pb-4 pt-3 space-y-4">
+        {percent !== null && percent !== undefined ? (
+          <>
+            <div className="h-3 w-full rounded-full bg-muted overflow-hidden">
+              <div className={cn('h-full rounded-full transition-all', barColor)} style={{ width: `${percent}%` }} />
+            </div>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {categories.map(({ key, count }) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => toggleCategory(key)}
+                  disabled={count === 0}
+                  className={cn(
+                    'rounded-lg border p-3 text-center transition-colors',
+                    openCategory === key
+                      ? 'border-[hsl(var(--primary))] bg-[hsl(var(--primary))]/5'
+                      : 'hover:bg-accent/50',
+                    count === 0 && 'opacity-50'
+                  )}
+                >
+                  <p className="text-2xl font-bold">{count}</p>
+                  <p className="text-xs text-[hsl(var(--muted-foreground))]">
+                    {getCategoryLabel(key, t, isRtl)}
+                  </p>
+                </button>
+              ))}
+            </div>
+          </>
+        ) : (
+          <p className="text-sm text-[hsl(var(--muted-foreground))]">
+            {t('results.agreementTotal')}: 0
+          </p>
+        )}
+
+        {openCategory && itemsByCategory(openCategory).length > 0 && (
+          <div className="space-y-2">
+            <h4 className="text-sm font-medium">{getCategoryLabel(openCategory, t, isRtl)}</h4>
+            {itemsByCategory(openCategory).map((item) => {
+              const name = isRtl && item.disorder_name_fa ? item.disorder_name_fa : item.disorder_name
+              const isMatch = item.category === 'true_positive' || item.category === 'true_negative'
+              return (
+                <div
+                  key={item.criteria_id}
+                  className={cn(
+                    'flex items-center justify-between gap-2 rounded-lg border p-3 text-sm',
+                    isMatch ? 'border-green-500/40 bg-green-50/60 dark:bg-green-950/20' : 'border-red-500/40 bg-red-50/60 dark:bg-red-950/20'
+                  )}
+                >
+                  <div className="min-w-0">
+                    <p className="font-medium truncate">{name}</p>
+                    <p className="text-xs text-[hsl(var(--muted-foreground))] font-mono">
+                      {item.diagnosis_code}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-3 text-xs">
+                    <span className={cn('inline-flex items-center gap-1', item.preexisting ? 'text-green-600 dark:text-green-400' : 'text-[hsl(var(--muted-foreground))]')}>
+                      {isRtl ? 'دستی: ' : 'Manual: '}
+                      {item.preexisting ? '✓' : '✗'}
+                    </span>
+                    <span className={cn('inline-flex items-center gap-1', item.system_met ? 'text-green-600 dark:text-green-400' : 'text-[hsl(var(--muted-foreground))]')}>
+                      {isRtl ? 'سامانه: ' : 'System: '}
+                      {item.system_met ? '✓' : '✗'}
+                    </span>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+
+        {agreement.items.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setOpenCategory(openCategory === 'all' ? null : 'all')}
+            className="text-xs text-[hsl(var(--primary))] hover:underline"
+          >
+            {openCategory === 'all'
+              ? t('results.hideAllItems')
+              : `${t('results.agreementItems')} (${agreement.items.length})`}
+          </button>
+        )}
+        {openCategory === 'all' &&
+          agreement.items
+            .filter((item) => item.category !== null)
+            .map((item) => {
+              const name = isRtl && item.disorder_name_fa ? item.disorder_name_fa : item.disorder_name
+              const isMatch = item.category === 'true_positive' || item.category === 'true_negative'
+              return (
+                <div
+                  key={item.criteria_id}
+                  className={cn(
+                    'flex items-center justify-between gap-2 rounded-lg border p-3 text-sm',
+                    isMatch ? 'border-green-500/40 bg-green-50/60 dark:bg-green-950/20' : 'border-red-500/40 bg-red-50/60 dark:bg-red-950/20'
+                  )}
+                >
+                  <div className="min-w-0">
+                    <p className="font-medium truncate">{name}</p>
+                    <p className="text-xs text-[hsl(var(--muted-foreground))] font-mono">
+                      {item.diagnosis_code}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-3 text-xs">
+                    <span className={cn('inline-flex items-center gap-1', item.preexisting ? 'text-green-600 dark:text-green-400' : 'text-[hsl(var(--muted-foreground))]')}>
+                      {isRtl ? 'دستی: ' : 'Manual: '}
+                      {item.preexisting ? '✓' : '✗'}
+                    </span>
+                    <span className={cn('inline-flex items-center gap-1', item.system_met ? 'text-green-600 dark:text-green-400' : 'text-[hsl(var(--muted-foreground))]')}>
+                      {isRtl ? 'سامانه: ' : 'System: '}
+                      {item.system_met ? '✓' : '✗'}
+                    </span>
+                  </div>
+                </div>
+              )
+            })}
+      </div>
+    </details>
+  )
+}
+
+function FeedbackCard({
+  sessionId,
+  t,
+}: {
+  sessionId: number
+  t: (key: string) => string
+}) {
+  const [content, setContent] = useState('')
+  const [submitFeedback, { isLoading }] = useSubmitSystemFeedbackMutation()
+
+  const handleSubmit = async () => {
+    if (!content.trim()) {
+      toast.error(t('results.feedbackEmpty'))
+      return
+    }
+    try {
+      await submitFeedback({ content, session_id: sessionId, feedback_type: 'general' }).unwrap()
+      toast.success(t('results.feedbackSuccess'))
+      setContent('')
+    } catch (err) {
+      toast.error(getErrorMessage(err, t('results.feedbackError')))
+    }
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <MessageSquare className="h-5 w-5 text-[hsl(var(--primary))]" />
+          {t('results.feedback')}
+        </CardTitle>
+        <p className="text-sm text-[hsl(var(--muted-foreground))]">
+          {t('results.feedbackDescription')}
+        </p>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <textarea
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          placeholder={t('results.feedbackPlaceholder')}
+          rows={4}
+          className="w-full rounded-lg border border-[hsl(var(--input))] bg-[hsl(var(--card))] px-4 py-3 text-sm text-[hsl(var(--foreground))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))] resize-none"
+        />
+        <div className="flex justify-end">
+          <Button onClick={handleSubmit} isLoading={isLoading} disabled={!content.trim()}>
+            {t('results.feedbackSubmit')}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   )
 }
 
@@ -304,14 +660,46 @@ export function InterviewResultsPage() {
   const { data: resultsData, isLoading } = useGetDiagnosticResultsQuery(sessionId)
   const { data: session } = useGetSessionQuery(sessionId)
   const [isDownloading, setIsDownloading] = useState(false)
+  const [confirmingResultId, setConfirmingResultId] = useState<number | null>(null)
+  const [confirmDiagnosticResult] = useConfirmDiagnosticResultMutation()
+  const [confirmAllDiagnosticResults, { isLoading: isConfirmingAll }] = useConfirmAllDiagnosticResultsMutation()
+  const [confirmAllOpen, setConfirmAllOpen] = useState(false)
+
+  const handleConfirm = async (result: DiagnosticResultItem, action: 'confirm' | 'unconfirm' | 'disagree') => {
+    if (confirmingResultId !== null) return
+    setConfirmingResultId(result.id)
+    try {
+      await confirmDiagnosticResult({ sessionId, resultId: result.id, action }).unwrap()
+      toast.success(
+        action === 'confirm'
+          ? t('results.confirmSuccess')
+          : action === 'disagree'
+            ? t('results.disagreeSuccess')
+            : t('results.unconfirmSuccess')
+      )
+    } catch (err) {
+      toast.error(getErrorMessage(err, t('results.confirmError')))
+    } finally {
+      setConfirmingResultId(null)
+    }
+  }
+
+  const handleConfirmAll = async () => {
+    if (isConfirmingAll) return
+    try {
+      await confirmAllDiagnosticResults(sessionId).unwrap()
+      toast.success(t('results.confirmAllSuccess'))
+      setConfirmAllOpen(false)
+    } catch (err) {
+      toast.error(getErrorMessage(err, t('results.confirmError')))
+    }
+  }
 
   if (isLoading) {
     return <PageLoader />
   }
 
   const modules = resultsData?.modules || []
-  const allResults = modules.flatMap((m) => m.results)
-  const metCount = allResults.filter((r) => r.is_met).length
   const moduleCodes = session?.selected_module_codes || []
 
   const handleDownloadPdf = async () => {
@@ -335,10 +723,35 @@ export function InterviewResultsPage() {
             {t('results.description')}
           </p>
         </div>
-        <Button onClick={handleDownloadPdf} isLoading={isDownloading} disabled={!session}>
-          <Download className="ms-1 h-4 w-4" />
-          {t('results.downloadReport')}
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          {resultsData && modules.length > 0 && (
+            <>
+              {confirmAllOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setConfirmAllOpen(false)}>
+                  <div className="relative w-full max-w-sm rounded-xl bg-[var(--glass-bg)] backdrop-blur-xl p-5 shadow-[var(--glass-shadow)] border border-[var(--glass-border)]" onClick={(e) => e.stopPropagation()}>
+                    <h3 className="text-base font-semibold">{t('results.confirmAllConfirm')}</h3>
+                    <div className="mt-4 flex justify-end gap-2">
+                      <Button variant="outline" onClick={() => setConfirmAllOpen(false)}>
+                        {t('common.cancel')}
+                      </Button>
+                      <Button onClick={handleConfirmAll} isLoading={isConfirmingAll}>
+                        {t('results.confirmAll')}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+              <Button onClick={() => setConfirmAllOpen(true)} isLoading={isConfirmingAll} disabled={isConfirmingAll}>
+                <ShieldCheck className="ms-1 h-4 w-4" />
+                {t('results.confirmAll')}
+              </Button>
+            </>
+          )}
+          <Button onClick={handleDownloadPdf} isLoading={isDownloading} disabled={!session}>
+            <Download className="ms-1 h-4 w-4" />
+            {t('results.downloadReport')}
+          </Button>
+        </div>
       </div>
 
       {session && (
@@ -403,23 +816,22 @@ export function InterviewResultsPage() {
         <>
           <div className="space-y-3">
             {modules.map((mod) => (
-              <ModuleAccordion key={mod.module_code} module={mod} isRtl={isRtl} t={t} />
+              <ModuleAccordion
+                key={mod.module_code}
+                module={mod}
+                isRtl={isRtl}
+                t={t}
+                onConfirm={handleConfirm}
+                confirmingResultId={confirmingResultId}
+              />
             ))}
           </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-yellow-500" />
-                {t('results.diagnosticSummary')}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm">
-                {t('results.diagnosisCount')}: <strong>{metCount}</strong> / {allResults.length}
-              </p>
-            </CardContent>
-          </Card>
+          {resultsData.has_preexisting_diagnosis && resultsData.agreement && (
+            <ValidityCard agreement={resultsData.agreement} isRtl={isRtl} t={t} />
+          )}
+
+          <FeedbackCard sessionId={sessionId} t={t} />
         </>
       )}
 

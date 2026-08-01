@@ -2,7 +2,11 @@ import { useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useGetPatientsQuery } from '@/store/api/patientApi'
-import { useGetModulesQuery, useCreateSessionMutation } from '@/store/api/interviewApi'
+import {
+  useGetModulesQuery,
+  useGetDiagnosticCriteriaQuery,
+  useCreateSessionMutation,
+} from '@/store/api/interviewApi'
 import { Button, Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
 import {
   User,
@@ -19,6 +23,8 @@ import {
   Zap,
   ListChecks,
   Scale,
+  ClipboardCheck,
+  ChevronDown,
   type LucideIcon,
 } from 'lucide-react'
 import { getErrorMessage } from '@/utils/error'
@@ -63,16 +69,66 @@ export function NewInterviewPage() {
   const lang = i18n.language as 'en' | 'fa'
   const [selectedPatient, setSelectedPatient] = useState<number | null>(null)
   const [selectedModules, setSelectedModules] = useState<string[]>([])
+  const [hasPreexistingDiagnosis, setHasPreexistingDiagnosis] = useState(false)
+  const [selectedManualDiagnoses, setSelectedManualDiagnoses] = useState<number[]>([])
   const [error, setError] = useState<string | null>(null)
 
   const { data: patientsData } = useGetPatientsQuery({ page: 1 })
   const { data: modules, isLoading: modulesLoading } = useGetModulesQuery()
+  const { data: criteria, isLoading: criteriaLoading } = useGetDiagnosticCriteriaQuery()
   const [createSession, { isLoading }] = useCreateSessionMutation()
 
   const orderedModules = useMemo(
     () => [...(modules ?? [])].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)),
     [modules],
   )
+
+  const orderedCriteria = useMemo(
+    () =>
+      [...(criteria ?? [])].sort((a, b) => {
+        const moduleOrder = (a.module ?? '').localeCompare(b.module ?? '')
+        return moduleOrder !== 0 ? moduleOrder : a.disorder_name.localeCompare(b.disorder_name)
+      }),
+    [criteria],
+  )
+
+  // Group criteria by module code for a module-by-module accordion like the
+  // results page. Module order follows the module list (A..J).
+  const criteriaByModule = useMemo(() => {
+    const moduleOrder = (orderedModules ?? []).reduce<Record<string, number>>(
+      (acc, m) => {
+        acc[m.code] = m.order ?? 0
+        return acc
+      },
+      {}
+    )
+    const groups: { code: string; name: string; name_fa: string; items: typeof orderedCriteria }[] = []
+    const byCode = new Map<string, typeof orderedCriteria>()
+    for (const c of orderedCriteria) {
+      const list = byCode.get(c.module) ?? []
+      list.push(c)
+      byCode.set(c.module, list)
+    }
+    for (const [code, items] of byCode) {
+      const mod = orderedModules?.find((m) => m.code === code)
+      groups.push({
+        code,
+        name: mod?.name ?? code,
+        name_fa: mod?.name_fa ?? '',
+        items,
+      })
+    }
+    groups.sort((a, b) => (moduleOrder[a.code] ?? 0) - (moduleOrder[b.code] ?? 0))
+    return groups
+  }, [orderedCriteria, orderedModules])
+
+  const toggleManualDiagnosis = (criteriaId: number) => {
+    setSelectedManualDiagnoses((prev) =>
+      prev.includes(criteriaId)
+        ? prev.filter((c) => c !== criteriaId)
+        : [...prev, criteriaId]
+    )
+  }
 
   const toggleModule = (code: string) => {
     setSelectedModules((prev) => {
@@ -99,6 +155,8 @@ export function NewInterviewPage() {
       const session = await createSession({
         patient: selectedPatient,
         modules: selectedModules.length > 0 ? selectedModules : undefined,
+        has_preexisting_diagnosis: hasPreexistingDiagnosis,
+        manual_diagnoses: hasPreexistingDiagnosis ? selectedManualDiagnoses : undefined,
       }).unwrap()
       // When modules are selected, the overview is skipped (backend starts in diagnostic phase)
       if (selectedModules.length > 0) {
@@ -254,6 +312,114 @@ export function NewInterviewPage() {
           </>
         )}
       </div>
+
+      {/* Pre-existing clinical diagnosis */}
+      <Card>
+        <CardHeader className="p-6 sm:p-7">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <ClipboardCheck className="h-5 w-5" />
+            {t('interview.preexistingTitle')}
+          </CardTitle>
+          <p className="text-sm text-[hsl(var(--muted-foreground))] mt-1">
+            {t('interview.preexistingHint')}
+          </p>
+        </CardHeader>
+        <CardContent className="p-6 pt-0 sm:p-7 sm:pt-0 space-y-4">
+          <label className="flex items-start gap-3 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={hasPreexistingDiagnosis}
+              onChange={(e) => {
+                setHasPreexistingDiagnosis(e.target.checked)
+                if (!e.target.checked) setSelectedManualDiagnoses([])
+              }}
+              className="mt-1 h-4 w-4 rounded border-[hsl(var(--input))]"
+            />
+            <span className="text-sm leading-relaxed">
+              {t('interview.preexistingCheckbox')}
+            </span>
+          </label>
+
+          {hasPreexistingDiagnosis && (
+            criteriaLoading ? (
+              <p className="text-sm text-[hsl(var(--muted-foreground))]">{t('common.loading')}</p>
+            ) : (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-medium">{t('interview.preexistingListTitle')}</p>
+                  {selectedManualDiagnoses.length > 0 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setSelectedManualDiagnoses([])}
+                    >
+                      {t('interview.clearSelection')}
+                    </Button>
+                  )}
+                </div>
+
+                {criteriaByModule.map((group) => {
+                  const modName = lang === 'fa' && group.name_fa ? group.name_fa : group.name
+                  const selectedCount = group.items.filter((c) =>
+                    selectedManualDiagnoses.includes(c.id)
+                  ).length
+                  return (
+                    <details
+                      key={group.code}
+                      className="group rounded-lg border border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-xl shadow-[var(--glass-shadow)] overflow-hidden"
+                    >
+                      <summary className="flex items-center justify-between p-3 cursor-pointer list-none hover:bg-accent/50 transition-colors">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[hsl(var(--primary))]/10 text-[hsl(var(--primary))] text-sm font-bold shrink-0">
+                            {group.code}
+                          </span>
+                          <span className="font-semibold text-sm">{modName}</span>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                          {selectedCount > 0 && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
+                              <Check className="h-3 w-3" />
+                              {selectedCount}
+                            </span>
+                          )}
+                          <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-0 -rotate-90 text-[hsl(var(--muted-foreground))]" />
+                        </div>
+                      </summary>
+                      <div className="border-t px-3 pb-3 pt-2 space-y-2">
+                        {group.items.map((c) => {
+                          const selected = selectedManualDiagnoses.includes(c.id)
+                          const name = lang === 'fa' && c.disorder_name_fa ? c.disorder_name_fa : c.disorder_name
+                          return (
+                            <button
+                              key={c.id}
+                              type="button"
+                              onClick={() => toggleManualDiagnosis(c.id)}
+                              className={cn(
+                                'w-full flex items-center gap-3 rounded-lg border px-3 py-2 text-start transition-all',
+                                selected
+                                  ? 'border-[hsl(var(--primary))] bg-[hsl(var(--primary))]/5'
+                                  : 'border-[hsl(var(--border))] hover:border-[hsl(var(--primary))]/50 hover:bg-[hsl(var(--primary))]/[0.03]'
+                              )}
+                            >
+                              <span className="min-w-0 flex-1 text-sm leading-snug">
+                                <span className="block truncate">{name}</span>
+                                <span className="block text-xs font-mono text-[hsl(var(--muted-foreground))]">
+                                  {c.diagnosis_code}
+                                </span>
+                              </span>
+                              {selected && <Check className="h-4 w-4 shrink-0 text-[hsl(var(--primary))]" />}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </details>
+                  )
+                })}
+              </div>
+            )
+          )}
+        </CardContent>
+      </Card>
 
       <div className="flex justify-center pb-8">
         <Button size="lg" className="w-full sm:w-auto" onClick={handleStart} isLoading={isLoading} disabled={!selectedPatient}>

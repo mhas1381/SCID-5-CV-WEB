@@ -11,14 +11,16 @@ import {
   useNavigateSessionMutation,
   useContinueSessionMutation,
   useUpdateSessionMutation,
+  useReviewQuestionQuery,
 } from '@/store/api/interviewApi'
 import { useElapsedTime } from '@/hooks/useElapsedTime'
 import { Button, Card, CardHeader, CardTitle, CardContent, PageLoader, LoadingSpinner } from '@/components/ui'
-import { AlertCircle, CheckCircle, ArrowLeft, ChevronRight, FileText, Play } from 'lucide-react'
+import { AlertCircle, CheckCircle, ArrowLeft, ChevronRight, FileText, Play, History } from 'lucide-react'
 import { cn } from '@/utils/cn'
 import { getErrorMessage } from '@/utils/error'
 import { toEnglishDigits } from '@/utils/string'
-import type { Question, SubmitAnswerRequest, SessionResponse } from '@/types'
+import type { Question, ReviewResponse, SubmitAnswerRequest, SessionResponse } from '@/types'
+import { ReviewHistoryModal } from './ReviewHistoryModal'
 
 export function InterviewSessionPage() {
   const { id } = useParams<{ id: string }>()
@@ -50,6 +52,19 @@ export function InterviewSessionPage() {
   const [navigateSession, { isLoading: isNavigating }] = useNavigateSessionMutation()
   const [continueSession, { isLoading: isContinuing }] = useContinueSessionMutation()
   const [updateSession] = useUpdateSessionMutation()
+
+  // Read-only review of a previously answered question.
+  const [reviewQuestionId, setReviewQuestionId] = useState<string | null>(null)
+  const [reviewOpen, setReviewOpen] = useState(false)
+  const [historyOpen, setHistoryOpen] = useState(false)
+  const {
+    data: reviewData,
+    isLoading: reviewLoading,
+    error: reviewError,
+  } = useReviewQuestionQuery(
+    { sessionId, question_id: reviewQuestionId! },
+    { skip: !reviewQuestionId || !reviewOpen },
+  )
   const isTimerActive = session?.status === 'in_progress'
   const { displayTime: elapsedDisplay } = useElapsedTime({
     sessionId,
@@ -180,27 +195,34 @@ export function InterviewSessionPage() {
 
   const handlePrev = async () => {
     if (!canGoPrev) return
-    // Navigate to the most recently answered question
+    // Instead of navigating back (which would allow re-answering and corrupt
+    // the branching flow), open the read-only review of the previous answer.
     const prevId = answeredQuestionIds[answeredQuestionIds.length - 1]
     if (!prevId) return
     setLocalError(null)
-    try {
-      const res = await navigateSession({ sessionId, question_id: prevId }).unwrap()
-      const q = res.current_question
-      if (q) {
-        const fullQ = findQuestion(q.question_id)
-        if (fullQ) {
-          setCurrentQuestion(fullQ)
-        } else {
-          const modCode = q.question_id.charAt(0)
-          setCurrentModuleCode(modCode)
-          setCurrentQuestion(null)
-        }
-      }
-    } catch (err: any) {
-      const msg = getErrorMessage(err, t('interview.answerError'))
-      setLocalError(msg)
-      toast.error(msg)
+    setReviewQuestionId(prevId)
+    setReviewOpen(true)
+  }
+
+  const handleReviewSelect = (questionId: string) => {
+    setLocalError(null)
+    setReviewQuestionId(questionId)
+    setReviewOpen(true)
+    setHistoryOpen(false)
+  }
+
+  const handleReviewResume = () => {
+    setReviewOpen(false)
+    setReviewQuestionId(null)
+    setHistoryOpen(false)
+  }
+
+  const handleHistoryToggle = () => {
+    setHistoryOpen((v) => !v)
+    if (!historyOpen) {
+      // Opening history exits an active review view back to the live question
+      setReviewOpen(false)
+      setReviewQuestionId(null)
     }
   }
 
@@ -325,6 +347,83 @@ export function InterviewSessionPage() {
   const currentModuleName = isRtl && q.module_name_fa ? q.module_name_fa : q.module_name || ''
   const progressPercent = progress?.progress_percent ?? 0
 
+  const renderReviewCard = (rv: ReviewResponse) => {
+    const rq = rv.question
+    const resp = rv.response
+    const rqText = isRtl && rq.text_fa ? rq.text_fa : rq.text
+    const rqModule = isRtl && rq.module_name_fa ? rq.module_name_fa : rq.module_name || ''
+    return (
+      <Card className="flex-1 flex flex-col min-h-0 overflow-hidden" data-testid="review-card">
+        <CardHeader className="overflow-y-auto flex-1 min-h-0">
+          <div className="flex items-start justify-between gap-2">
+            <CardTitle className="text-2xl leading-relaxed whitespace-pre-line">
+              {rqText}
+            </CardTitle>
+            <span className="shrink-0 text-xs text-[hsl(var(--muted-foreground))] font-mono">
+              {rq.question_id}
+            </span>
+          </div>
+          <div className="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-200">
+            <div className="flex items-center gap-2 font-semibold">
+              <FileText className="h-4 w-4 shrink-0" />
+              {t('interview.reviewModeTitle')} · {rqModule || rq.module_code}
+            </div>
+            <p className="mt-1 text-xs opacity-90">{t('interview.reviewReadOnly')}</p>
+          </div>
+          <div className="mt-4 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))] overflow-hidden">
+            <div className="h-1 bg-emerald-500" />
+            <div className="p-3">
+              <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+                {t('interview.reviewAnswer')}
+              </span>
+              {resp ? (
+                <>
+                  {resp.question_input_type === 'radio' &&
+                    (resp.selected_option_label || resp.selected_option_label_fa) && (
+                      <p className="mt-2 text-lg font-semibold text-[hsl(var(--foreground))]">
+                        {isRtl
+                          ? resp.selected_option_label_fa || resp.selected_option_label
+                          : resp.selected_option_label || resp.selected_option_label_fa}
+                      </p>
+                    )}
+                  {resp.text_response && (
+                    <p className="mt-2 text-sm text-[hsl(var(--foreground))] whitespace-pre-line">
+                      {resp.text_response}
+                    </p>
+                  )}
+                  {resp.numeric_response !== null &&
+                    resp.numeric_response !== undefined && (
+                      <p className="mt-2 text-lg font-semibold text-[hsl(var(--foreground))]">
+                        {resp.numeric_response}
+                      </p>
+                    )}
+                  {resp.date_response && (
+                    <p className="mt-2 text-lg font-semibold text-[hsl(var(--foreground))]">
+                      {resp.date_response}
+                    </p>
+                  )}
+                </>
+              ) : (
+                <p className="mt-2 text-sm text-[hsl(var(--muted-foreground))]">
+                  {t('interview.reviewNoAnswer')}
+                </p>
+              )}
+            </div>
+          </div>
+        </CardHeader>
+        <hr className="border-[hsl(var(--border))] flex-shrink-0" />
+        <CardContent className="flex-shrink-0 pt-4">
+          <Button size="lg" className="w-full" onClick={handleReviewResume} data-testid="review-resume">
+            <ArrowLeft className="ml-2 h-5 w-5" />
+            {t('interview.reviewResume')}
+          </Button>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  const isReviewing = reviewOpen && reviewData
+
   return (
     <div className="h-full flex flex-col space-y-4">
       {/* Header */}
@@ -357,8 +456,29 @@ export function InterviewSessionPage() {
           <span className="text-xs text-[hsl(var(--muted-foreground))] font-mono tabular-nums">
             {Math.floor(elapsedDisplay / 60)}:{String(elapsedDisplay % 60).padStart(2, '0')}
           </span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleHistoryToggle}
+            disabled={answeredQuestionIds.length === 0}
+            data-testid="review-history-toggle"
+          >
+            <History className="ml-1 h-4 w-4" />
+            {t('interview.reviewHistory')}
+          </Button>
         </div>
       </div>
+
+      {/* Answered-history modal — module-by-module read-only review */}
+      <ReviewHistoryModal
+        open={historyOpen}
+        responses={answeredOrder}
+        isRtl={isRtl}
+        t={t}
+        activeQuestionId={reviewQuestionId}
+        onSelect={handleReviewSelect}
+        onClose={handleHistoryToggle}
+      />
 
       {/* Progress */}
       {progress && (
@@ -384,6 +504,23 @@ export function InterviewSessionPage() {
         </div>
       )}
 
+      {/* Review mode — read-only view of a previously answered question */}
+      {isReviewing ? (
+        renderReviewCard(reviewData)
+      ) : reviewOpen && reviewLoading ? (
+        <div className="flex items-center justify-center flex-1">
+          <LoadingSpinner size="lg" label={t('common.loading')} />
+        </div>
+      ) : reviewOpen && reviewError ? (
+        <div className="flex-1 flex flex-col items-center justify-center space-y-4">
+          <AlertCircle className="h-10 w-10 text-red-500 dark:text-red-400" />
+          <p className="text-[hsl(var(--muted-foreground))]">{t('interview.reviewError')}</p>
+          <Button variant="outline" onClick={handleReviewResume}>
+            {t('interview.reviewResume')}
+          </Button>
+        </div>
+      ) : (
+      <>
       {/* Question Card — fills remaining space */}
       <Card className="flex-1 flex flex-col min-h-0 overflow-hidden">
         <CardHeader className="overflow-y-auto flex-1 min-h-0">
@@ -559,23 +696,34 @@ export function InterviewSessionPage() {
           )}
         </CardContent>
       </Card>
+      </>
+      )}
 
       {/* Bottom navigation */}
       <div className="flex justify-between items-center flex-shrink-0 pb-4 gap-3">
-        <Button
-          variant="outline"
-          size="lg"
-          onClick={handlePrev}
-          disabled={!canGoPrev || isNavigating}
-          isLoading={isNavigating}
-        >
-          <ChevronRight className="ml-2 h-5 w-5" />
-          {isRtl ? 'قبلی' : 'Prev'}
-        </Button>
-        <Button variant="outline" size="lg" onClick={handleComplete} isLoading={isCompleting}>
-          <CheckCircle className="ml-2 h-5 w-5" />
-          {t('interview.complete')}
-        </Button>
+        {isReviewing ? (
+          <Button variant="outline" size="lg" onClick={handleReviewResume} className="w-full">
+            <ArrowLeft className="ml-2 h-5 w-5" />
+            {t('interview.reviewResume')}
+          </Button>
+        ) : (
+          <>
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={handlePrev}
+              disabled={!canGoPrev || isNavigating}
+              isLoading={isNavigating}
+            >
+              <ChevronRight className="ml-2 h-5 w-5" />
+              {isRtl ? 'قبلی' : 'Prev'}
+            </Button>
+            <Button variant="outline" size="lg" onClick={handleComplete} isLoading={isCompleting}>
+              <CheckCircle className="ml-2 h-5 w-5" />
+              {t('interview.complete')}
+            </Button>
+          </>
+        )}
       </div>
     </div>
   )

@@ -300,6 +300,13 @@ export interface Session {
   current_module_code: string | null
   overview_id: number | null
   selected_module_codes?: string[] | null
+  has_preexisting_diagnosis?: boolean
+  manual_diagnoses?: Array<{
+    criteria_id: number
+    disorder_name: string
+    disorder_name_fa: string
+    diagnosis_code: string
+  }>
   started_at: string
   completed_at: string | null
   notes?: string | null
@@ -312,6 +319,8 @@ export interface SessionCreateRequest {
   patient: number
   notes?: string
   modules?: string[]
+  has_preexisting_diagnosis?: boolean
+  manual_diagnoses?: number[]
 }
 
 export interface SessionResponse {
@@ -383,6 +392,18 @@ export interface Module {
   questions_count: number
 }
 
+export interface DiagnosticCriteriaItem {
+  id: number
+  module: string
+  disorder_name: string
+  disorder_name_fa?: string
+  diagnosis_code: string
+  criteria_text?: string
+  criteria_text_fa?: string
+  is_current?: boolean
+  related_questions_count?: number
+}
+
 // --- Submit Answer ---
 
 export interface SubmitAnswerRequest {
@@ -424,6 +445,12 @@ export interface NavigateResponse {
   current_question: Question
 }
 
+export interface ReviewResponse {
+  detail: string
+  question: Question
+  response: AnswerResponseData | null
+}
+
 // --- Progress ---
 
 export interface ProgressResponse {
@@ -457,6 +484,7 @@ export interface CompleteDisorderResult {
   symptoms_met_count: number
   criteria_details: Record<string, unknown>
   clinician_confirmed: boolean
+  clinician_disagreed: boolean
   confirmation_status: string
 }
 
@@ -480,6 +508,7 @@ export interface DiagnosticResultItem {
   symptoms_met_count: number
   criteria_details: Record<string, unknown>
   clinician_confirmed: boolean
+  clinician_disagreed: boolean
   confirmation_status: string
   questions?: DiagnosticQuestionInfo[]
 }
@@ -505,10 +534,39 @@ export interface ModuleGroupResult {
   results: DiagnosticResultItem[]
 }
 
+export interface AgreementItem {
+  criteria_id: number
+  disorder_name: string
+  disorder_name_fa: string
+  diagnosis_code: string
+  preexisting: boolean
+  system_met: boolean
+  category: 'true_positive' | 'true_negative' | 'false_positive' | 'false_negative'
+}
+
+export interface AgreementData {
+  has_preexisting_diagnosis: boolean
+  agreement_percent: number | null
+  total: number
+  true_positive: number
+  true_negative: number
+  false_positive: number
+  false_negative: number
+  items: AgreementItem[]
+  preexisting: Array<{
+    criteria_id: number
+    disorder_name: string
+    disorder_name_fa: string
+    diagnosis_code: string
+  }>
+}
+
 export interface DiagnosticResultsResponse {
   session_id: number
   status: string
   modules: ModuleGroupResult[]
+  has_preexisting_diagnosis: boolean
+  agreement: AgreementData
 }
 
 // ==========================================================
