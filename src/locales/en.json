@@ -412,7 +412,27 @@
       "agreement": "Agreement",
       "demographics": "Demographics",
       "users": "Users",
+      "activity": "All Activity",
       "backToApp": "Back to App"
+    },
+    "activity": {
+      "title": "All Activity",
+      "description": "System-wide activity timeline",
+      "timeline": "Event Timeline",
+      "allEvents": "All events",
+      "totalEvents": "{{count}} events",
+      "by": "by {{name}}",
+      "sessionLabel": "Session {{id}}",
+      "loadMore": "Load more",
+      "loadingMore": "Loading...",
+      "types": {
+        "patient_registered": "Patient registered",
+        "interview_started": "Interview started",
+        "interview_completed": "Interview completed",
+        "diagnosis_confirmed": "Diagnosis confirmed",
+        "feedback_submitted": "Feedback",
+        "user_role_changed": "Role changed"
+      }
     },
     "export": {
       "label": "Export Excel",

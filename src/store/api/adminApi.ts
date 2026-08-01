@@ -1,5 +1,7 @@
 import { baseApi } from './baseApi'
 import type {
+  AdminActivityFeed,
+  AdminActivityParams,
   AdminAgreement,
   AdminDemographics,
   AdminInterviewAnalytics,
@@ -48,6 +50,21 @@ export const adminApi = baseApi.injectEndpoints({
       }
     ),
 
+    getAdminActivity: builder.query<AdminActivityFeed, AdminActivityParams>(
+      {
+        query: (params) => {
+          const query: Record<string, string> = {
+            limit: String(params.limit ?? 50),
+            offset: String(params.offset ?? 0),
+          }
+          if (params.event_type) {
+            query.event_type = params.event_type
+          }
+          return { url: 'v1/admin/activity/', params: query }
+        },
+      }
+    ),
+
     getAdminUsers: builder.query<
       AdminUser[],
       {
@@ -83,6 +100,7 @@ export const {
   useGetAdminInterviewAnalyticsQuery,
   useGetAdminAgreementQuery,
   useGetAdminDemographicsQuery,
+  useGetAdminActivityQuery,
   useGetAdminUsersQuery,
   useUpdateAdminUserMutation,
 } = adminApi

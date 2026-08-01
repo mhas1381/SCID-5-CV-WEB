@@ -412,7 +412,27 @@
       "agreement": "تطابق تشخیص‌ها",
       "demographics": "دموگرافیک",
       "users": "مدیریت کاربران",
+      "activity": "همه فرایندها",
       "backToApp": "بازگشت به برنامه"
+    },
+    "activity": {
+      "title": "همه فرایندها",
+      "description": "تایم‌لاین فعالیت‌های کل سیستم",
+      "timeline": "تایم‌لاین رویدادها",
+      "allEvents": "همه رویدادها",
+      "totalEvents": "{{count}} رویداد",
+      "by": "توسط {{name}}",
+      "sessionLabel": "جلسه {{id}}",
+      "loadMore": "نمایش موارد بیشتر",
+      "loadingMore": "در حال بارگذاری...",
+      "types": {
+        "patient_registered": "ثبت بیمار",
+        "interview_started": "شروع مصاحبه",
+        "interview_completed": "تکمیل مصاحبه",
+        "diagnosis_confirmed": "تأیید تشخیص",
+        "feedback_submitted": "فیدبک",
+        "user_role_changed": "تغییر نقش"
+      }
     },
     "export": {
       "label": "خروجی اکسل",

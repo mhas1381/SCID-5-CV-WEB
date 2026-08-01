@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Menu, LayoutDashboard, BarChart3, GitCompareArrows, Users, UserCog, ArrowLeft, ArrowRight, LogOut, ShieldCheck } from 'lucide-react'
+import { Menu, LayoutDashboard, BarChart3, GitCompareArrows, Users, UserCog, Activity, ArrowLeft, ArrowRight, LogOut, ShieldCheck } from 'lucide-react'
 import { cn } from '@/utils/cn'
 import { useAppDispatch } from '@/hooks/useAppStore'
 import { useGetMeQuery } from '@/store/api/authApi'
@@ -26,6 +26,7 @@ function AdminSidebar({ open, onClose }: AdminSidebarProps) {
     { to: '/admin/agreement', icon: GitCompareArrows, label: t('admin.nav.agreement') },
     { to: '/admin/demographics', icon: Users, label: t('admin.nav.demographics') },
     { to: '/admin/users', icon: UserCog, label: t('admin.nav.users') },
+    { to: '/admin/activity', icon: Activity, label: t('admin.nav.activity') },
   ]
 
   return (

@@ -768,3 +768,36 @@ export interface AdminDemographics {
   disorders: AdminDisorderPrevalence[]
   breakdowns: Record<string, AdminDimensionValue[]>
 }
+
+/** GET /api/v1/admin/activity/ → item */
+export type AdminActivityEventType =
+  | 'patient_registered'
+  | 'interview_started'
+  | 'interview_completed'
+  | 'diagnosis_confirmed'
+  | 'feedback_submitted'
+  | 'user_role_changed'
+
+export interface AdminActivityItem {
+  id: number
+  event_type: AdminActivityEventType
+  actor: string | null
+  patient: { id: number; name: string } | null
+  session: number | null
+  description: string
+  metadata: Record<string, string | number | null>
+  created_at: string
+}
+
+export interface AdminActivityFeed {
+  total: number
+  limit: number
+  offset: number
+  items: AdminActivityItem[]
+}
+
+export interface AdminActivityParams {
+  event_type?: AdminActivityEventType | ''
+  limit?: number
+  offset?: number
+}
