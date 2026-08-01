@@ -299,6 +299,7 @@ export interface Session {
   current_module: number | null
   current_module_code: string | null
   overview_id: number | null
+  selected_module_codes?: string[] | null
   started_at: string
   completed_at: string | null
   notes?: string | null
@@ -310,6 +311,7 @@ export interface Session {
 export interface SessionCreateRequest {
   patient: number
   notes?: string
+  modules?: string[]
 }
 
 export interface SessionResponse {

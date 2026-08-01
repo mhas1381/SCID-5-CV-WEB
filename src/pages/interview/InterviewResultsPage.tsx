@@ -1,10 +1,14 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { useGetDiagnosticResultsQuery } from '@/store/api/interviewApi'
+import { toast } from 'sonner'
+import { useGetSessionQuery, useGetDiagnosticResultsQuery } from '@/store/api/interviewApi'
 import { Button, Card, CardHeader, CardTitle, CardContent, PageLoader } from '@/components/ui'
-import { AlertCircle, ArrowLeft, CheckCircle, XCircle, AlertTriangle, ChevronDown, Info } from 'lucide-react'
+import { ArrowLeft, CheckCircle, XCircle, AlertTriangle, ChevronDown, Info, User, FileText, Download } from 'lucide-react'
 import { cn } from '@/utils/cn'
+import { formatDate } from '@/utils/date'
+import { downloadSessionPdf } from '@/utils/download'
+import { getErrorMessage } from '@/utils/error'
 import type { DiagnosticResultItem, DiagnosticQuestionInfo, ModuleGroupResult } from '@/types'
 
 function formatCriteriaVal(val: unknown, isRtl: boolean): string {
@@ -298,6 +302,8 @@ export function InterviewResultsPage() {
   const isRtl = i18n.language === 'fa'
 
   const { data: resultsData, isLoading } = useGetDiagnosticResultsQuery(sessionId)
+  const { data: session } = useGetSessionQuery(sessionId)
+  const [isDownloading, setIsDownloading] = useState(false)
 
   if (isLoading) {
     return <PageLoader />
@@ -306,6 +312,19 @@ export function InterviewResultsPage() {
   const modules = resultsData?.modules || []
   const allResults = modules.flatMap((m) => m.results)
   const metCount = allResults.filter((r) => r.is_met).length
+  const moduleCodes = session?.selected_module_codes || []
+
+  const handleDownloadPdf = async () => {
+    if (isDownloading) return
+    setIsDownloading(true)
+    try {
+      await downloadSessionPdf(sessionId, `SCID5_Report_${sessionId}.pdf`)
+    } catch (err: any) {
+      toast.error(getErrorMessage(err, t('results.downloadError')))
+    } finally {
+      setIsDownloading(false)
+    }
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -316,11 +335,61 @@ export function InterviewResultsPage() {
             {t('results.description')}
           </p>
         </div>
-        <Button variant="outline" onClick={() => navigate(`/interview/${id}/report`)} disabled>
-          <AlertCircle className="ml-2 h-4 w-4" />
-          {t('results.fullReport')}
+        <Button onClick={handleDownloadPdf} isLoading={isDownloading} disabled={!session}>
+          <Download className="ms-1 h-4 w-4" />
+          {t('results.downloadReport')}
         </Button>
       </div>
+
+      {session && (
+        <Card>
+          <CardContent className="p-5 sm:p-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-4">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[hsl(var(--primary))]/10 text-[hsl(var(--primary))]">
+                  <User className="h-7 w-7" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs text-[hsl(var(--muted-foreground))]">
+                    {t('results.patient')}
+                  </p>
+                  <h2 className="text-xl font-bold leading-tight break-words">
+                    {session.patient_name || '—'}
+                  </h2>
+                  <p className="text-sm text-[hsl(var(--muted-foreground))]">
+                    {t('results.clinician')}: {session.clinician_name || '—'}
+                  </p>
+                </div>
+              </div>
+              <div className="flex shrink-0 items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigate(`/interview/${id}/background`)}
+                >
+                  <FileText className="ms-1 h-4 w-4" />
+                  {t('results.viewOverview')}
+                </Button>
+              </div>
+            </div>
+            <div className="mt-4 flex flex-wrap gap-x-6 gap-y-1 border-t border-[hsl(var(--border))] pt-3 text-xs text-[hsl(var(--muted-foreground))]">
+              <span>
+                {t('results.sessionId')}: #{session.id}
+              </span>
+              {session.started_at && (
+                <span>
+                  {t('results.sessionDate')}: {formatDate(session.started_at)}
+                </span>
+              )}
+              {moduleCodes.length > 0 && (
+                <span>
+                  {t('results.modules')}: {moduleCodes.join('، ')}
+                </span>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {resultsData && modules.length === 0 && (
         <Card>

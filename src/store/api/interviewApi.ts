@@ -55,7 +55,7 @@ export const interviewApi = baseApi.injectEndpoints({
       providesTags: (result, error, id) => [{ type: 'Session', id }],
     }),
 
-    createSession: builder.mutation<Session, { patient: number; notes?: string }>({
+    createSession: builder.mutation<Session, { patient: number; notes?: string; modules?: string[] }>({
       query: (body) => ({
         url: 'v1/interviews/sessions/',
         method: 'POST',
