@@ -6,7 +6,7 @@ const persianDigits: Record<string, string> = {
   '5': '۵', '6': '۶', '7': '۷', '8': '۸', '9': '۹',
 }
 
-function toPersianNum(str: string): string {
+export function toPersianNum(str: string): string {
   return str.replace(/\d/g, (d) => persianDigits[d])
 }
 

@@ -1,9 +1,11 @@
+import { apiUrl } from '@/config'
+
 export async function downloadSessionPdf(
   sessionId: number,
   fallbackName?: string,
 ): Promise<void> {
   const token = localStorage.getItem('access_token')
-  const resp = await fetch(`/api/v1/interviews/sessions/${sessionId}/pdf/`, {
+  const resp = await fetch(apiUrl(`/v1/interviews/sessions/${sessionId}/pdf/`), {
     headers: token ? { Authorization: `Bearer ${token}` } : {},
   })
 

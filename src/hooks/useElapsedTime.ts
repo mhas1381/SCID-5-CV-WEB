@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { apiUrl } from '@/config'
 
 interface UseElapsedTimeOptions {
   sessionId: number
@@ -111,7 +112,7 @@ export function useElapsedTime({
         const blob = new Blob([JSON.stringify({ elapsed_time: total })], {
           type: 'application/json',
         })
-        navigator.sendBeacon(`/api/v1/interviews/sessions/${sessionId}/`, blob)
+        navigator.sendBeacon(apiUrl(`/v1/interviews/sessions/${sessionId}/`), blob)
       }
     }
     window.addEventListener('beforeunload', onUnload)

@@ -5,15 +5,17 @@ import { toast } from 'sonner'
 import {
   useGetSessionQuery,
   useGetDiagnosticResultsQuery,
-  useConfirmDiagnosticResultMutation,
-  useConfirmAllDiagnosticResultsMutation,
+  // TODO: re-enable with approve/disagree buttons
+  // useConfirmDiagnosticResultMutation,
+  // useConfirmAllDiagnosticResultsMutation,
   useSubmitSystemFeedbackMutation,
 } from '@/store/api/interviewApi'
 import { Button, Card, CardHeader, CardTitle, CardContent, PageLoader } from '@/components/ui'
 import {
   ArrowLeft,
-  Check,
-  X,
+  // TODO: re-enable with approve/disagree buttons
+  // Check,
+  // X,
   CheckCircle,
   XCircle,
   ChevronDown,
@@ -25,7 +27,7 @@ import {
   MessageSquare,
 } from 'lucide-react'
 import { cn } from '@/utils/cn'
-import { formatDate } from '@/utils/date'
+import { formatDate, toPersianNum } from '@/utils/date'
 import { downloadSessionPdf } from '@/utils/download'
 import { getErrorMessage } from '@/utils/error'
 import type { DiagnosticResultItem, DiagnosticQuestionInfo, ModuleGroupResult, AgreementData } from '@/types'
@@ -113,14 +115,15 @@ function DisorderCard({
   result,
   isRtl,
   t,
-  onConfirm,
-  isConfirming,
+  // TODO: re-enable with approve/disagree buttons
+  // onConfirm,
+  // isConfirming,
 }: {
   result: DiagnosticResultItem
   isRtl: boolean
   t: (key: string) => string
-  onConfirm: (result: DiagnosticResultItem, action: 'confirm' | 'unconfirm' | 'disagree') => void
-  isConfirming: boolean
+  // onConfirm: (result: DiagnosticResultItem, action: 'confirm' | 'unconfirm' | 'disagree') => void
+  // isConfirming: boolean
 }) {
   const [expanded, setExpanded] = useState(false)
   const name = isRtl && result.disorder_name_fa ? result.disorder_name_fa : result.disorder_name
@@ -141,7 +144,8 @@ function DisorderCard({
             <XCircle className="h-5 w-5 shrink-0 text-red-400 dark:text-red-500" />
           )}
         </button>
-        <div className="flex items-center gap-1.5 shrink-0">
+        {/* TODO: re-enable clinician approve/disagree feedback buttons */}
+        {/* <div className="flex items-center gap-1.5 shrink-0">
           <button
             type="button"
             onClick={(e) => {
@@ -176,7 +180,7 @@ function DisorderCard({
             <X className="h-3.5 w-3.5" />
             {result.clinician_disagreed ? t('results.rejectActive') : t('results.reject')}
           </button>
-        </div>
+        </div> */}
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
@@ -342,14 +346,15 @@ function ModuleAccordion({
   module,
   isRtl,
   t,
-  onConfirm,
-  confirmingResultId,
+  // TODO: re-enable with approve/disagree buttons
+  // onConfirm,
+  // confirmingResultId,
 }: {
   module: ModuleGroupResult
   isRtl: boolean
   t: (key: string) => string
-  onConfirm: (result: DiagnosticResultItem, action: 'confirm' | 'unconfirm' | 'disagree') => void
-  confirmingResultId: number | null
+  // onConfirm: (result: DiagnosticResultItem, action: 'confirm' | 'unconfirm' | 'disagree') => void
+  // confirmingResultId: number | null
 }) {
   const hasMet = module.results.some((r) => r.is_met)
   const metCount = module.results.filter((r) => r.is_met).length
@@ -371,7 +376,7 @@ function ModuleAccordion({
           {hasMet && (
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
               <CheckCircle className="h-3 w-3" />
-              {metCount} {t('results.diagnoses')}
+              {isRtl ? toPersianNum(String(metCount)) : metCount} {t('results.diagnoses')}
             </span>
           )}
           {!hasMet && (
@@ -389,8 +394,8 @@ function ModuleAccordion({
             result={result}
             isRtl={isRtl}
             t={t}
-            onConfirm={onConfirm}
-            isConfirming={confirmingResultId === result.id}
+            // onConfirm={onConfirm}
+            // isConfirming={confirmingResultId === result.id}
           />
         ))}
       </div>
@@ -657,40 +662,41 @@ export function InterviewResultsPage() {
   const { data: resultsData, isLoading } = useGetDiagnosticResultsQuery(sessionId)
   const { data: session } = useGetSessionQuery(sessionId)
   const [isDownloading, setIsDownloading] = useState(false)
-  const [confirmingResultId, setConfirmingResultId] = useState<number | null>(null)
-  const [confirmDiagnosticResult] = useConfirmDiagnosticResultMutation()
-  const [confirmAllDiagnosticResults, { isLoading: isConfirmingAll }] = useConfirmAllDiagnosticResultsMutation()
-  const [confirmAllOpen, setConfirmAllOpen] = useState(false)
+  // TODO: re-enable approve/disagree + confirm-all buttons
+  // const [confirmingResultId, setConfirmingResultId] = useState<number | null>(null)
+  // const [confirmDiagnosticResult] = useConfirmDiagnosticResultMutation()
+  // const [confirmAllDiagnosticResults, { isLoading: isConfirmingAll }] = useConfirmAllDiagnosticResultsMutation()
+  // const [confirmAllOpen, setConfirmAllOpen] = useState(false)
 
-  const handleConfirm = async (result: DiagnosticResultItem, action: 'confirm' | 'unconfirm' | 'disagree') => {
-    if (confirmingResultId !== null) return
-    setConfirmingResultId(result.id)
-    try {
-      await confirmDiagnosticResult({ sessionId, resultId: result.id, action }).unwrap()
-      toast.success(
-        action === 'confirm'
-          ? t('results.confirmSuccess')
-          : action === 'disagree'
-            ? t('results.disagreeSuccess')
-            : t('results.unconfirmSuccess')
-      )
-    } catch (err) {
-      toast.error(getErrorMessage(err, t('results.confirmError')))
-    } finally {
-      setConfirmingResultId(null)
-    }
-  }
+  // const handleConfirm = async (result: DiagnosticResultItem, action: 'confirm' | 'unconfirm' | 'disagree') => {
+  //   if (confirmingResultId !== null) return
+  //   setConfirmingResultId(result.id)
+  //   try {
+  //     await confirmDiagnosticResult({ sessionId, resultId: result.id, action }).unwrap()
+  //     toast.success(
+  //       action === 'confirm'
+  //         ? t('results.confirmSuccess')
+  //         : action === 'disagree'
+  //           ? t('results.disagreeSuccess')
+  //           : t('results.unconfirmSuccess')
+  //     )
+  //   } catch (err) {
+  //     toast.error(getErrorMessage(err, t('results.confirmError')))
+  //   } finally {
+  //     setConfirmingResultId(null)
+  //   }
+  // }
 
-  const handleConfirmAll = async () => {
-    if (isConfirmingAll) return
-    try {
-      await confirmAllDiagnosticResults(sessionId).unwrap()
-      toast.success(t('results.confirmAllSuccess'))
-      setConfirmAllOpen(false)
-    } catch (err) {
-      toast.error(getErrorMessage(err, t('results.confirmError')))
-    }
-  }
+  // const handleConfirmAll = async () => {
+  //   if (isConfirmingAll) return
+  //   try {
+  //     await confirmAllDiagnosticResults(sessionId).unwrap()
+  //     toast.success(t('results.confirmAllSuccess'))
+  //     setConfirmAllOpen(false)
+  //   } catch (err) {
+  //     toast.error(getErrorMessage(err, t('results.confirmError')))
+  //   }
+  // }
 
   if (isLoading) {
     return <PageLoader />
@@ -721,7 +727,8 @@ export function InterviewResultsPage() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          {resultsData && modules.length > 0 && (
+          {/* TODO: re-enable confirm-all diagnoses button */}
+          {/* {resultsData && modules.length > 0 && (
             <>
               {confirmAllOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setConfirmAllOpen(false)}>
@@ -743,7 +750,7 @@ export function InterviewResultsPage() {
                 {t('results.confirmAll')}
               </Button>
             </>
-          )}
+          )} */}
           <Button onClick={handleDownloadPdf} isLoading={isDownloading} disabled={!session}>
             <Download className="ms-1 h-4 w-4" />
             {t('results.downloadReport')}
@@ -818,8 +825,8 @@ export function InterviewResultsPage() {
                 module={mod}
                 isRtl={isRtl}
                 t={t}
-                onConfirm={handleConfirm}
-                confirmingResultId={confirmingResultId}
+                // onConfirm={handleConfirm}
+                // confirmingResultId={confirmingResultId}
               />
             ))}
           </div>

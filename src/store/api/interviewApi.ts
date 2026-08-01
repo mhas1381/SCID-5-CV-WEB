@@ -1,4 +1,5 @@
 import { baseApi } from './baseApi'
+import { apiUrl } from '@/config'
 import type {
   AnswerResponse,
   CompleteOverviewResponse,
@@ -37,7 +38,7 @@ export const interviewApi = baseApi.injectEndpoints({
           let page = 1
           // eslint-disable-next-line no-constant-condition
           while (true) {
-            const res = await fetch(`/api/v1/questions/diagnostic-criteria/?page=${page}`, {
+            const res = await fetch(apiUrl(`/v1/questions/diagnostic-criteria/?page=${page}`), {
               headers: { 'Content-Type': 'application/json' },
             })
             const data = await res.json()
