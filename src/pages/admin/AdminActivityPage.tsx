@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useGetAdminActivityQuery } from '@/store/api/adminApi'
+import { useActivityStream } from '@/hooks/useActivityStream'
 import { Card, CardContent, CardHeader, CardTitle, LoadingSpinner, Button } from '@/components/ui'
 import {
-  UserPlus, PlayCircle, CheckCircle2, BadgeCheck, MessageSquare, UserCog, Activity,
+  UserPlus, PlayCircle, CheckCircle2, BadgeCheck, MessageSquare, UserCog, Activity, Radio,
 } from 'lucide-react'
 import { cn } from '@/utils/cn'
 import { formatDate } from '@/utils/date'
@@ -43,13 +44,25 @@ export function AdminActivityPage() {
     offset: 0,
   })
 
-  const items = data?.items ?? []
-  const total = data?.total ?? 0
-  const hasMore = items.length < total
+  // Live SSE stream: prepends new events as they happen.
+  const fetchedItems = data?.items ?? []
+  const newestFetchedId = fetchedItems[0]?.id ?? null
+  const { isLive, pendingEvents, clearPending } = useActivityStream(newestFetchedId)
+
+  const items = [...pendingEvents, ...fetchedItems].filter(
+    (item, index, all) => all.findIndex((other) => other.id === item.id) === index
+  )
+
+  // Live events can be of any type; apply the client-side filter so the
+  // timeline matches the selected chip.
+  const visibleItems = eventType ? items.filter((item) => item.event_type === eventType) : items
+  const total = Math.max(data?.total ?? 0, visibleItems.length)
+  const hasMore = fetchedItems.length < (data?.total ?? 0)
 
   const selectType = (type: AdminActivityEventType | '') => {
     setEventType(type)
     setVisibleCount(PAGE_SIZE)
+    clearPending()
   }
 
   const loadMore = () => setVisibleCount((prev) => prev + PAGE_SIZE)
@@ -67,9 +80,23 @@ export function AdminActivityPage() {
             {t('admin.activity.description')}
           </p>
         </div>
-        <div className="flex items-center gap-2 text-xs text-[hsl(var(--muted-foreground))]">
-          <Activity className="h-4 w-4" />
-          {t('admin.activity.totalEvents', { count: total })}
+        <div className="flex items-center gap-3">
+          <span
+            className={cn(
+              'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium',
+              isLive
+                ? 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400'
+                : 'bg-muted text-[hsl(var(--muted-foreground))]'
+            )}
+            title={isLive ? t('admin.activity.liveActive') : t('admin.activity.liveInactive')}
+          >
+            <Radio className={cn('h-3.5 w-3.5', isLive && 'animate-pulse')} />
+            {isLive ? t('admin.activity.liveActive') : t('admin.activity.liveInactive')}
+          </span>
+          <span className="flex items-center gap-2 text-xs text-[hsl(var(--muted-foreground))]">
+            <Activity className="h-4 w-4" />
+            {t('admin.activity.totalEvents', { count: total })}
+          </span>
         </div>
       </div>
 
@@ -113,13 +140,13 @@ export function AdminActivityPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {items.length === 0 ? (
+          {visibleItems.length === 0 ? (
             <p className="text-sm text-[hsl(var(--muted-foreground))] py-10 text-center">
               {t('common.noData')}
             </p>
           ) : (
             <ol className="relative space-y-6 before:absolute before:top-2 before:bottom-2 before:start-4 before:w-px before:bg-[hsl(var(--border))]">
-              {items.map((item) => {
+              {visibleItems.map((item) => {
                 const meta = EVENT_META[item.event_type] ?? EVENT_META.interview_started
                 const Icon = meta.icon
                 return (

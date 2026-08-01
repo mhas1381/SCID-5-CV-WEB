@@ -425,6 +425,8 @@
       "sessionLabel": "جلسه {{id}}",
       "loadMore": "نمایش موارد بیشتر",
       "loadingMore": "در حال بارگذاری...",
+      "liveActive": "زنده",
+      "liveInactive": "قطع ارتباط — در حال تلاش مجدد",
       "types": {
         "patient_registered": "ثبت بیمار",
         "interview_started": "شروع مصاحبه",

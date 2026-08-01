@@ -425,6 +425,8 @@
       "sessionLabel": "Session {{id}}",
       "loadMore": "Load more",
       "loadingMore": "Loading...",
+      "liveActive": "Live",
+      "liveInactive": "Reconnecting...",
       "types": {
         "patient_registered": "Patient registered",
         "interview_started": "Interview started",
