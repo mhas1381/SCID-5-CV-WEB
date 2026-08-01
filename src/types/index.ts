@@ -609,3 +609,162 @@ export interface VerifyPsychologistResponse {
   verification_status: string
   data?: Record<string, unknown>
 }
+
+// ==========================================================
+// Admin Analytics Types (Backend: /api/v1/admin/)
+// ==========================================================
+
+/** GET /api/v1/admin/overview/ */
+export interface AdminRecentSession {
+  id: number
+  patient_name: string
+  clinician_name: string
+  status: string
+  phase: string
+  elapsed_time: number
+  created_at: string
+}
+
+export interface AdminOverview {
+  total_patients: number
+  total_clinicians: number
+  total_sessions: number
+  completed_sessions: number
+  abandoned_sessions: number
+  in_progress_sessions: number
+  completion_rate: number
+  average_elapsed_time_seconds: number
+  diagnoses_met: number
+  confirmed_diagnoses: number
+  confirmation_rate: number
+  total_feedback: number
+  recent_sessions: AdminRecentSession[]
+}
+
+/** GET /api/v1/admin/analytics/interviews/ */
+export interface AdminDailyTrendItem {
+  date: string
+  count: number
+}
+
+export interface AdminModuleUsageItem {
+  code: string
+  name: string
+  name_fa: string
+  selected_sessions: number
+}
+
+export interface AdminInterviewAnalytics {
+  total_sessions: number
+  status_counts: Record<string, number>
+  completion_rate: number
+  abandonment_rate: number
+  in_progress: number
+  average_elapsed_time_seconds: number
+  average_responses_per_completed: number
+  confirmation_rate: number
+  daily_trend: AdminDailyTrendItem[]
+  module_usage: AdminModuleUsageItem[]
+  full_interview_sessions: number
+  days: number
+}
+
+/** GET /api/v1/admin/analytics/agreement/ */
+export interface AdminAgreementTotals {
+  tp: number
+  tn: number
+  fp: number
+  fn: number
+}
+
+export interface AdminAgreementByClinician {
+  clinician_id: number
+  clinician_name: string
+  sessions: number
+  tp: number
+  tn: number
+  fp: number
+  fn: number
+  agreement_percent: number
+}
+
+export interface AdminAgreementByDisorder {
+  criteria_id: number
+  disorder_name: string
+  disorder_name_fa: string
+  diagnosis_code: string
+  tp: number
+  tn: number
+  fp: number
+  fn: number
+  sensitivity: number
+}
+
+export interface AdminAgreement {
+  sessions_with_preexisting: number
+  totals: AdminAgreementTotals
+  agreement_percent: number
+  by_clinician: AdminAgreementByClinician[]
+  by_disorder: AdminAgreementByDisorder[]
+}
+
+/** GET /api/v1/admin/users/ → item */
+export type AdminRole = 'admin' | 'clinician' | 'researcher'
+export type AdminVerificationStatus =
+  | 'unverified'
+  | 'pending'
+  | 'verified'
+  | 'failed'
+
+export interface AdminUser {
+  id: number
+  phone_number: string
+  full_name: string
+  first_name: string
+  last_name: string
+  email: string | null
+  role: AdminRole
+  is_active: boolean
+  is_staff: boolean
+  is_superuser: boolean
+  clinician_type: string
+  verification_status: AdminVerificationStatus
+  specialization: string
+  organization: string
+  license_number: string
+  years_of_experience: number | null
+  sessions_count: number
+  patients_count: number
+  created_at: string
+}
+
+/** PATCH /api/v1/admin/users/{id}/ → body (any subset) */
+export interface AdminUserUpdateRequest {
+  role?: AdminRole
+  verification_status?: AdminVerificationStatus
+  is_active?: boolean
+}
+
+/** GET /api/v1/admin/analytics/demographics/ */
+export interface AdminDisorderPrevalence {
+  criteria_id: number
+  disorder_name: string
+  disorder_name_fa: string
+  diagnosis_code: string
+  evaluated: number
+  met: number
+  prevalence_percent: number
+}
+
+export interface AdminDimensionValue {
+  value: string | number | null
+  label: string
+  disorders: AdminDisorderPrevalence[]
+}
+
+export interface AdminDemographics {
+  filters: Record<string, string | number | null>
+  total_sessions: number
+  disorders: AdminDisorderPrevalence[]
+  breakdowns: Record<string, AdminDimensionValue[]>
+}

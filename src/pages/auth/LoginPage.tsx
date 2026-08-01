@@ -65,10 +65,6 @@ export function LoginPage() {
   const { isAuthenticated } = useAppSelector((state) => state.auth)
   const isLoggingInRef = useRef(false)
 
-  if (isAuthenticated && !isLoggingInRef.current) {
-    return <Navigate to="/dashboard" replace />
-  }
-
   const [activeTab, setActiveTab] = useState<TabKey>('otp')
   const [otpStep, setOtpStep] = useState<'phone' | 'otp'>('phone')
   const [phoneNumber, setPhoneNumber] = useState('')
@@ -119,6 +115,10 @@ export function LoginPage() {
   const passwordForm = useForm<PasswordFormData>({
     resolver: zodResolver(passwordSchema),
   })
+
+  if (isAuthenticated && !isLoggingInRef.current) {
+    return <Navigate to="/dashboard" replace />
+  }
 
   const onSendOTP = async (data: PhoneFormData) => {
     try {

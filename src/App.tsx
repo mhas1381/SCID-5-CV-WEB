@@ -8,7 +8,9 @@ import { useDirection } from '@/hooks/useDirection'
 import { useTheme } from '@/hooks/useTheme'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { AppLayout } from '@/components/layout/AppLayout'
+import { AdminLayout } from '@/components/layout/AdminLayout'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
+import { AdminRoute } from '@/components/auth/AdminRoute'
 
 const LandingPage = lazy(() => import('@/pages/landing/LandingPage').then(m => ({ default: m.LandingPage })))
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage').then(m => ({ default: m.LoginPage })))
@@ -25,6 +27,12 @@ const OverviewResultsPage = lazy(() => import('@/pages/interview/OverviewResults
 const SessionsListPage = lazy(() => import('@/pages/sessions/SessionsListPage').then(m => ({ default: m.SessionsListPage })))
 const ProfilePage = lazy(() => import('@/pages/profile/ProfilePage').then(m => ({ default: m.ProfilePage })))
 const SettingsPage = lazy(() => import('@/pages/settings/SettingsPage').then(m => ({ default: m.SettingsPage })))
+
+const AdminDashboardPage = lazy(() => import('@/pages/admin/AdminDashboardPage').then(m => ({ default: m.AdminDashboardPage })))
+const AdminInterviewsPage = lazy(() => import('@/pages/admin/AdminInterviewsPage').then(m => ({ default: m.AdminInterviewsPage })))
+const AdminAgreementPage = lazy(() => import('@/pages/admin/AdminAgreementPage').then(m => ({ default: m.AdminAgreementPage })))
+const AdminDemographicsPage = lazy(() => import('@/pages/admin/AdminDemographicsPage').then(m => ({ default: m.AdminDemographicsPage })))
+const AdminUsersPage = lazy(() => import('@/pages/admin/AdminUsersPage').then(m => ({ default: m.AdminUsersPage })))
 
 function AppContent() {
   useDirection()
@@ -82,6 +90,21 @@ function AppContent() {
 
                 {/* Sessions History */}
                 <Route path="/sessions" element={<SessionsListPage />} />
+              </Route>
+
+              {/* Admin Panel Routes */}
+              <Route
+                element={
+                  <AdminRoute>
+                    <AdminLayout />
+                  </AdminRoute>
+                }
+              >
+                <Route path="/admin" element={<AdminDashboardPage />} />
+                <Route path="/admin/interviews" element={<AdminInterviewsPage />} />
+                <Route path="/admin/agreement" element={<AdminAgreementPage />} />
+                <Route path="/admin/demographics" element={<AdminDemographicsPage />} />
+                <Route path="/admin/users" element={<AdminUsersPage />} />
               </Route>
             </Routes>
           </motion.div>
