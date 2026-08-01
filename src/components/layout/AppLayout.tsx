@@ -4,8 +4,10 @@ import { useTranslation } from 'react-i18next'
 import { Sidebar } from './Sidebar'
 import { Menu } from 'lucide-react'
 import { cn } from '@/utils/cn'
+import { usePendingAbandonReconciliation } from '@/hooks/usePendingAbandonReconciliation'
 
 export function AppLayout() {
+  usePendingAbandonReconciliation()
   const { i18n } = useTranslation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const isRtl = i18n.language === 'fa'

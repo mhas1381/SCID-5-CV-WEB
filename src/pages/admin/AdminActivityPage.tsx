@@ -4,7 +4,7 @@ import { useGetAdminActivityQuery } from '@/store/api/adminApi'
 import { useActivityStream } from '@/hooks/useActivityStream'
 import { Card, CardContent, CardHeader, CardTitle, LoadingSpinner, Button } from '@/components/ui'
 import {
-  UserPlus, PlayCircle, CheckCircle2, BadgeCheck, MessageSquare, UserCog, Activity, Radio,
+  UserPlus, PlayCircle, CheckCircle2, BadgeCheck, MessageSquare, UserCog, Activity, Radio, LogOut,
 } from 'lucide-react'
 import { cn } from '@/utils/cn'
 import { formatDate } from '@/utils/date'
@@ -18,6 +18,7 @@ const EVENT_META: Record<
 > = {
   patient_registered: { icon: UserPlus, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-100 dark:bg-blue-900/50' },
   interview_started: { icon: PlayCircle, color: 'text-cyan-600 dark:text-cyan-400', bg: 'bg-cyan-100 dark:bg-cyan-900/50' },
+  interview_abandoned: { icon: LogOut, color: 'text-red-600 dark:text-red-400', bg: 'bg-red-100 dark:bg-red-900/50' },
   interview_completed: { icon: CheckCircle2, color: 'text-green-600 dark:text-green-400', bg: 'bg-green-100 dark:bg-green-900/50' },
   diagnosis_confirmed: { icon: BadgeCheck, color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-100 dark:bg-emerald-900/50' },
   feedback_submitted: { icon: MessageSquare, color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-100 dark:bg-amber-900/50' },
@@ -27,6 +28,7 @@ const EVENT_META: Record<
 const EVENT_ORDER: AdminActivityEventType[] = [
   'patient_registered',
   'interview_started',
+  'interview_abandoned',
   'interview_completed',
   'diagnosis_confirmed',
   'feedback_submitted',
@@ -86,7 +88,7 @@ export function AdminActivityPage() {
               'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium',
               isLive
                 ? 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400'
-                : 'bg-muted text-[hsl(var(--muted-foreground))]'
+                : 'bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]'
             )}
             title={isLive ? t('admin.activity.liveActive') : t('admin.activity.liveInactive')}
           >

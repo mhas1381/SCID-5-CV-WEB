@@ -13,6 +13,7 @@ import {
 } from '@/store/api/interviewApi'
 import { useAppDispatch } from '@/hooks/useAppStore'
 import { useElapsedTime } from '@/hooks/useElapsedTime'
+import { useAbandonOnExit } from '@/hooks/useAbandonOnExit'
 import { Button, Card, CardHeader, CardTitle, CardContent, PageLoader } from '@/components/ui'
 import { AlertCircle, ArrowLeft, ArrowRight, CheckCircle, Clock } from 'lucide-react'
 import { getErrorMessage } from '@/utils/error'
@@ -54,6 +55,19 @@ export function OverviewPage() {
       updateSession({ id: sessionId, elapsed_time: elapsed })
     },
   })
+
+  // Abandoned-interview detection: leaving the overview without completing it
+  // marks the session as abandoned; moving on to the diagnostic phase does not.
+  const abandon = useAbandonOnExit(sessionId)
+  useEffect(() => {
+    if (session?.status === 'in_progress') {
+      abandon.markActive()
+    } else if (session?.status === 'completed') {
+      abandon.markDone()
+    } else {
+      abandon.markSkip()
+    }
+  }, [session?.status, abandon])
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60)
@@ -109,6 +123,7 @@ export function OverviewPage() {
       await dispatch(
         interviewApi.endpoints.getSession.initiate(sessionId, { forceRefetch: true })
       )
+      abandon.markSkip()
       navigate(`/interview/${sessionId}`)
     } catch (err: any) {
       setError(getErrorMessage(err, t('interview.overviewError')))

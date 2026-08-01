@@ -169,6 +169,7 @@
     "completeOverviewFirst": "Please complete the Overview section first.",
     "goToOverview": "Go to Overview",
     "completedPrompt": "This session has already been completed. Do you want to continue working on it?",
+    "abandonedPrompt": "This interview was left unfinished. Do you want to continue it?",
     "viewResults": "View Results",
     "noQuestionsAvailable": "No overview questions available. Please contact your administrator.",
     "reviewHistory": "Answered Questions",
@@ -413,7 +414,25 @@
       "demographics": "Demographics",
       "users": "Users",
       "activity": "All Activity",
+      "feedback": "Feedback",
       "backToApp": "Back to App"
+    },
+    "feedback": {
+      "title": "User Feedback",
+      "description": "Comments, suggestions, and issues reported by clinicians",
+      "allTypes": "All",
+      "types": {
+        "suggestion": "Suggestion",
+        "problem": "Problem",
+        "general": "General"
+      },
+      "search": "Search",
+      "searchPlaceholder": "Search content or clinician name...",
+      "reset": "Clear filters",
+      "listTitle": "Feedback List",
+      "sessionLabel": "Session {{id}}",
+      "loadingMore": "Loading...",
+      "noFeedbackHint": "No feedback has been submitted yet"
     },
     "activity": {
       "title": "All Activity",
@@ -430,6 +449,7 @@
       "types": {
         "patient_registered": "Patient registered",
         "interview_started": "Interview started",
+        "interview_abandoned": "Interview abandoned",
         "interview_completed": "Interview completed",
         "diagnosis_confirmed": "Diagnosis confirmed",
         "feedback_submitted": "Feedback",

@@ -14,6 +14,7 @@ import {
   useReviewQuestionQuery,
 } from '@/store/api/interviewApi'
 import { useElapsedTime } from '@/hooks/useElapsedTime'
+import { useAbandonOnExit } from '@/hooks/useAbandonOnExit'
 import { Button, Card, CardHeader, CardTitle, CardContent, PageLoader, LoadingSpinner } from '@/components/ui'
 import { AlertCircle, CheckCircle, ArrowLeft, ChevronRight, FileText, Play, History } from 'lucide-react'
 import { cn } from '@/utils/cn'
@@ -66,6 +67,20 @@ export function InterviewSessionPage() {
     { skip: !reviewQuestionId || !reviewOpen },
   )
   const isTimerActive = session?.status === 'in_progress'
+
+  // Abandoned-interview detection: mark the session as abandoned when the
+  // clinician leaves the interview without completing it.
+  const abandon = useAbandonOnExit(sessionId)
+  useEffect(() => {
+    if (session?.status === 'in_progress') {
+      abandon.markActive()
+    } else if (session?.status === 'completed') {
+      abandon.markDone()
+    } else {
+      abandon.markSkip()
+    }
+  }, [session?.status, abandon])
+
   const { displayTime: elapsedDisplay } = useElapsedTime({
     sessionId,
     initialElapsed: session?.elapsed_time ?? 0,
@@ -184,6 +199,7 @@ export function InterviewSessionPage() {
           }
         }
       } else if (res.session_status === 'completed') {
+        abandon.markDone()
         navigate(`/interview/${sessionId}/results`)
       }
     } catch (err: any) {
@@ -230,6 +246,7 @@ export function InterviewSessionPage() {
     setLocalError(null)
     try {
       await completeSession(sessionId).unwrap()
+      abandon.markDone()
       navigate(`/interview/${sessionId}/results`)
     } catch (err: any) {
       const msg = getErrorMessage(err, t('interview.completeError'))
@@ -290,6 +307,26 @@ export function InterviewSessionPage() {
     )
   }
 
+  // Abandoned sessions can be resumed by the clinician later.
+  if (session.status === 'abandoned' && session.phase === 'diagnostic') {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 max-w-md mx-auto text-center space-y-4">
+        <AlertCircle className="h-12 w-12 text-red-500 dark:text-red-400" />
+        <h2 className="text-lg font-semibold">{t('sessions.status_abandoned')}</h2>
+        <p className="text-sm text-[hsl(var(--muted-foreground))]">{t('interview.abandonedPrompt')}</p>
+        <div className="flex gap-3">
+          <Button onClick={handleContinue} isLoading={isContinuing}>
+            <Play className="ml-2 h-4 w-4" />
+            {t('sessions.continue')}
+          </Button>
+          <Button variant="outline" onClick={() => navigate('/sessions')}>
+            {t('common.back')}
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
   // Phase check — redirect to overview if session isn't in diagnostic phase
   if (session.phase !== 'diagnostic') {
     return (
@@ -303,7 +340,10 @@ export function InterviewSessionPage() {
         </p>
         <div className="flex gap-3">
           <Button
-            onClick={() => navigate(`/interview/${sessionId}/overview`)}
+            onClick={() => {
+              abandon.markSkip()
+              navigate(`/interview/${sessionId}/overview`)
+            }}
           >
             <ArrowLeft className="ml-2 h-4 w-4" />
             {t('interview.goToOverview')}

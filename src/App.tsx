@@ -34,6 +34,7 @@ const AdminAgreementPage = lazy(() => import('@/pages/admin/AdminAgreementPage')
 const AdminDemographicsPage = lazy(() => import('@/pages/admin/AdminDemographicsPage').then(m => ({ default: m.AdminDemographicsPage })))
 const AdminUsersPage = lazy(() => import('@/pages/admin/AdminUsersPage').then(m => ({ default: m.AdminUsersPage })))
 const AdminActivityPage = lazy(() => import('@/pages/admin/AdminActivityPage').then(m => ({ default: m.AdminActivityPage })))
+const AdminFeedbackPage = lazy(() => import('@/pages/admin/AdminFeedbackPage').then(m => ({ default: m.AdminFeedbackPage })))
 
 function AppContent() {
   useDirection()
@@ -107,6 +108,7 @@ function AppContent() {
                 <Route path="/admin/demographics" element={<AdminDemographicsPage />} />
                 <Route path="/admin/users" element={<AdminUsersPage />} />
                 <Route path="/admin/activity" element={<AdminActivityPage />} />
+                <Route path="/admin/feedback" element={<AdminFeedbackPage />} />
               </Route>
             </Routes>
           </motion.div>

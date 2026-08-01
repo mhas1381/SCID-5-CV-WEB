@@ -169,6 +169,7 @@
     "completeOverviewFirst": "لطفاً ابتدا بخش اطلاعات زمینه‌ای (Overview) را تکمیل کنید.",
     "goToOverview": "رفتن به بخش Overview",
     "completedPrompt": "این جلسه قبلاً تکمیل شده است. آیا می‌خواهید دوباره روی آن کار کنید؟",
+    "abandonedPrompt": "این مصاحبه قبلاً رها شده بود و تکمیل نشده است. آیا می‌خواهید ادامه دهید؟",
     "viewResults": "مشاهده نتایج",
     "noQuestionsAvailable": "سوالات بخش Overview در دسترس نیست. لطفاً با مدیر سیستم تماس بگیرید.",
     "reviewHistory": "سؤالات پاسخ‌داده‌شده",
@@ -413,7 +414,25 @@
       "demographics": "دموگرافیک",
       "users": "مدیریت کاربران",
       "activity": "همه فرایندها",
+      "feedback": "بازخوردها",
       "backToApp": "بازگشت به برنامه"
+    },
+    "feedback": {
+      "title": "بازخوردهای کاربران",
+      "description": "نظرات، پیشنهادها و مشکلات گزارش‌شده توسط درمانگران",
+      "allTypes": "همه",
+      "types": {
+        "suggestion": "پیشنهاد",
+        "problem": "مشکل",
+        "general": "عمومی"
+      },
+      "search": "جستجو",
+      "searchPlaceholder": "جستجو در متن یا نام درمانگر...",
+      "reset": "حذف فیلترها",
+      "listTitle": "فهرست بازخوردها",
+      "sessionLabel": "جلسه {{id}}",
+      "loadingMore": "در حال بارگذاری...",
+      "noFeedbackHint": "هنوز بازخوردی ثبت نشده است"
     },
     "activity": {
       "title": "همه فرایندها",
@@ -430,6 +449,7 @@
       "types": {
         "patient_registered": "ثبت بیمار",
         "interview_started": "شروع مصاحبه",
+        "interview_abandoned": "رها شدن مصاحبه",
         "interview_completed": "تکمیل مصاحبه",
         "diagnosis_confirmed": "تأیید تشخیص",
         "feedback_submitted": "فیدبک",

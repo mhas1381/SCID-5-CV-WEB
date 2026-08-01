@@ -4,6 +4,8 @@ import type {
   AdminActivityParams,
   AdminAgreement,
   AdminDemographics,
+  AdminFeedbackFeed,
+  AdminFeedbackParams,
   AdminInterviewAnalytics,
   AdminOverview,
   AdminUser,
@@ -92,6 +94,18 @@ export const adminApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['AdminUsers', 'User'],
     }),
+
+    getAdminFeedback: builder.query<
+      AdminFeedbackFeed,
+      AdminFeedbackParams | void
+    >({
+      query: (params) => {
+        const query: Record<string, string> = {}
+        if (params?.feedback_type) query.feedback_type = params.feedback_type
+        if (params?.search) query.search = params.search
+        return { url: 'v1/admin/feedback/', params: query }
+      },
+    }),
   }),
 })
 
@@ -103,4 +117,5 @@ export const {
   useGetAdminActivityQuery,
   useGetAdminUsersQuery,
   useUpdateAdminUserMutation,
+  useGetAdminFeedbackQuery,
 } = adminApi

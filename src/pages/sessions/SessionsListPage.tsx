@@ -93,7 +93,10 @@ export function SessionsListPage() {
   const [deletingId, setDeletingId] = useState<number | null>(null)
   const [deleteSession] = useDeleteSessionMutation()
   const [continueSession, { isLoading: isContinuing }] = useContinueSessionMutation()
-  const { data: sessionsData, isLoading } = useGetSessionsQuery({})
+  // Abandonment is fired as a raw keepalive fetch (not an RTK mutation), so it
+  // can't invalidate the cache itself. Refetch on mount so a session abandoned
+  // via navigation always shows its real status.
+  const { data: sessionsData, isLoading } = useGetSessionsQuery({}, { refetchOnMountOrArgChange: true })
 
   const handleDelete = useCallback(async () => {
     if (!deleteTarget) return

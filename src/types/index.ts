@@ -773,6 +773,7 @@ export interface AdminDemographics {
 export type AdminActivityEventType =
   | 'patient_registered'
   | 'interview_started'
+  | 'interview_abandoned'
   | 'interview_completed'
   | 'diagnosis_confirmed'
   | 'feedback_submitted'
@@ -800,4 +801,26 @@ export interface AdminActivityParams {
   event_type?: AdminActivityEventType | ''
   limit?: number
   offset?: number
+}
+
+/** GET /api/v1/admin/feedback/ → item */
+export type AdminFeedbackType = 'suggestion' | 'problem' | 'general'
+
+export interface AdminFeedbackItem {
+  id: number
+  clinician_name: string
+  feedback_type: AdminFeedbackType
+  content: string
+  session: number | null
+  created_at: string
+}
+
+export interface AdminFeedbackFeed {
+  total: number
+  items: AdminFeedbackItem[]
+}
+
+export interface AdminFeedbackParams {
+  feedback_type?: AdminFeedbackType | ''
+  search?: string
 }
