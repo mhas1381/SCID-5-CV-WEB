@@ -450,19 +450,13 @@ function ValidityCard({
     setOpenCategory((cur) => (cur === key ? null : key))
 
   return (
-    <details className="group rounded-lg border border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-xl shadow-[var(--glass-shadow)] overflow-hidden">
-      <summary className="flex items-center justify-between p-4 cursor-pointer list-none hover:bg-accent/50 transition-colors">
-        <div className="flex items-center gap-3 min-w-0">
-          <ChevronDown className="h-4 w-4 shrink-0 transition-transform group-open:rotate-0 -rotate-90 text-[hsl(var(--muted-foreground))]" />
-          <ShieldCheck className="h-5 w-5 shrink-0 text-[hsl(var(--primary))]" />
-          <div className="min-w-0">
-            <p className="font-semibold leading-tight">{t('results.validity')}</p>
-            <p className="text-xs text-[hsl(var(--muted-foreground))]">
-              {t('results.validityDescription')}
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
+    <Card className="overflow-hidden">
+      <CardHeader>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <CardTitle className="flex items-center gap-2">
+            <ShieldCheck className="h-5 w-5 text-[hsl(var(--primary))]" />
+            {t('results.validity')}
+          </CardTitle>
           {percent !== null && percent !== undefined && (
             <span className={cn(
               'inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-bold',
@@ -476,8 +470,11 @@ function ValidityCard({
             </span>
           )}
         </div>
-      </summary>
-      <div className="border-t px-4 pb-4 pt-3 space-y-4">
+        <p className="text-sm text-[hsl(var(--muted-foreground))]">
+          {t('results.validityDescription')}
+        </p>
+      </CardHeader>
+      <CardContent className="space-y-4">
         {percent !== null && percent !== undefined ? (
           <>
             <div className="h-3 w-full rounded-full bg-muted overflow-hidden">
@@ -592,8 +589,8 @@ function ValidityCard({
                 </div>
               )
             })}
-      </div>
-    </details>
+      </CardContent>
+    </Card>
   )
 }
 
