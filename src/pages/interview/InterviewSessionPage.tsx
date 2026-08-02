@@ -576,9 +576,9 @@ export function InterviewSessionPage() {
             <div className="mt-4 flex flex-row gap-3 items-stretch">
               {criteriaPart && (
                 <div className="flex-1 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))] overflow-hidden">
-                  <div className="h-1 bg-[hsl(var(--primary))]" />
+                  <div className="h-1 bg-[hsl(var(--muted-foreground))]" />
                   <div className="p-3">
-                    <span className="text-xs font-bold text-[hsl(var(--primary))] uppercase tracking-wider">
+                    <span className="text-xs font-bold text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
                       {isRtl ? 'معیار' : 'Criterion'}
                     </span>
                     <p className="mt-1 text-sm text-[hsl(var(--foreground))] leading-relaxed">

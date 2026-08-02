@@ -28,6 +28,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/utils/cn'
 import { formatDate, toPersianNum } from '@/utils/date'
+import { MODULE_COLORS } from '@/utils/modules'
 import { downloadSessionPdf } from '@/utils/download'
 import { getErrorMessage } from '@/utils/error'
 import type { DiagnosticResultItem, DiagnosticQuestionInfo, ModuleGroupResult, AgreementData } from '@/types'
@@ -367,7 +368,10 @@ function ModuleAccordion({
       <summary className="flex items-center justify-between p-4 cursor-pointer list-none hover:bg-accent/50 transition-colors">
         <div className="flex items-center gap-3 min-w-0">
           <ChevronDown className="h-4 w-4 shrink-0 transition-transform group-open:rotate-0 -rotate-90 text-[hsl(var(--muted-foreground))]" />
-          <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[hsl(var(--primary))]/10 text-[hsl(var(--primary))] text-sm font-bold shrink-0">
+          <span
+            className="inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold text-white shrink-0"
+            style={{ backgroundColor: MODULE_COLORS[module.module_code] ?? 'hsl(var(--primary))' }}
+          >
             {module.module_code}
           </span>
           <span className="font-semibold">{modName}</span>

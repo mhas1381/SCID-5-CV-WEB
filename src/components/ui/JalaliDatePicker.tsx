@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
+import { createPortal } from 'react-dom'
 import { toJalaali, toGregorian, jalaaliMonthLength, isValidJalaaliDate } from 'jalaali-js'
 import { cn } from '@/utils/cn'
 
@@ -32,7 +33,9 @@ function parseIso(value?: string): { gy: number; gm: number; gd: number } | null
 export function JalaliDatePicker({ value, onChange, label, error }: JalaliDatePickerProps) {
   const [open, setOpen] = useState(false)
   const [panel, setPanel] = useState<Panel>('days')
+  const [popupPos, setPopupPos] = useState<{ top: number; left: number } | null>(null)
   const ref = useRef<HTMLDivElement>(null)
+  const popupRef = useRef<HTMLDivElement>(null)
 
   const gDate = parseIso(value)
   const selectedJalali = gDate ? toJalaali(gDate.gy, gDate.gm, gDate.gd) : null
@@ -52,9 +55,31 @@ export function JalaliDatePicker({ value, onChange, label, error }: JalaliDatePi
     }
   }, [selectedJalali?.jy, selectedJalali?.jm])
 
+  const updatePosition = useCallback(() => {
+    if (!ref.current) return
+    const rect = ref.current.getBoundingClientRect()
+    const POPUP_WIDTH = 288
+    const left = Math.max(0, Math.min(rect.left, window.innerWidth - POPUP_WIDTH - 8))
+    setPopupPos({ top: rect.bottom + 4, left })
+  }, [])
+
+  useEffect(() => {
+    if (!open) return
+    updatePosition()
+    window.addEventListener('resize', updatePosition)
+    window.addEventListener('scroll', updatePosition, true)
+    return () => {
+      window.removeEventListener('resize', updatePosition)
+      window.removeEventListener('scroll', updatePosition, true)
+    }
+  }, [open, updatePosition])
+
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
+      const target = e.target as Node
+      const insideInput = ref.current?.contains(target)
+      const insidePopup = popupRef.current?.contains(target)
+      if (!insideInput && !insidePopup) {
         setOpen(false)
       }
     }
@@ -112,8 +137,15 @@ export function JalaliDatePicker({ value, onChange, label, error }: JalaliDatePi
             error && 'border-red-500 dark:border-red-700',
           )}
         />
-        {open && (
-          <div className="absolute z-50 mt-1 w-72 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-3 shadow-lg">
+        {open &&
+          popupPos &&
+          typeof document !== 'undefined' &&
+          createPortal(
+            <div
+              ref={popupRef}
+              className="fixed z-50 mt-1 w-72 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-3 shadow-lg"
+              style={{ top: popupPos.top, left: popupPos.left }}
+            >
             {panel === 'days' && (
               <>
                 <div className="mb-2 flex items-center justify-between">
@@ -221,8 +253,9 @@ export function JalaliDatePicker({ value, onChange, label, error }: JalaliDatePi
                 </div>
               </>
             )}
-          </div>
-        )}
+            </div>,
+            document.body
+          )}
       </div>
       {error && <p className="text-sm text-red-500 dark:text-red-400">{error}</p>}
     </div>

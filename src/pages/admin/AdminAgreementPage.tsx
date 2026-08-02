@@ -1,9 +1,11 @@
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useGetAdminAgreementQuery } from '@/store/api/adminApi'
 import { Card, CardContent, CardHeader, CardTitle, LoadingSpinner, ExportButton } from '@/components/ui'
-import { GitCompareArrows, ThumbsUp, PlusCircle, MinusCircle, Users, Stethoscope, Percent } from 'lucide-react'
+import { GitCompareArrows, ThumbsUp, PlusCircle, MinusCircle, Users, Stethoscope, Percent, ChevronDown } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, Legend } from 'recharts'
 import { toPersianNum } from '@/utils/date'
+import { MAIN_MODULE_CODES, MODULE_COLORS } from '@/utils/modules'
 
 const CATEGORY_COLORS: Record<string, string> = {
   tp: '#22c55e',
@@ -15,12 +17,17 @@ const CATEGORY_COLORS: Record<string, string> = {
 export function AdminAgreementPage() {
   const { t, i18n } = useTranslation()
   const isFa = i18n.language === 'fa'
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({})
   const { data, isLoading } = useGetAdminAgreementQuery()
 
   if (isLoading) {
     return <LoadingSpinner size="xl" className="py-20" />
   }
   if (!data) return null
+
+  const toggleGroup = (code: string) => {
+    setExpandedGroups((prev) => ({ ...prev, [code]: !prev[code] }))
+  }
 
   const chartData = [
     { key: 'tp', name: t('admin.agreement.tp'), value: data.totals.tp, color: CATEGORY_COLORS.tp },
@@ -78,6 +85,31 @@ export function AdminAgreementPage() {
     ...d,
     displayName: isFa ? d.disorder_name_fa || d.disorder_name : d.disorder_name,
   }))
+
+  const moduleGroups = MAIN_MODULE_CODES.map((code) => {
+    const members = disorderRows
+      .filter((d) => d.module_code === code)
+      .sort((a, b) => b.sensitivity - a.sensitivity)
+    const tp = members.reduce((acc, m) => acc + m.tp, 0)
+    const tn = members.reduce((acc, m) => acc + m.tn, 0)
+    const fp = members.reduce((acc, m) => acc + m.fp, 0)
+    const fn = members.reduce((acc, m) => acc + m.fn, 0)
+    const moduleMeta = members[0] ?? null
+    return {
+      code,
+      members,
+      tp,
+      tn,
+      fp,
+      fn,
+      sensitivity: tp + fn ? Math.round((tp / (tp + fn)) * 1000) / 10 : 0,
+      moduleName: moduleMeta
+        ? isFa
+          ? moduleMeta.module_name_fa || moduleMeta.module_name
+          : moduleMeta.module_name
+        : code,
+    }
+  }).filter((g) => g.members.length > 0)
 
   return (
     <div className="space-y-8">
@@ -146,42 +178,81 @@ export function AdminAgreementPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
-            {disorderRows.length === 0 ? (
+            {moduleGroups.length === 0 ? (
               <p className="text-sm text-[hsl(var(--muted-foreground))] px-6 py-10 text-center">
                 {t('common.noData')}
               </p>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-[hsl(var(--border))] text-xs text-[hsl(var(--muted-foreground))]">
-                      <th className="px-4 py-2 text-start font-medium">{t('admin.agreement.disorder')}</th>
-                      <th className="px-3 py-2 text-center font-medium">TP</th>
-                      <th className="px-3 py-2 text-center font-medium">TN</th>
-                      <th className="px-3 py-2 text-center font-medium">FP</th>
-                      <th className="px-3 py-2 text-center font-medium">FN</th>
-                      <th className="px-4 py-2 text-center font-medium">{t('admin.agreement.sensitivity')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {disorderRows.map((row, idx) => (
-                      <tr
-                        key={row.criteria_id}
-                        className={idx > 0 ? 'border-t border-[hsl(var(--border))]' : ''}
+              <div className="divide-y divide-[hsl(var(--border))]">
+                {moduleGroups.map((group) => {
+                  const isOpen = !!expandedGroups[group.code]
+                  return (
+                    <div key={group.code}>
+                      <button
+                        type="button"
+                        onClick={() => toggleGroup(group.code)}
+                        className="flex w-full items-center justify-between gap-4 px-4 py-3 text-start hover:bg-[hsl(var(--accent))]/50 transition-colors"
                       >
-                        <td className="px-4 py-2.5">
-                          <span className="block font-medium leading-tight">{row.displayName}</span>
-                          <span className="text-xs text-[hsl(var(--muted-foreground))]">{row.diagnosis_code}</span>
-                        </td>
-                        <td className="px-3 py-2.5 text-center font-medium text-green-600 dark:text-green-400 tabular-nums">{row.tp}</td>
-                        <td className="px-3 py-2.5 text-center text-blue-600 dark:text-blue-400 tabular-nums">{row.tn}</td>
-                        <td className="px-3 py-2.5 text-center text-amber-600 dark:text-amber-400 tabular-nums">{row.fp}</td>
-                        <td className="px-3 py-2.5 text-center text-red-600 dark:text-red-400 tabular-nums">{row.fn}</td>
-                        <td className="px-4 py-2.5 text-center font-semibold tabular-nums">{row.sensitivity}%</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                        <div className="flex items-center gap-2 min-w-0">
+                          <ChevronDown
+                            className={`h-4 w-4 shrink-0 text-[hsl(var(--muted-foreground))] transition-transform ${
+                              isOpen ? '' : '-rotate-90'
+                            }`}
+                          />
+                          <span
+                            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
+                            style={{ backgroundColor: MODULE_COLORS[group.code] ?? '#64748b' }}
+                          >
+                            {group.code}
+                          </span>
+                          <span className="text-sm font-semibold truncate">{group.moduleName}</span>
+                        </div>
+                        <div className="flex items-center gap-4 shrink-0 text-xs text-[hsl(var(--muted-foreground))]">
+                          <span className="tabular-nums">
+                            TP {toPersianNum(String(group.tp))} · TN {toPersianNum(String(group.tn))}
+                          </span>
+                          <span className="w-14 text-end font-semibold text-[hsl(var(--foreground))] tabular-nums">
+                            {toPersianNum(String(group.sensitivity))}%
+                          </span>
+                        </div>
+                      </button>
+                      {isOpen && (
+                        <div className="overflow-x-auto border-t border-[hsl(var(--border))]">
+                          <table className="w-full text-sm">
+                            <thead>
+                              <tr className="border-b border-[hsl(var(--border))] text-xs text-[hsl(var(--muted-foreground))]">
+                                <th className="px-4 py-2 text-start font-medium">{t('admin.agreement.disorder')}</th>
+                                <th className="px-3 py-2 text-center font-medium">TP</th>
+                                <th className="px-3 py-2 text-center font-medium">TN</th>
+                                <th className="px-3 py-2 text-center font-medium">FP</th>
+                                <th className="px-3 py-2 text-center font-medium">FN</th>
+                                <th className="px-4 py-2 text-center font-medium">{t('admin.agreement.sensitivity')}</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {group.members.map((row, idx) => (
+                                <tr
+                                  key={row.criteria_id}
+                                  className={idx > 0 ? 'border-t border-[hsl(var(--border))]' : ''}
+                                >
+                                  <td className="px-4 py-2.5">
+                                    <span className="block font-medium leading-tight">{row.displayName}</span>
+                                    <span className="text-xs text-[hsl(var(--muted-foreground))]">{row.diagnosis_code}</span>
+                                  </td>
+                                  <td className="px-3 py-2.5 text-center font-medium text-green-600 dark:text-green-400 tabular-nums">{row.tp}</td>
+                                  <td className="px-3 py-2.5 text-center text-blue-600 dark:text-blue-400 tabular-nums">{row.tn}</td>
+                                  <td className="px-3 py-2.5 text-center text-amber-600 dark:text-amber-400 tabular-nums">{row.fp}</td>
+                                  <td className="px-3 py-2.5 text-center text-red-600 dark:text-red-400 tabular-nums">{row.fn}</td>
+                                  <td className="px-4 py-2.5 text-center font-semibold tabular-nums">{row.sensitivity}%</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
               </div>
             )}
           </CardContent>

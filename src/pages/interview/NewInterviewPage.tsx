@@ -8,6 +8,7 @@ import {
   useCreateSessionMutation,
 } from '@/store/api/interviewApi'
 import { Button, Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import {
   User,
   AlertCircle,
@@ -24,11 +25,13 @@ import {
   ListChecks,
   Scale,
   ClipboardCheck,
+  Database,
   ChevronDown,
   type LucideIcon,
 } from 'lucide-react'
 import { getErrorMessage } from '@/utils/error'
 import { cn } from '@/utils/cn'
+import { MODULE_COLORS } from '@/utils/modules'
 
 const MODULE_PAIRS: Record<string, string> = {
   A: 'D',
@@ -50,19 +53,6 @@ const MODULE_ICONS: Record<string, LucideIcon> = {
   J: Scale,
 }
 
-const MODULE_COLORS: Record<string, string> = {
-  A: 'bg-rose-500',
-  B: 'bg-violet-500',
-  C: 'bg-purple-500',
-  D: 'bg-orange-500',
-  E: 'bg-amber-500',
-  F: 'bg-sky-500',
-  G: 'bg-teal-500',
-  H: 'bg-emerald-500',
-  I: 'bg-indigo-500',
-  J: 'bg-pink-500',
-}
-
 export function NewInterviewPage() {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
@@ -71,6 +61,9 @@ export function NewInterviewPage() {
   const [selectedModules, setSelectedModules] = useState<string[]>([])
   const [hasPreexistingDiagnosis, setHasPreexistingDiagnosis] = useState(false)
   const [selectedManualDiagnoses, setSelectedManualDiagnoses] = useState<number[]>([])
+  const [isTestData, setIsTestData] = useState(true)
+  const [showRealDataWarning, setShowRealDataWarning] = useState(false)
+  const [showTestDataWarning, setShowTestDataWarning] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const { data: patientsData } = useGetPatientsQuery({ page: 1 })
@@ -145,18 +138,15 @@ export function NewInterviewPage() {
 
   const clearAll = () => setSelectedModules([])
 
-  const handleStart = async () => {
-    if (!selectedPatient) {
-      setError(t('interview.selectPatientRequired'))
-      return
-    }
+  const createSessionAndNavigate = async (patientId: number, isTestData: boolean) => {
     try {
       setError(null)
       const session = await createSession({
-        patient: selectedPatient,
+        patient: patientId,
         modules: selectedModules.length > 0 ? selectedModules : undefined,
         has_preexisting_diagnosis: hasPreexistingDiagnosis,
         manual_diagnoses: hasPreexistingDiagnosis ? selectedManualDiagnoses : undefined,
+        is_test_data: isTestData,
       }).unwrap()
       // When modules are selected, the overview is skipped (backend starts in diagnostic phase)
       if (selectedModules.length > 0) {
@@ -167,6 +157,19 @@ export function NewInterviewPage() {
     } catch (err: any) {
       setError(getErrorMessage(err, t('interview.startError')))
     }
+  }
+
+  const handleStart = () => {
+    if (!selectedPatient) {
+      setError(t('interview.selectPatientRequired'))
+      return
+    }
+    // Both modes require explicit confirmation before starting.
+    if (isTestData) {
+      setShowTestDataWarning(true)
+      return
+    }
+    setShowRealDataWarning(true)
   }
 
   return (
@@ -208,6 +211,32 @@ export function NewInterviewPage() {
               </option>
             ))}
           </select>
+        </CardContent>
+      </Card>
+
+      {/* Test data confirmation */}
+      <Card>
+        <CardHeader className="p-6 sm:p-7">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Database className="h-5 w-5" />
+            {t('interview.testDataTitle')}
+          </CardTitle>
+          <p className="text-sm text-[hsl(var(--muted-foreground))] mt-1">
+            {t('interview.testDataHint')}
+          </p>
+        </CardHeader>
+        <CardContent className="p-6 pt-0 sm:p-7 sm:pt-0">
+          <label className="flex items-start gap-3 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={isTestData}
+              onChange={(e) => setIsTestData(e.target.checked)}
+              className="mt-1 h-4 w-4 rounded border-[hsl(var(--input))]"
+            />
+            <span className="text-sm leading-relaxed">
+              {t('interview.testDataCheckbox')}
+            </span>
+          </label>
         </CardContent>
       </Card>
 
@@ -268,10 +297,8 @@ export function NewInterviewPage() {
                         </span>
                         <span
                           dir="ltr"
-                          className={cn(
-                            'flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white shadow-sm sm:h-10 sm:w-10',
-                            MODULE_COLORS[mod.code] ?? 'bg-[hsl(var(--primary))]'
-                          )}
+                          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white shadow-sm sm:h-10 sm:w-10"
+                          style={{ backgroundColor: MODULE_COLORS[mod.code] ?? 'hsl(var(--primary))' }}
                         >
                           {mod.code}
                         </span>
@@ -370,7 +397,10 @@ export function NewInterviewPage() {
                     >
                       <summary className="flex items-center justify-between p-3 cursor-pointer list-none hover:bg-accent/50 transition-colors">
                         <div className="flex items-center gap-3 min-w-0">
-                          <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[hsl(var(--primary))]/10 text-[hsl(var(--primary))] text-sm font-bold shrink-0">
+                          <span
+                            className="inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold text-white shrink-0"
+                            style={{ backgroundColor: MODULE_COLORS[group.code] ?? 'hsl(var(--primary))' }}
+                          >
                             {group.code}
                           </span>
                           <span className="font-semibold text-sm">{modName}</span>
@@ -426,6 +456,34 @@ export function NewInterviewPage() {
           {selectedModules.length > 0 ? t('interview.startSelected') : t('interview.start')}
         </Button>
       </div>
+
+      <ConfirmDialog
+        open={showRealDataWarning}
+        title={t('interview.testDataWarningTitle')}
+        message={t('interview.testDataWarningMessage')}
+        confirmLabel={t('interview.testDataConfirm')}
+        cancelLabel={t('interview.testDataCancel')}
+        variant="danger"
+        onConfirm={() => {
+          setShowRealDataWarning(false)
+          if (selectedPatient) createSessionAndNavigate(selectedPatient, false)
+        }}
+        onCancel={() => setShowRealDataWarning(false)}
+      />
+
+      <ConfirmDialog
+        open={showTestDataWarning}
+        title={t('interview.testModeWarningTitle')}
+        message={t('interview.testModeWarningMessage')}
+        confirmLabel={t('interview.testModeConfirm')}
+        cancelLabel={t('interview.testModeCancel')}
+        variant="primary"
+        onConfirm={() => {
+          setShowTestDataWarning(false)
+          if (selectedPatient) createSessionAndNavigate(selectedPatient, true)
+        }}
+        onCancel={() => setShowTestDataWarning(false)}
+      />
     </div>
   )
 }

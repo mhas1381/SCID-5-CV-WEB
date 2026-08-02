@@ -4,9 +4,10 @@ import { useGetAdminDemographicsQuery } from '@/store/api/adminApi'
 import { useGetProvincesQuery } from '@/store/api/locationApi'
 import { Card, CardContent, CardHeader, CardTitle, LoadingSpinner, Button, ExportButton } from '@/components/ui'
 import { JalaliDatePicker } from '@/components/ui/JalaliDatePicker'
-import { Users, Filter, RotateCcw, CalendarDays, MapPin } from 'lucide-react'
+import { Users, Filter, RotateCcw, CalendarDays, MapPin, ChevronDown } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import { toPersianNum } from '@/utils/date'
+import { MAIN_MODULE_CODES, MODULE_COLORS } from '@/utils/modules'
 
 const EDUCATION_OPTIONS = ['none', 'diploma', 'associate', 'bachelor', 'master', 'doctorate']
 const MARITAL_OPTIONS = ['single', 'married', 'divorced', 'widowed']
@@ -41,6 +42,7 @@ export function AdminDemographicsPage() {
   const isFa = i18n.language === 'fa'
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS)
   const [applied, setApplied] = useState<FilterState>(EMPTY_FILTERS)
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({})
   const { data: provinces } = useGetProvincesQuery()
 
   const queryParams = {
@@ -71,6 +73,10 @@ export function AdminDemographicsPage() {
 
   const hasActiveFilters = Object.values(applied).some((v) => v !== '')
 
+  const toggleGroup = (code: string) => {
+    setExpandedGroups((prev) => ({ ...prev, [code]: !prev[code] }))
+  }
+
   if (isLoading) {
     return <LoadingSpinner size="xl" className="py-20" />
   }
@@ -80,6 +86,27 @@ export function AdminDemographicsPage() {
     ...d,
     displayName: isFa ? d.disorder_name_fa || d.disorder_name : d.disorder_name,
   }))
+
+  const moduleGroups = MAIN_MODULE_CODES.map((code) => {
+    const members = disorderRows
+      .filter((d) => d.module_code === code)
+      .sort((a, b) => b.prevalence_percent - a.prevalence_percent)
+    const evaluated = members.reduce((acc, m) => acc + m.evaluated, 0)
+    const met = members.reduce((acc, m) => acc + m.met, 0)
+    const moduleMeta = members[0] ?? null
+    return {
+      code,
+      members,
+      evaluated,
+      met,
+      prevalencePercent: evaluated ? Math.round((met / evaluated) * 1000) / 10 : 0,
+      moduleName: moduleMeta
+        ? isFa
+          ? moduleMeta.module_name_fa || moduleMeta.module_name
+          : moduleMeta.module_name
+        : code,
+    }
+  }).filter((g) => g.members.length > 0)
 
   const selectClass =
     'flex h-10 w-full rounded-lg border border-[hsl(var(--input))] bg-[hsl(var(--card))] px-3 py-2 text-sm text-[hsl(var(--foreground))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]'
@@ -223,38 +250,93 @@ export function AdminDemographicsPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {disorderRows.length === 0 ? (
+          {moduleGroups.length === 0 ? (
             <p className="text-sm text-[hsl(var(--muted-foreground))] py-10 text-center">
               {t('common.noData')}
             </p>
           ) : (
             <div className="space-y-3">
-              {disorderRows.map((row) => (
-                <div key={row.criteria_id}>
-                  <div className="flex items-center justify-between gap-4 mb-1">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <span className="text-sm font-medium truncate">{row.displayName}</span>
-                      <span className="shrink-0 rounded bg-[hsl(var(--accent))] px-1.5 py-0.5 text-[10px] text-[hsl(var(--accent-foreground))]">
-                        {row.diagnosis_code}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-4 shrink-0 text-xs text-[hsl(var(--muted-foreground))]">
-                      <span className="tabular-nums">
-                        {toPersianNum(String(row.met))} / {toPersianNum(String(row.evaluated))}
-                      </span>
-                      <span className="w-14 text-end font-semibold text-[hsl(var(--foreground))] tabular-nums">
-                        {toPersianNum(String(row.prevalence_percent))}%
-                      </span>
+              {moduleGroups.map((group) => {
+                const isOpen = !!expandedGroups[group.code]
+                return (
+                  <div
+                    key={group.code}
+                    className="rounded-xl border border-[hsl(var(--border))]"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => toggleGroup(group.code)}
+                      className="flex w-full items-center justify-between gap-4 p-4 text-start"
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <ChevronDown
+                          className={`h-4 w-4 shrink-0 text-[hsl(var(--muted-foreground))] transition-transform ${
+                            isOpen ? '' : '-rotate-90'
+                          }`}
+                        />
+                        <span
+                          className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
+                          style={{ backgroundColor: MODULE_COLORS[group.code] ?? '#64748b' }}
+                        >
+                          {group.code}
+                        </span>
+                        <span className="text-sm font-semibold truncate">
+                          {group.moduleName}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-4 shrink-0 text-xs text-[hsl(var(--muted-foreground))]">
+                        <span className="tabular-nums">
+                          {toPersianNum(String(group.met))} / {toPersianNum(String(group.evaluated))}
+                        </span>
+                        <span className="w-14 text-end font-semibold text-[hsl(var(--foreground))] tabular-nums">
+                          {toPersianNum(String(group.prevalencePercent))}%
+                        </span>
+                      </div>
+                    </button>
+                    <div className="px-4 pb-4">
+                      <div className="h-2 w-full overflow-hidden rounded-full bg-[hsl(var(--muted))]">
+                        <div
+                          className="h-full rounded-full transition-all duration-500"
+                          style={{
+                            width: `${Math.min(group.prevalencePercent, 100)}%`,
+                            backgroundColor: MODULE_COLORS[group.code] ?? 'hsl(var(--primary))',
+                          }}
+                        />
+                      </div>
+                      {isOpen && (
+                        <div className="mt-3 space-y-2 border-t border-[hsl(var(--border))] pt-3">
+                          {group.members.map((row) => (
+                            <div key={row.criteria_id}>
+                              <div className="flex items-center justify-between gap-4 mb-1">
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <span className="text-sm truncate">{row.displayName}</span>
+                                  <span className="shrink-0 rounded bg-[hsl(var(--muted))] px-1.5 py-0.5 text-[10px] text-[hsl(var(--muted-foreground))]">
+                                    {row.diagnosis_code}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-4 shrink-0 text-xs text-[hsl(var(--muted-foreground))]">
+                                  <span className="tabular-nums">
+                                    {toPersianNum(String(row.met))} / {toPersianNum(String(row.evaluated))}
+                                  </span>
+                                  <span className="w-14 text-end font-semibold text-[hsl(var(--foreground))] tabular-nums">
+                                    {toPersianNum(String(row.prevalence_percent))}%
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="h-1.5 w-full overflow-hidden rounded-full bg-[hsl(var(--muted))]">
+                                <div
+                                  className="h-full rounded-full bg-[hsl(var(--secondary))]"
+                                  style={{ width: `${Math.min(row.prevalence_percent, 100)}%` }}
+                                />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
-                  <div className="h-2 w-full overflow-hidden rounded-full bg-[hsl(var(--muted))]">
-                    <div
-                      className="h-full rounded-full bg-[hsl(var(--primary))] transition-all duration-500"
-                      style={{ width: `${Math.min(row.prevalence_percent, 100)}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           )}
         </CardContent>

@@ -301,6 +301,7 @@ export interface Session {
   overview_id: number | null
   selected_module_codes?: string[] | null
   has_preexisting_diagnosis?: boolean
+  is_test_data?: boolean
   manual_diagnoses?: Array<{
     criteria_id: number
     disorder_name: string
@@ -321,6 +322,7 @@ export interface SessionCreateRequest {
   modules?: string[]
   has_preexisting_diagnosis?: boolean
   manual_diagnoses?: number[]
+  is_test_data?: boolean
 }
 
 export interface SessionResponse {
@@ -693,6 +695,9 @@ export interface AdminAgreementByDisorder {
   disorder_name: string
   disorder_name_fa: string
   diagnosis_code: string
+  module_code: string
+  module_name: string
+  module_name_fa: string
   tp: number
   tn: number
   fp: number
@@ -753,6 +758,9 @@ export interface AdminDisorderPrevalence {
   disorder_name: string
   disorder_name_fa: string
   diagnosis_code: string
+  module_code: string
+  module_name: string
+  module_name_fa: string
   evaluated: number
   met: number
   prevalence_percent: number

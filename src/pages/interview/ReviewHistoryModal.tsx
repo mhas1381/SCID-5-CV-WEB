@@ -4,6 +4,7 @@ import { ChevronDown, History, X } from 'lucide-react'
 import { useGetModuleQuestionsQuery, useGetModulesQuery } from '@/store/api/interviewApi'
 import { Button } from '@/components/ui'
 import { cn } from '@/utils/cn'
+import { MODULE_COLORS } from '@/utils/modules'
 import type { Question, SessionResponse } from '@/types'
 
 interface ReviewHistoryModalProps {
@@ -77,7 +78,10 @@ function ModuleAccordion({
       <div className="flex items-center justify-between p-4">
         <div className="flex items-center gap-3 min-w-0">
           <ChevronDown className="h-4 w-4 shrink-0 text-[hsl(var(--muted-foreground))]" />
-          <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[hsl(var(--primary))]/10 text-[hsl(var(--primary))] text-sm font-bold shrink-0">
+          <span
+            className="inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold text-white shrink-0"
+            style={{ backgroundColor: MODULE_COLORS[moduleCode] ?? 'hsl(var(--primary))' }}
+          >
             {moduleCode}
           </span>
           <span className="font-semibold">{moduleName}</span>
