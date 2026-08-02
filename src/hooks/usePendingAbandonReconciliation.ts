@@ -61,7 +61,7 @@ export function usePendingAbandonReconciliation() {
         Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({}),
+      body: JSON.stringify({ ts: pending.ts }),
     }).catch(() => {})
   }, [location.pathname, accessToken])
 }

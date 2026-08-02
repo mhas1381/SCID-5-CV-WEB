@@ -64,23 +64,28 @@ export function useAbandonOnExit(sessionId: number) {
   const firedRef = useRef(false)
   const abandonTimerRef = useRef<number | null>(null)
 
-  const fire = useCallback(() => {
-    if (firedRef.current || stateRef.current !== 'active') return
-    firedRef.current = true
-    // Fire-and-forget. keepalive:true lets this request finish even when the
-    // tab is being closed, and the JWT goes in the header (unlike sendBeacon).
-    fetch(apiUrl(`/v1/interviews/sessions/${sessionId}/abandon/`), {
-      method: 'POST',
-      keepalive: true,
-      headers: {
-        Authorization: `Bearer ${tokenRef.current}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({}),
-    }).catch(() => {
-      // The session might be completed/removed already — nothing to do.
-    })
-  }, [sessionId])
+  const fire = useCallback(
+    (ts?: number) => {
+      if (firedRef.current || stateRef.current !== 'active') return
+      firedRef.current = true
+      // Fire-and-forget. keepalive:true lets this request finish even when the
+      // tab is being closed, and the JWT goes in the header (unlike sendBeacon).
+      // `ts` is the client time the abandon was *initiated* (pagehide/unmount);
+      // the backend ignores the request if the session saw activity after it.
+      fetch(apiUrl(`/v1/interviews/sessions/${sessionId}/abandon/`), {
+        method: 'POST',
+        keepalive: true,
+        headers: {
+          Authorization: `Bearer ${tokenRef.current}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(ts ? { ts } : {}),
+      }).catch(() => {
+        // The session might be completed/removed already — nothing to do.
+      })
+    },
+    [sessionId]
+  )
 
   // SPA navigation away (component unmount). On genuine page teardown
   // (F5 / tab close) `document.visibilityState` is already 'hidden', so the
@@ -94,8 +99,11 @@ export function useAbandonOnExit(sessionId: number) {
   useEffect(() => {
     return () => {
       if (document.visibilityState !== 'hidden') {
+        // Stamp the request with the moment the clinician actually left, not
+        // when the deferred macrotask fires.
+        const ts = Date.now()
         abandonTimerRef.current = window.setTimeout(() => {
-          fire()
+          fire(ts)
         }, 0)
       }
     }
