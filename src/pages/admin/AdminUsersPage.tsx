@@ -343,8 +343,16 @@ export function AdminUsersPage() {
                     >
                       <td className="px-4 py-3">
                         <span className="flex items-center gap-2 font-medium">
-                          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[hsl(var(--accent))] text-xs font-bold text-[hsl(var(--accent-foreground))]">
-                            {user.first_name?.charAt(0) || '؟'}
+                          <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[hsl(var(--accent))] text-xs font-bold text-[hsl(var(--accent-foreground))]">
+                            {user.profile_image ? (
+                              <img
+                                src={user.profile_image}
+                                alt={user.full_name}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              user.first_name?.charAt(0) || '؟'
+                            )}
                           </span>
                           <span className="min-w-0">
                             <span className="block truncate">{user.full_name}</span>

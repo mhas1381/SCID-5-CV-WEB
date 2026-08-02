@@ -733,6 +733,7 @@ export interface AdminUser {
   organization: string
   license_number: string
   years_of_experience: number | null
+  profile_image: string | null
   organization_card: string | null
   sessions_count: number
   patients_count: number

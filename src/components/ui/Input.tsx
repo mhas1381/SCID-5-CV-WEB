@@ -16,6 +16,8 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     const [capsLock, setCapsLock] = useState(false)
     const [hasPersian, setHasPersian] = useState(false)
     const isPassword = type === 'password'
+    const placeholder =
+      isPassword && props.placeholder ? `\u202B${props.placeholder}\u202C` : props.placeholder
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
       setCapsLock(e.getModifierState('CapsLock'))
@@ -60,6 +62,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             onChange={handleChange}
             onKeyDown={handleKeyDown}
             {...props}
+            placeholder={placeholder}
           />
           {endAdornment && (
             <div className="absolute inset-y-0 ltr:right-0 rtl:left-0 flex items-center pr-3 rtl:pl-3 rtl:pr-0">
