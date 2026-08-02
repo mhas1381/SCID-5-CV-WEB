@@ -4,14 +4,16 @@ import { useGetAdminUsersQuery, useUpdateAdminUserMutation } from '@/store/api/a
 import { Card, CardContent, CardHeader, CardTitle, LoadingSpinner, Button, Input, VerifiedBadge, ConfirmDialog } from '@/components/ui'
 import {
   Users, Search, ShieldCheck, UserCheck, UserX, BadgeCheck, XCircle,
-  ClipboardList, Stethoscope, Phone,
+  ClipboardList, Stethoscope, Phone, IdCard, X,
 } from 'lucide-react'
+import { AnimatePresence, motion } from 'framer-motion'
 import { toast } from 'sonner'
 import { getErrorMessage } from '@/utils/error'
 import { formatDate, toPersianNum } from '@/utils/date'
 import { cn } from '@/utils/cn'
 import type {
   AdminRole,
+  AdminUser,
   AdminUserUpdateRequest,
   AdminVerificationStatus,
 } from '@/types'
@@ -38,10 +40,101 @@ const EMPTY_FILTERS: Filters = {
   is_active: '',
 }
 
+interface CardViewerProps {
+  user: AdminUser | null
+  isUpdating: boolean
+  onApprove: () => void
+  onReject: () => void
+  onClose: () => void
+}
+
+function OrganizationCardViewer({
+  user,
+  isUpdating,
+  onApprove,
+  onReject,
+  onClose,
+}: CardViewerProps) {
+  const { t } = useTranslation()
+  return (
+    <AnimatePresence>
+      {user && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <motion.div
+            className="absolute inset-0 bg-black/60"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={onClose}
+          />
+          <motion.div
+            className="relative z-10 mx-4 w-full max-w-lg rounded-xl bg-[var(--glass-bg)] backdrop-blur-xl p-6 shadow-[var(--glass-shadow)] border border-[var(--glass-border)]"
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            transition={{ duration: 0.2 }}
+          >
+            <button
+              onClick={onClose}
+              className="absolute left-4 top-4 text-[hsl(var(--muted-foreground))] hover:text-foreground"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <div className="flex items-center gap-2 mb-4">
+              <IdCard className="h-5 w-5 text-[hsl(var(--primary))]" />
+              <h3 className="text-lg font-semibold">{t('admin.users.cardTitle')}</h3>
+            </div>
+            <p className="mb-4 text-sm text-[hsl(var(--muted-foreground))]">
+              {t('admin.users.cardSubtitle', { name: user.full_name })}
+            </p>
+            {user.organization_card ? (
+              <img
+                src={user.organization_card}
+                alt={t('admin.users.cardAlt')}
+                className="mx-auto max-h-[60vh] w-full rounded-lg border border-[hsl(var(--border))] object-contain bg-[hsl(var(--muted))]"
+              />
+            ) : (
+              <div className="flex h-48 items-center justify-center rounded-lg border border-dashed border-[hsl(var(--border))] text-sm text-[hsl(var(--muted-foreground))]">
+                {t('admin.users.cardMissing')}
+              </div>
+            )}
+            <div className="mt-5 flex items-center justify-between gap-3">
+              <Button variant="outline" onClick={onClose}>
+                {t('common.cancel')}
+              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={onReject}
+                  isLoading={isUpdating}
+                  className="text-red-600 dark:text-red-400 border-red-200 dark:border-red-900"
+                >
+                  <XCircle className="ltr:mr-1.5 rtl:ml-1.5 h-4 w-4" />
+                  {t('admin.users.reject')}
+                </Button>
+                <Button
+                  onClick={onApprove}
+                  isLoading={isUpdating}
+                  className="text-green-700 dark:text-green-100 bg-green-600 hover:bg-green-700"
+                >
+                  <BadgeCheck className="ltr:mr-1.5 rtl:ml-1.5 h-4 w-4" />
+                  {t('admin.users.approve')}
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  )
+}
+
 export function AdminUsersPage() {
   const { t } = useTranslation()
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS)
   const [deactivateTarget, setDeactivateTarget] = useState<number | null>(null)
+  const [cardViewerUser, setCardViewerUser] = useState<AdminUser | null>(null)
 
   const queryParams = {
     ...(filters.search && { search: filters.search }),
@@ -82,6 +175,16 @@ export function AdminUsersPage() {
 
   const rejectVerification = (id: number) =>
     update(id, { verification_status: 'failed' }, t('admin.users.rejectedToast'))
+
+  const approveFromViewer = (id: number) => {
+    setCardViewerUser(null)
+    approveVerification(id)
+  }
+
+  const rejectFromViewer = (id: number) => {
+    setCardViewerUser(null)
+    rejectVerification(id)
+  }
 
   const deactivate = (id: number) => {
     setDeactivateTarget(null)
@@ -273,6 +376,19 @@ export function AdminUsersPage() {
                       <td className="px-3 py-3">
                         <div className="flex flex-wrap items-center gap-2">
                           <VerifiedBadge status={user.verification_status} />
+                          {user.organization_card && (
+                            <button
+                              title={t('admin.users.viewCard')}
+                              onClick={() => setCardViewerUser(user)}
+                              className="flex h-8 w-8 items-center justify-center overflow-hidden rounded border border-[hsl(var(--border))] transition-transform hover:scale-105"
+                            >
+                              <img
+                                src={user.organization_card}
+                                alt={t('admin.users.cardAlt')}
+                                className="h-full w-full object-cover"
+                              />
+                            </button>
+                          )}
                           {user.verification_status === 'pending' && (
                             <span className="flex gap-1">
                               <button
@@ -367,6 +483,14 @@ export function AdminUsersPage() {
         confirmLabel={t('admin.users.deactivate')}
         onConfirm={() => deactivateTarget && deactivate(deactivateTarget)}
         onCancel={() => setDeactivateTarget(null)}
+      />
+
+      <OrganizationCardViewer
+        user={cardViewerUser}
+        isUpdating={isUpdating}
+        onApprove={() => cardViewerUser && approveFromViewer(cardViewerUser.id)}
+        onReject={() => cardViewerUser && rejectFromViewer(cardViewerUser.id)}
+        onClose={() => setCardViewerUser(null)}
       />
     </div>
   )
