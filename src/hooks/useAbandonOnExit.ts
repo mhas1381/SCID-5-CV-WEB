@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { apiUrl } from '@/config'
 import { useAppSelector } from './useAppStore'
 
@@ -62,6 +62,7 @@ export function useAbandonOnExit(sessionId: number) {
   tokenRef.current = accessToken
   const stateRef = useRef<'active' | 'done' | 'skip'>('skip')
   const firedRef = useRef(false)
+  const abandonTimerRef = useRef<number | null>(null)
 
   const fire = useCallback(() => {
     if (firedRef.current || stateRef.current !== 'active') return
@@ -85,9 +86,30 @@ export function useAbandonOnExit(sessionId: number) {
   // (F5 / tab close) `document.visibilityState` is already 'hidden', so the
   // unmount path only fires for in-app navigation; the pagehide path below
   // covers real unloads via the localStorage flag.
-  useEffect(() => () => {
-    if (document.visibilityState !== 'hidden') fire()
+  //
+  // The abandon is deferred to a macrotask and cancelled on the effect's
+  // re-run. React StrictMode (dev) mounts, then synchronously unmounts and
+  // remounts the component: without the deferral the simulated unmount would
+  // fire the abandon and falsely mark a live session as abandoned.
+  useEffect(() => {
+    return () => {
+      if (document.visibilityState !== 'hidden') {
+        abandonTimerRef.current = window.setTimeout(() => {
+          fire()
+        }, 0)
+      }
+    }
   }, [fire])
+
+  // Cancel any pending abandon scheduled by a preceding StrictMode-simulated
+  // unmount. Runs on the mount (and StrictMode remount) — a genuine unmount
+  // never reaches this point again, so the timer from the cleanup above fires.
+  useEffect(() => {
+    if (abandonTimerRef.current !== null) {
+      window.clearTimeout(abandonTimerRef.current)
+      abandonTimerRef.current = null
+    }
+  })
 
   // Tab close / hard navigation. Record the pending abandon — do NOT fire
   // here, because pagehide also fires on F5 and that would falsely abandon an
@@ -102,15 +124,22 @@ export function useAbandonOnExit(sessionId: number) {
     return () => window.removeEventListener('pagehide', onPageHide)
   }, [sessionId])
 
-  return {
-    markActive: useCallback(() => {
-      stateRef.current = 'active'
-    }, []),
-    markDone: useCallback(() => {
-      stateRef.current = 'done'
-    }, []),
-    markSkip: useCallback(() => {
-      stateRef.current = 'skip'
-    }, []),
-  }
+  // The returned helpers are memoized so callers can safely use `abandon` (or
+  // the individual callbacks) in effect dependency arrays. A new object every
+  // render would re-trigger the caller's status effect (which calls
+  // `markActive()`), clobbering a `markSkip()` set just before navigation.
+  const markActive = useCallback(() => {
+    stateRef.current = 'active'
+  }, [])
+  const markDone = useCallback(() => {
+    stateRef.current = 'done'
+  }, [])
+  const markSkip = useCallback(() => {
+    stateRef.current = 'skip'
+  }, [])
+
+  return useMemo(
+    () => ({ markActive, markDone, markSkip }),
+    [markActive, markDone, markSkip]
+  )
 }
