@@ -10,6 +10,7 @@ import type {
   AdminOverview,
   AdminUser,
   AdminUserUpdateRequest,
+  PaginatedResponse,
 } from '@/types'
 
 /** Optional demographic filter params for the demographics endpoint. */
@@ -68,12 +69,14 @@ export const adminApi = baseApi.injectEndpoints({
     ),
 
     getAdminUsers: builder.query<
-      AdminUser[],
+      PaginatedResponse<AdminUser>,
       {
         search?: string
         role?: string
         verification_status?: string
         is_active?: string
+        page?: number
+        page_size?: number
       } | void
     >({
       query: (params) => ({

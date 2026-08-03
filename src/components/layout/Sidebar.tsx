@@ -10,6 +10,8 @@ import {
   Brain,
   User,
   Settings,
+  ShieldCheck,
+  BarChart3,
 } from 'lucide-react'
 import { Button, VerifiedBadge } from '@/components/ui'
 import { useAppDispatch } from '@/hooks/useAppStore'
@@ -36,6 +38,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     { to: '/patients', icon: Users, label: t('nav.patients') },
     { to: '/interview', icon: Brain, label: t('nav.interviews') },
     { to: '/sessions', icon: History, label: t('nav.sessions') },
+    { to: '/demographics', icon: BarChart3, label: t('nav.demographics') },
     { to: '/settings', icon: Settings, label: t('nav.settings') },
   ]
 
@@ -110,6 +113,23 @@ export function Sidebar({ open, onClose }: SidebarProps) {
             <VerifiedBadge status="verified" />
           )}
         </NavLink>
+        {(me?.role === 'admin' || me?.is_staff || me?.is_superuser) && (
+          <NavLink
+            to="/admin"
+            onClick={onClose}
+            className={({ isActive }) =>
+              cn(
+                'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                isActive
+                  ? 'bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]'
+                  : 'text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]'
+              )
+            }
+          >
+            <ShieldCheck className="h-4 w-4" />
+            <span className="flex-1">{t('nav.adminPanel')}</span>
+          </NavLink>
+        )}
         <Button
           variant="ghost"
           className="w-full justify-start text-[hsl(var(--muted-foreground))]"

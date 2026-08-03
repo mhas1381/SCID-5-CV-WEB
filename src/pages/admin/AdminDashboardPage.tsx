@@ -121,7 +121,7 @@ export function AdminDashboardPage() {
             <MetricRow
               icon={Timer}
               label={t('admin.overview.avgElapsedTime')}
-              value={`${data.average_elapsed_time_seconds}s`}
+              value={formatMinutes(data.average_elapsed_time_seconds)}
             />
             <MetricRow
               icon={Activity}
@@ -185,6 +185,13 @@ export function AdminDashboardPage() {
       </div>
     </div>
   )
+}
+
+function formatMinutes(seconds: number): string {
+  const minutes = seconds / 60
+  return Number.isInteger(minutes)
+    ? String(minutes)
+    : minutes.toFixed(1)
 }
 
 function MetricRow({

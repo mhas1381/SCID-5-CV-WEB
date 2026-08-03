@@ -4,7 +4,7 @@ import { useGetMeQuery } from '@/store/api/authApi'
 import { useGetDashboardSummaryQuery } from '@/store/api/dashboardApi'
 import { Card, CardHeader, CardTitle, CardContent, LoadingSpinner } from '@/components/ui'
 import { Button } from '@/components/ui'
-import { Users, ClipboardList, Activity, CalendarDays, ChevronRight, User, CheckCircle2, Clock, XCircle } from 'lucide-react'
+import { Users, ClipboardList, Activity, CalendarDays, ChevronRight, User, CheckCircle2, Clock, XCircle, ShieldCheck } from 'lucide-react'
 import { formatDate } from '@/utils/date'
 
 export function DashboardPage() {
@@ -22,15 +22,23 @@ export function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold">
-          {userLoading
-            ? t('common.loading')
-            : `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || t('nav.dashboard')}
-        </h1>
-        <p className="text-[hsl(var(--muted-foreground))] mt-1">
-          {t('dashboard.description')}
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold">
+            {userLoading
+              ? t('common.loading')
+              : `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || t('nav.dashboard')}
+          </h1>
+          <p className="text-[hsl(var(--muted-foreground))] mt-1">
+            {t('dashboard.description')}
+          </p>
+        </div>
+        {(user?.role === 'admin' || user?.is_staff || user?.is_superuser) && (
+          <Button onClick={() => navigate('/admin')}>
+            <ShieldCheck className="ltr:mr-1.5 rtl:ml-1.5 h-4 w-4" />
+            {t('dashboard.enterAdminPanel')}
+          </Button>
+        )}
       </div>
 
       {summaryLoading ? (

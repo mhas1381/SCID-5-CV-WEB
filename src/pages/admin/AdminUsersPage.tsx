@@ -4,7 +4,7 @@ import { useGetAdminUsersQuery, useUpdateAdminUserMutation } from '@/store/api/a
 import { Card, CardContent, CardHeader, CardTitle, LoadingSpinner, Button, Input, VerifiedBadge, ConfirmDialog } from '@/components/ui'
 import {
   Users, Search, ShieldCheck, UserCheck, UserX, BadgeCheck, XCircle,
-  ClipboardList, Stethoscope, Phone, IdCard, X,
+  ClipboardList, Stethoscope, Phone, IdCard, X, ChevronLeft, ChevronRight,
 } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { toast } from 'sonner'
@@ -25,6 +25,7 @@ const VERIFICATION_FILTERS: AdminVerificationStatus[] = [
   'failed',
   'unverified',
 ]
+const PAGE_SIZE = 10
 
 interface Filters {
   search: string
@@ -133,8 +134,14 @@ function OrganizationCardViewer({
 export function AdminUsersPage() {
   const { t } = useTranslation()
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS)
+  const [page, setPage] = useState(1)
   const [deactivateTarget, setDeactivateTarget] = useState<number | null>(null)
   const [cardViewerUser, setCardViewerUser] = useState<AdminUser | null>(null)
+
+  const setFilter = (key: keyof Filters, value: string) => {
+    setFilters((prev) => ({ ...prev, [key]: value }))
+    setPage(1)
+  }
 
   const queryParams = {
     ...(filters.search && { search: filters.search }),
@@ -143,9 +150,15 @@ export function AdminUsersPage() {
       verification_status: filters.verification_status,
     }),
     ...(filters.is_active && { is_active: filters.is_active }),
+    page,
+    page_size: PAGE_SIZE,
   }
 
-  const { data: users, isLoading } = useGetAdminUsersQuery(queryParams)
+  const { data, isLoading, isFetching } =
+    useGetAdminUsersQuery(queryParams)
+  const users = data?.results ?? []
+  const totalUsers = data?.count ?? 0
+  const totalPages = Math.max(1, Math.ceil(totalUsers / PAGE_SIZE))
   const [updateUser, { isLoading: isUpdating }] = useUpdateAdminUserMutation()
 
   const update = async (
@@ -230,9 +243,7 @@ export function AdminUsersPage() {
               <Input
                 placeholder={t('admin.users.searchPlaceholder')}
                 value={filters.search}
-                onChange={(e) =>
-                  setFilters((prev) => ({ ...prev, search: e.target.value }))
-                }
+                onChange={(e) => setFilter('search', e.target.value)}
                 endAdornment={<Search className="h-4 w-4" />}
               />
             </div>
@@ -244,9 +255,7 @@ export function AdminUsersPage() {
               <select
                 className={selectClass}
                 value={filters.role}
-                onChange={(e) =>
-                  setFilters((prev) => ({ ...prev, role: e.target.value }))
-                }
+                onChange={(e) => setFilter('role', e.target.value)}
               >
                 <option value="">{t('admin.users.all')}</option>
                 {ROLE_OPTIONS.map((role) => (
@@ -265,10 +274,7 @@ export function AdminUsersPage() {
                 className={selectClass}
                 value={filters.verification_status}
                 onChange={(e) =>
-                  setFilters((prev) => ({
-                    ...prev,
-                    verification_status: e.target.value,
-                  }))
+                  setFilter('verification_status', e.target.value)
                 }
               >
                 <option value="">{t('admin.users.all')}</option>
@@ -287,12 +293,7 @@ export function AdminUsersPage() {
               <select
                 className={selectClass}
                 value={filters.is_active}
-                onChange={(e) =>
-                  setFilters((prev) => ({
-                    ...prev,
-                    is_active: e.target.value,
-                  }))
-                }
+                onChange={(e) => setFilter('is_active', e.target.value)}
               >
                 <option value="">{t('admin.users.all')}</option>
                 <option value="true">{t('admin.users.active')}</option>
@@ -309,7 +310,7 @@ export function AdminUsersPage() {
           <CardTitle className="text-base">
             {t('admin.users.listTitle')}
             <span className="text-xs font-normal text-[hsl(var(--muted-foreground))] ml-2">
-              ({toPersianNum(String(users?.length ?? 0))})
+              ({toPersianNum(String(totalUsers))})
             </span>
           </CardTitle>
         </CardHeader>
@@ -320,8 +321,7 @@ export function AdminUsersPage() {
             </p>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
+              <table className="w-full text-sm">                <thead>
                   <tr className="border-b border-[hsl(var(--border))] text-xs text-[hsl(var(--muted-foreground))]">
                     <th className="px-4 py-3 text-start font-medium">{t('admin.users.name')}</th>
                     <th className="px-3 py-3 text-start font-medium">{t('admin.users.role')}</th>
@@ -479,6 +479,40 @@ export function AdminUsersPage() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          )}
+
+          {totalUsers > 0 && (
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[hsl(var(--border))] px-4 py-3">
+              <p className="text-xs text-[hsl(var(--muted-foreground))]">
+                {t('admin.users.resultsCount', { count: toPersianNum(String(totalUsers)) })}
+              </p>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={page <= 1 || isFetching}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                >
+                  <ChevronRight className="ltr:mr-1 rtl:ml-1 h-4 w-4" />
+                  {t('common.previous')}
+                </Button>
+                <span className="text-xs text-[hsl(var(--muted-foreground))] whitespace-nowrap">
+                  {t('admin.users.pageInfo', {
+                    page: toPersianNum(String(page)),
+                    total: toPersianNum(String(totalPages)),
+                  })}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={page >= totalPages || isFetching}
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                >
+                  {t('common.next')}
+                  <ChevronLeft className="ltr:ml-1 rtl:mr-1 h-4 w-4" />
+                </Button>
+              </div>
             </div>
           )}
         </CardContent>

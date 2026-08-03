@@ -92,6 +92,9 @@ function AppContent() {
 
                 {/* Sessions History */}
                 <Route path="/sessions" element={<SessionsListPage />} />
+
+                {/* Demographics (available to all users) */}
+                <Route path="/demographics" element={<AdminDemographicsPage />} />
               </Route>
 
               {/* Admin Panel Routes */}

@@ -41,7 +41,9 @@
     "reports": "گزارش‌ها",
     "settings": "تنظیمات",
     "profile": "پروفایل",
-    "logout": "خروج"
+    "logout": "خروج",
+    "adminPanel": "پنل مدیریت",
+    "demographics": "دموگرافیک"
   },
   "auth": {
     "login": "ورود به سامانه",
@@ -97,7 +99,8 @@
     "moduleG": "اختلالات جسمانی",
     "moduleH": "اختلالات تغذیه",
     "moduleI": "اختلالات خواب",
-    "moduleJ": "اختلالات تطبیقی"
+    "moduleJ": "اختلالات تطبیقی",
+    "enterAdminPanel": "ورود به پنل مدیریت"
   },
   "patients": {
     "title": "مدیریت بیماران",
@@ -465,6 +468,15 @@
         "diagnosis_confirmed": "تأیید تشخیص",
         "feedback_submitted": "فیدبک",
         "user_role_changed": "تغییر نقش"
+      },
+      "desc": {
+        "patient_registered": "بیمار جدید ثبت شد: {{name}}",
+        "interview_started": "مصاحبه‌ای برای {{name}} آغاز شد",
+        "interview_abandoned": "مصاحبه {{name}} رها شد",
+        "interview_completed": "مصاحبه {{name}} تکمیل شد",
+        "diagnosis_confirmed": "تشخیص «{{name}}» تأیید شد",
+        "feedback_submitted": "فیدبک جدید درباره سامانه ثبت شد",
+        "user_role_changed": "نقش {{name}} از {{old}} به {{new}} تغییر کرد"
       }
     },
     "export": {
@@ -485,7 +497,7 @@
       "sessionDistribution": "توزیع وضعیت جلسات",
       "performance": "شاخص‌های عملکرد",
       "completionRate": "نرخ تکمیل",
-      "avgElapsedTime": "میانگین زمان (ثانیه)",
+      "avgElapsedTime": "میانگین زمان (دقیقه)",
       "diagnosesMet": "تشخیص‌های مثبت",
       "confirmationRate": "نرخ تأیید",
       "totalFeedback": "کل بازخوردها",
@@ -497,7 +509,7 @@
       "description": "بررسی موفقیت مصاحبه‌های بالینی",
       "completionRate": "نرخ تکمیل",
       "abandonmentRate": "نرخ رها شدن",
-      "avgElapsedTime": "میانگین زمان (ثانیه)",
+      "avgElapsedTime": "میانگین زمان (دقیقه)",
       "avgResponses": "میانگین پاسخ‌ها",
       "confirmationRate": "نرخ تأیید تشخیص",
       "inProgress": "در حال انجام",
@@ -618,7 +630,10 @@
       "rejectedToast": "صلاحیت رد شد",
       "deactivatedToast": "حساب غیرفعال شد",
       "activatedToast": "حساب فعال شد",
-      "updateError": "خطا در به‌روزرسانی کاربر"
+      "updateError": "خطا در به‌روزرسانی کاربر",
+      "pageInfo": "صفحه {{page}} از {{total}}",
+      "itemsPerPage": "تعداد در هر صفحه",
+      "resultsCount": "{{count}} کاربر"
     }
   },
   "validation": {

@@ -310,7 +310,6 @@ export function ProfilePage() {
                 }
               >
                 <option value="" className="bg-[hsl(var(--card))] text-[hsl(var(--foreground))]">{t('common.optional')}</option>
-                <option value="admin" className="bg-[hsl(var(--card))] text-[hsl(var(--foreground))]">{t('profile.admin')}</option>
                 <option value="clinician" className="bg-[hsl(var(--card))] text-[hsl(var(--foreground))]">{t('profile.clinician')}</option>
                 <option value="researcher" className="bg-[hsl(var(--card))] text-[hsl(var(--foreground))]">{t('profile.researcher')}</option>
               </select>

@@ -41,7 +41,9 @@
     "reports": "Reports",
     "settings": "Settings",
     "profile": "Profile",
-    "logout": "Logout"
+    "logout": "Logout",
+    "adminPanel": "Admin Panel",
+    "demographics": "Demographics"
   },
   "auth": {
     "login": "Login",
@@ -97,7 +99,8 @@
     "moduleG": "Somatic Disorders",
     "moduleH": "Eating Disorders",
     "moduleI": "Sleep Disorders",
-    "moduleJ": "Adjustment Disorders"
+    "moduleJ": "Adjustment Disorders",
+    "enterAdminPanel": "Admin Panel"
   },
   "patients": {
     "title": "Patient Management",
@@ -465,6 +468,15 @@
         "diagnosis_confirmed": "Diagnosis confirmed",
         "feedback_submitted": "Feedback",
         "user_role_changed": "Role changed"
+      },
+      "desc": {
+        "patient_registered": "New patient registered: {{name}}",
+        "interview_started": "Interview started for {{name}}",
+        "interview_abandoned": "Interview for {{name}} was abandoned",
+        "interview_completed": "Interview for {{name}} was completed",
+        "diagnosis_confirmed": "Diagnosis “{{name}}” confirmed",
+        "feedback_submitted": "New system feedback submitted",
+        "user_role_changed": "Role of {{name}} changed from {{old}} to {{new}}"
       }
     },
     "export": {
@@ -485,7 +497,7 @@
       "sessionDistribution": "Session Status",
       "performance": "Performance",
       "completionRate": "Completion Rate",
-      "avgElapsedTime": "Avg. Time (s)",
+      "avgElapsedTime": "Avg. Time (min)",
       "diagnosesMet": "Met Diagnoses",
       "confirmationRate": "Confirmation Rate",
       "totalFeedback": "Total Feedback",
@@ -497,7 +509,7 @@
       "description": "How successful clinical interviews are",
       "completionRate": "Completion Rate",
       "abandonmentRate": "Abandonment Rate",
-      "avgElapsedTime": "Avg. Elapsed (s)",
+      "avgElapsedTime": "Avg. Elapsed (min)",
       "avgResponses": "Avg. Responses",
       "confirmationRate": "Confirmation Rate",
       "inProgress": "In Progress",
@@ -618,7 +630,10 @@
       "rejectedToast": "Credential rejected",
       "deactivatedToast": "Account deactivated",
       "activatedToast": "Account activated",
-      "updateError": "Failed to update user"
+      "updateError": "Failed to update user",
+      "pageInfo": "Page {{page}} of {{total}}",
+      "itemsPerPage": "Items per page",
+      "resultsCount": "{{count}} users"
     }
   },
   "validation": {

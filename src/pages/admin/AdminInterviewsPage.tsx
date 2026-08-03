@@ -9,6 +9,11 @@ import {
   BarChart, Bar, Cell, Legend,
 } from 'recharts'
 import { cn } from '@/utils/cn'
+
+function formatMinutes(seconds: number): string {
+  const minutes = seconds / 60
+  return Number.isInteger(minutes) ? String(minutes) : minutes.toFixed(1)
+}
 import { toPersianNum } from '@/utils/date'
 
 const MODULE_COLORS = [
@@ -43,7 +48,7 @@ export function AdminInterviewsPage() {
     },
     {
       label: t('admin.interviews.avgElapsedTime'),
-      value: `${data.average_elapsed_time_seconds}s`,
+      value: `${formatMinutes(data.average_elapsed_time_seconds)}`,
       icon: Timer,
       color: 'text-blue-600 dark:text-blue-400',
       bg: 'bg-blue-100 dark:bg-blue-900/50',

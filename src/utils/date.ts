@@ -33,3 +33,32 @@ export function formatDate(isoString: string): string {
     day: 'numeric',
   })
 }
+
+export function formatDateTime(isoString: string): string {
+  if (!isoString) return ''
+
+  const lang = i18n.language?.startsWith('fa') ? 'fa' : 'en'
+  const date = new Date(isoString)
+  if (isNaN(date.getTime())) return isoString
+
+  if (lang === 'fa') {
+    const j = toJalaali(date.getFullYear(), date.getMonth() + 1, date.getDate())
+    const monthName = monthNames.fa[j.jm - 1]
+    const time = [
+      String(date.getHours()).padStart(2, '0'),
+      String(date.getMinutes()).padStart(2, '0'),
+      String(date.getSeconds()).padStart(2, '0'),
+    ].join(':')
+    return toPersianNum(`${j.jd} ${monthName} ${j.jy}، ${time}`)
+  }
+
+  return date.toLocaleString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  })
+}

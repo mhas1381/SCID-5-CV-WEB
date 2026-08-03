@@ -7,10 +7,40 @@ import {
   UserPlus, PlayCircle, CheckCircle2, BadgeCheck, MessageSquare, UserCog, Activity, Radio, LogOut,
 } from 'lucide-react'
 import { cn } from '@/utils/cn'
-import { formatDate } from '@/utils/date'
-import type { AdminActivityEventType } from '@/types'
+import { formatDateTime } from '@/utils/date'
+import type { AdminActivityEventType, AdminActivityItem } from '@/types'
+import type { TFunction } from 'i18next'
 
 const PAGE_SIZE = 50
+
+function describeActivity(t: TFunction, item: AdminActivityItem, isFa: boolean): string {
+  const base = `admin.activity.desc.${item.event_type}`
+  const meta = item.metadata ?? {}
+  switch (item.event_type) {
+    case 'patient_registered':
+    case 'interview_started':
+    case 'interview_abandoned':
+    case 'interview_completed': {
+      if (!item.patient?.name) return item.description
+      return t(base, { name: item.patient.name })
+    }
+    case 'diagnosis_confirmed': {
+      const name = isFa ? meta.disorder_name_fa : meta.disorder_name
+      if (!name) return item.description
+      return t(base, { name })
+    }
+    case 'user_role_changed': {
+      if (!meta.user_name || !meta.old_role || !meta.new_role) return item.description
+      return t(base, {
+        name: meta.user_name,
+        old: t(`admin.users.role_${meta.old_role}`),
+        new: t(`admin.users.role_${meta.new_role}`),
+      })
+    }
+    default:
+      return t(base)
+  }
+}
 
 const EVENT_META: Record<
   AdminActivityEventType,
@@ -36,7 +66,8 @@ const EVENT_ORDER: AdminActivityEventType[] = [
 ]
 
 export function AdminActivityPage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const isFa = i18n.language === 'fa'
   const [eventType, setEventType] = useState<AdminActivityEventType | ''>('')
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
 
@@ -162,9 +193,9 @@ export function AdminActivityPage() {
                       <Icon className={cn('h-4 w-4', meta.color)} />
                     </span>
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                      <span className="text-sm font-medium">{item.description}</span>
+                      <span className="text-sm font-medium">{describeActivity(t, item, isFa)}</span>
                       <span className="text-xs text-[hsl(var(--muted-foreground))]">
-                        {formatDate(item.created_at)}
+                        {formatDateTime(item.created_at)}
                       </span>
                     </div>
                     <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-[hsl(var(--muted-foreground))]">
