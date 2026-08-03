@@ -1,13 +1,14 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useGetPatientsQuery, useDeletePatientMutation } from '@/store/api/patientApi'
 import { Button, Card, CardContent, LoadingSpinner } from '@/components/ui'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
-import { Plus, Search, Edit2, Trash2, User, Info } from 'lucide-react'
+import { JalaliDatePicker } from '@/components/ui/JalaliDatePicker'
+import { Plus, Search, Edit2, Trash2, User, Info, RotateCcw } from 'lucide-react'
 import { cn } from '@/utils/cn'
-import { formatDate } from '@/utils/date'
+import { formatDate, toPersianNum } from '@/utils/date'
 
 const avatarColors = [
   'bg-blue-500', 'bg-emerald-500', 'bg-violet-500', 'bg-rose-500',
@@ -44,11 +45,56 @@ export function PatientsPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
+  const [gender, setGender] = useState('')
+  const [fromDate, setFromDate] = useState('')
+  const [toDate, setToDate] = useState('')
   const [page, setPage] = useState(1)
   const [deleteTarget, setDeleteTarget] = useState<{ id: number; name: string } | null>(null)
   const [deletingId, setDeletingId] = useState<number | null>(null)
-  const { data, isLoading } = useGetPatientsQuery({ page, search })
+
+  const queryParams = useMemo(() => {
+    const params: Record<string, unknown> = { page }
+    if (gender) params.gender = gender
+    if (fromDate) params.from = fromDate
+    if (toDate) params.to = toDate
+    return params
+  }, [gender, fromDate, toDate, page])
+
+  const { data, isLoading, isFetching } = useGetPatientsQuery(queryParams)
   const [deletePatient, { isLoading: isDeleting }] = useDeletePatientMutation()
+
+  const filteredPatients = useMemo(
+    () => (data?.results || []).filter((patient) => {
+      const name = (patient.full_name || `${patient.first_name || ''} ${patient.last_name || ''}`).toLowerCase()
+      return name.includes(search.toLowerCase())
+    }),
+    [data?.results, search],
+  )
+
+  const hasActiveFilters = !!(gender || fromDate || toDate)
+
+  const clearFilters = () => {
+    setGender('')
+    setFromDate('')
+    setToDate('')
+    setPage(1)
+  }
+
+  const setGenderFilter = (value: string) => {
+    setGender(value)
+    setPage(1)
+  }
+  const setFromFilter = (value: string) => {
+    setFromDate(value)
+    setPage(1)
+  }
+  const setToFilter = (value: string) => {
+    setToDate(value)
+    setPage(1)
+  }
+
+  const totalCount = data?.count ?? 0
+  const totalPages = Math.max(1, Math.ceil(totalCount / 20))
 
   const handleDelete = useCallback(async () => {
     if (!deleteTarget) return
@@ -86,8 +132,8 @@ export function PatientsPage() {
         </div>
       </div>
 
-      <div className="flex gap-4">
-        <div className="relative flex-1 max-w-sm">
+      <div className="flex flex-wrap items-end gap-3">
+        <div className="relative min-w-52 flex-1">
           <Search className="absolute rtl:right-3 ltr:left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[hsl(var(--muted-foreground))]" />
           <input
             type="text"
@@ -97,6 +143,42 @@ export function PatientsPage() {
             className="w-full rtl:pr-10 rtl:pl-4 ltr:pl-10 ltr:pr-4 py-2 rounded-lg border border-[hsl(var(--input))] bg-transparent text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
           />
         </div>
+
+        <div className="space-y-1">
+          <label className="block text-xs font-medium text-[hsl(var(--muted-foreground))]">
+            {t('patients.genderFilter')}
+          </label>
+          <select
+            value={gender}
+            onChange={(e) => setGenderFilter(e.target.value)}
+            className="h-9 w-full min-w-36 rounded-lg border border-[hsl(var(--input))] bg-[hsl(var(--card))] px-2 py-1 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
+          >
+            <option value="">{t('patients.allGenders')}</option>
+            <option value="male">{t('patients.male')}</option>
+            <option value="female">{t('patients.female')}</option>
+          </select>
+        </div>
+
+        <JalaliDatePicker
+          label={t('patients.fromDate')}
+          value={fromDate}
+          onChange={setFromFilter}
+        />
+
+        <JalaliDatePicker
+          label={t('patients.toDate')}
+          value={toDate}
+          onChange={setToFilter}
+        />
+
+        <Button
+          variant="outline"
+          onClick={clearFilters}
+          disabled={!hasActiveFilters}
+        >
+          <RotateCcw className="rtl:ml-1.5 ltr:mr-1.5 h-4 w-4" />
+          {t('patients.clearFilters')}
+        </Button>
       </div>
 
       {isLoading ? (
@@ -120,7 +202,7 @@ export function PatientsPage() {
       ) : (
         <AnimatePresence mode="popLayout">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-            {data?.results.map((patient, index) => (
+            {filteredPatients.map((patient, index) => (
               <motion.div
                 key={patient.id}
                 layout
@@ -175,6 +257,12 @@ export function PatientsPage() {
                           {formatDate(patient.birth_date)}
                         </p>
                       )}
+                      {patient.created_at && (
+                        <p>
+                          <span className="text-[hsl(var(--foreground))] font-medium ml-1">{t('patients.createdAtLabel')}:</span>
+                          {formatDate(patient.created_at)}
+                        </p>
+                      )}
                     </div>
 
                     <div className="flex items-center gap-2 px-3 py-3 border-t border-[hsl(var(--border))]">
@@ -204,30 +292,37 @@ export function PatientsPage() {
         </AnimatePresence>
       )}
 
-      {data && data.count > 20 && (
+      {totalCount > 0 && (
         <motion.div
-          className="flex justify-center gap-2 mt-6"
+          className="flex flex-wrap items-center justify-between gap-3 mt-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3, delay: 0.2 }}
         >
-          <Button
-            variant="outline"
-            disabled={!data.previous}
-            onClick={() => setPage((p) => p - 1)}
-          >
-            {t('common.previous')}
-          </Button>
-          <span className="flex items-center px-4 text-sm">
-            {t('common.page')} {page}
-          </span>
-          <Button
-            variant="outline"
-            disabled={!data.next}
-            onClick={() => setPage((p) => p + 1)}
-          >
-            {t('common.next')}
-          </Button>
+          <p className="text-xs text-[hsl(var(--muted-foreground))]">
+            {t('patients.resultsCount', { count: toPersianNum(String(totalCount)) })}
+          </p>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page <= 1 || isFetching}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+            >
+              {t('common.previous')}
+            </Button>
+            <span className="text-xs text-[hsl(var(--muted-foreground))] whitespace-nowrap">
+              {t('common.page')} {toPersianNum(String(page))} / {toPersianNum(String(totalPages))}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page >= totalPages || isFetching}
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            >
+              {t('common.next')}
+            </Button>
+          </div>
         </motion.div>
       )}
 

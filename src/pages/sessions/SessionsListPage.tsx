@@ -10,7 +10,7 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { JalaliDatePicker } from '@/components/ui/JalaliDatePicker'
 import { ClipboardList, Search, Trash2, Play, FileText, Eye, RotateCcw } from 'lucide-react'
 import { cn } from '@/utils/cn'
-import { toPersianNum } from '@/utils/date'
+import { toPersianNum, formatDateTime } from '@/utils/date'
 
 const PAGE_SIZE = 100
 
@@ -322,6 +322,12 @@ export function SessionsListPage() {
                         <p>
                           <span className="text-[hsl(var(--foreground))] font-medium ml-1">{t('sessions.timeLabel')}:</span>
                           <span className="font-mono tabular-nums">{formatElapsed(session.elapsed_time)}</span>
+                        </p>
+                      )}
+                      {session.started_at && (
+                        <p>
+                          <span className="text-[hsl(var(--foreground))] font-medium ml-1">{t('sessions.startedAtLabel')}:</span>
+                          {formatDateTime(session.started_at)}
                         </p>
                       )}
                     </div>

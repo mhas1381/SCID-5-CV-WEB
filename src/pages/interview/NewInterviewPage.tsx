@@ -291,21 +291,19 @@ export function NewInterviewPage() {
                       <Icon className="h-7 w-7 sm:h-8 sm:w-8" />
                     </span>
                     <span className="min-w-0 flex-1">
-                      <span className="flex items-start justify-between gap-2">
-                        <span className="text-base font-semibold leading-snug break-words sm:text-lg">
-                          {label}
-                        </span>
-                        <span
-                          dir="ltr"
-                          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white shadow-sm sm:h-10 sm:w-10"
-                          style={{ backgroundColor: MODULE_COLORS[mod.code] ?? 'hsl(var(--primary))' }}
-                        >
-                          {mod.code}
-                        </span>
+                      <span className="block text-base font-semibold leading-snug break-words sm:text-lg">
+                        {label}
                       </span>
                       <span className="mt-1 block text-sm text-[hsl(var(--muted-foreground))]">
                         {mod.questions_count} {t('interview.questions')}
                       </span>
+                    </span>
+                    <span
+                      dir="ltr"
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white shadow-sm sm:h-10 sm:w-10"
+                      style={{ backgroundColor: MODULE_COLORS[mod.code] ?? 'hsl(var(--primary))' }}
+                    >
+                      {mod.code}
                     </span>
                     <span
                       className={cn(

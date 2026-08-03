@@ -126,7 +126,14 @@
     "updateSuccess": "Patient information updated successfully",
     "saveError": "Error saving patient information",
     "encryptionHint": "If the page loads slowly, it is due to the encryption of sensitive patient data.",
-    "requiredFieldsHint": "Some fields such as education and marital status are mandatory and are used for statistical analysis and big data."
+    "requiredFieldsHint": "Some fields such as education and marital status are mandatory and are used for statistical analysis and big data.",
+    "genderFilter": "Gender",
+    "allGenders": "All genders",
+    "fromDate": "From date",
+    "toDate": "To date",
+    "clearFilters": "Clear filters",
+    "resultsCount": "{{count}} patients",
+    "createdAtLabel": "Registered"
   },
   "interview": {
     "title": "New Interview",
@@ -298,7 +305,8 @@
     "toDate": "To date",
     "clearFilters": "Clear filters",
     "resultsCount": "{{count}} sessions",
-    "statusFilter": "Status"
+    "statusFilter": "Status",
+    "startedAtLabel": "Started"
   },
   "profile": {
     "description": "Manage your professional and personal information",

@@ -46,7 +46,7 @@ function AppContent() {
   return (
     <ErrorBoundary>
       <Suspense fallback={<div className="min-h-screen" />}>
-        <AnimatePresence mode="wait">
+        <AnimatePresence initial={false}>
           <motion.div
             key={location.pathname}
             initial={{ opacity: 0, y: 6 }}

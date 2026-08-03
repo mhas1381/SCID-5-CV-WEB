@@ -61,10 +61,6 @@ export const authApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['User'],
     }),
-    // Used internally: call verifyOTP at startup to check if token is still valid
-    verifyToken: builder.query<User, void>({
-      query: () => 'v1/accounts/me/',
-    }),
   }),
 })
 
@@ -75,7 +71,6 @@ export const {
   useCompleteProfileMutation,
   useGetMeQuery,
   useRefreshTokenMutation,
-  useVerifyTokenQuery,
   useGoogleLoginMutation,
   usePasswordLoginMutation,
 } = authApi

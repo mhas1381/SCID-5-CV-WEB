@@ -136,7 +136,7 @@ export interface UserProfileUpdateRequest {
   email?: string
   phone_number?: string
   birth_date?: string | null
-  gender?: 'male' | 'female' | 'other' | null
+  gender?: 'male' | 'female' | null
   role?: 'admin' | 'clinician' | 'researcher'
   license_number?: string
   specialization?: string

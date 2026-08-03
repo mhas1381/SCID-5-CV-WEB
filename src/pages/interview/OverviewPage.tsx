@@ -13,6 +13,7 @@ import {
 } from '@/store/api/interviewApi'
 import { useAppDispatch } from '@/hooks/useAppStore'
 import { useElapsedTime } from '@/hooks/useElapsedTime'
+import { SessionTimerText } from '@/components/interview/SessionTimerText'
 import { useAbandonOnExit } from '@/hooks/useAbandonOnExit'
 import { Button, Card, CardHeader, CardTitle, CardContent, PageLoader } from '@/components/ui'
 import { AlertCircle, ArrowLeft, ArrowRight, CheckCircle, Clock } from 'lucide-react'
@@ -47,7 +48,7 @@ export function OverviewPage() {
 
   // Start elapsed timer from the overview page
   const isTimerActive = session?.status !== 'completed' && session?.status !== 'abandoned'
-  const { displayTime: elapsedDisplay, flush: flushElapsed } = useElapsedTime({
+  const { flush: flushElapsed } = useElapsedTime({
     sessionId,
     initialElapsed: session?.elapsed_time ?? 0,
     isActive: isTimerActive,
@@ -68,16 +69,6 @@ export function OverviewPage() {
       abandon.markSkip()
     }
   }, [session?.status, abandon])
-
-  const formatTime = (seconds: number) => {
-    const m = Math.floor(seconds / 60)
-    const s = seconds % 60
-    if (m >= 60) {
-      const h = Math.floor(m / 60)
-      return `${h}:${String(m % 60).padStart(2, '0')}:${String(s).padStart(2, '0')}`
-    }
-    return `${m}:${String(s).padStart(2, '0')}`
-  }
 
   const [answers, setAnswers] = useState<Record<string, string | boolean | number>>({})
   const [error, setError] = useState<string | null>(null)
@@ -298,7 +289,10 @@ export function OverviewPage() {
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1">
               <Clock className="h-3 w-3" />
-              {formatTime(elapsedDisplay)}
+              <SessionTimerText
+                initialElapsed={session?.elapsed_time ?? 0}
+                isActive={isTimerActive}
+              />
             </span>
             <span>{currentSectionIndex + 1} / {sections.length}</span>
           </div>

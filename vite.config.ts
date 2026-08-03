@@ -33,9 +33,12 @@ export default defineConfig({
           if (id.includes('node_modules/react-router')) return 'vendor'
           if (id.includes('node_modules/i18next') || id.includes('node_modules/react-i18next')) return 'i18n'
           if (id.includes('node_modules/zod') || id.includes('node_modules/react-hook-form') || id.includes('node_modules/@hookform')) return 'forms'
+          if (id.includes('node_modules/framer-motion') || id.includes('node_modules/motion')) return 'anim'
+          if (id.includes('node_modules/sonner')) return 'ui'
+          if (id.includes('node_modules/@reduxjs/toolkit') || id.includes('node_modules/redux') || id.includes('node_modules/reselect')) return 'redux'
         },
       },
     },
-    chunkSizeWarningLimit: 300,
+    chunkSizeWarningLimit: 400,
   },
 })

@@ -3,9 +3,15 @@ import type { Patient, PatientCreateRequest, PatientCreateResponse, PatientNote,
 
 export const patientApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getPatients: builder.query<PaginatedResponse<Patient>, { page?: number; search?: string }>({
-      query: ({ page = 1, search = '' } = {}) => 
-        `v1/accounts/patients/?page=${page}${search ? `&search=${search}` : ''}`,
+    getPatients: builder.query<PaginatedResponse<Patient>, { page?: number; search?: string; gender?: string; from?: string; to?: string }>({
+      query: ({ page = 1, search = '', gender = '', from = '', to = '' } = {}) => {
+        const params = new URLSearchParams({ page: String(page) })
+        if (search) params.set('search', search)
+        if (gender) params.set('gender', gender)
+        if (from) params.set('from', from)
+        if (to) params.set('to', to)
+        return `v1/accounts/patients/?${params.toString()}`
+      },
       providesTags: ['Patient'],
     }),
     getPatient: builder.query<Patient, number>({

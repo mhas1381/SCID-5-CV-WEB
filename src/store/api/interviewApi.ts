@@ -1,5 +1,4 @@
 import { baseApi } from './baseApi'
-import { apiUrl } from '@/config'
 import type {
   AnswerResponse,
   CompleteOverviewResponse,
@@ -19,7 +18,6 @@ import type {
   SessionCreateRequest,
   SubmitAnswerRequest,
 } from '@/types'
-import type { FetchBaseQueryError } from '@reduxjs/toolkit/query'
 
 export const interviewApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -29,34 +27,19 @@ export const interviewApi = baseApi.injectEndpoints({
     getModules: builder.query<Module[], void>({
       query: () => 'v1/questions/modules/',
       transformResponse: (res: PaginatedResponse<Module>) => res.results,
+      // Reference catalog — cache in memory until the page reloads.
+      keepUnusedDataFor: Infinity,
     }),
 
     getDiagnosticCriteria: builder.query<DiagnosticCriteriaItem[], void>({
-      async queryFn(): Promise<{ data: DiagnosticCriteriaItem[] } | { error: FetchBaseQueryError }> {
-        try {
-          const all: DiagnosticCriteriaItem[] = []
-          let page = 1
-          // eslint-disable-next-line no-constant-condition
-          while (true) {
-            const res = await fetch(apiUrl(`/v1/questions/diagnostic-criteria/?page=${page}`), {
-              headers: { 'Content-Type': 'application/json' },
-            })
-            const data = await res.json()
-            all.push(...(data.results ?? []))
-            if (!data.next) break
-            page += 1
-          }
-          return { data: all }
-        } catch (err) {
-          return {
-            error: { status: 'FETCH_ERROR', error: err instanceof Error ? err.message : String(err) },
-          }
-        }
-      },
+      query: () => 'v1/questions/diagnostic-criteria/?page_size=1000',
+      transformResponse: (res: PaginatedResponse<DiagnosticCriteriaItem>) => res.results,
+      keepUnusedDataFor: Infinity,
     }),
 
     getModuleQuestions: builder.query<Question[], string>({
       query: (code) => `v1/questions/modules/${code}/questions/`,
+      keepUnusedDataFor: Infinity,
     }),
 
     // ==========================================================
@@ -66,6 +49,7 @@ export const interviewApi = baseApi.injectEndpoints({
       query: ({ lang = 'en' } = {}) =>
         `v1/accounts/overview-questions/?lang=${lang}`,
       providesTags: ['OverviewQuestions'],
+      keepUnusedDataFor: Infinity,
     }),
 
     // ==========================================================

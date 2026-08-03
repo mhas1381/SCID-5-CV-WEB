@@ -126,7 +126,14 @@
     "updateSuccess": "اطلاعات بیمار با موفقیت به‌روزرسانی شد",
     "saveError": "خطا در ذخیره اطلاعات",
     "encryptionHint": "در صورت مشاهده کندی در بارگذاری صفحه، به دلیل رمزنگاری اطلاعات حساس بیماران است.",
-    "requiredFieldsHint": "تکمیل برخی فیلدها مانند تحصیلات و وضعیت تأهل الزامی است و برای تحلیل‌های آماری و big data استفاده می‌شود."
+    "requiredFieldsHint": "تکمیل برخی فیلدها مانند تحصیلات و وضعیت تأهل الزامی است و برای تحلیل‌های آماری و big data استفاده می‌شود.",
+    "genderFilter": "جنسیت",
+    "allGenders": "همه جنسیت‌ها",
+    "fromDate": "از تاریخ",
+    "toDate": "تا تاریخ",
+    "clearFilters": "حذف فیلترها",
+    "resultsCount": "{{count}} بیمار",
+    "createdAtLabel": "تاریخ ثبت"
   },
   "interview": {
     "title": "مصاحبه جدید",
@@ -298,7 +305,8 @@
     "toDate": "تا تاریخ",
     "clearFilters": "حذف فیلترها",
     "resultsCount": "{{count}} جلسه",
-    "statusFilter": "وضعیت"
+    "statusFilter": "وضعیت",
+    "startedAtLabel": "شروع"
   },
   "profile": {
     "description": "مدیریت اطلاعات حرفه‌ای و شخصی شما",

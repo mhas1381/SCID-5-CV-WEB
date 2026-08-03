@@ -14,6 +14,7 @@ import {
   useReviewQuestionQuery,
 } from '@/store/api/interviewApi'
 import { useElapsedTime } from '@/hooks/useElapsedTime'
+import { SessionTimerText } from '@/components/interview/SessionTimerText'
 import { useAbandonOnExit } from '@/hooks/useAbandonOnExit'
 import { Button, Card, CardHeader, CardTitle, CardContent, PageLoader, LoadingSpinner } from '@/components/ui'
 import { AlertCircle, CheckCircle, ArrowLeft, ChevronRight, FileText, Play, History } from 'lucide-react'
@@ -81,7 +82,7 @@ export function InterviewSessionPage() {
     }
   }, [session?.status, abandon])
 
-  const { displayTime: elapsedDisplay } = useElapsedTime({
+  useElapsedTime({
     sessionId,
     initialElapsed: session?.elapsed_time ?? 0,
     isActive: isTimerActive,
@@ -493,9 +494,10 @@ export function InterviewSessionPage() {
               ? t('interview.completed')
               : session.status}
           </span>
-          <span className="text-xs text-[hsl(var(--muted-foreground))] font-mono tabular-nums">
-            {Math.floor(elapsedDisplay / 60)}:{String(elapsedDisplay % 60).padStart(2, '0')}
-          </span>
+          <SessionTimerText
+            initialElapsed={session?.elapsed_time ?? 0}
+            isActive={isTimerActive}
+          />
           <Button
             variant="outline"
             size="sm"

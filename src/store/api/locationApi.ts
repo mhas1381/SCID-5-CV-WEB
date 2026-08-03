@@ -9,6 +9,8 @@ export const locationApi = baseApi.injectEndpoints({
         const list = Array.isArray(res) ? res : res.results
         return Array.isArray(list[0]) ? list[0] : list
       },
+      // Static reference data — cache until page reload.
+      keepUnusedDataFor: Infinity,
     }),
     getAllCities: builder.query<City[], void>({
       query: () => 'v1/base/cities/',
@@ -16,6 +18,7 @@ export const locationApi = baseApi.injectEndpoints({
         const list = Array.isArray(res) ? res : res.results
         return Array.isArray(list[0]) ? list[0] : list
       },
+      keepUnusedDataFor: Infinity,
     }),
   }),
 })

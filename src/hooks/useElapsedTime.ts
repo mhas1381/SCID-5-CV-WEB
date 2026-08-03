@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { apiUrl } from '@/config'
 
 interface UseElapsedTimeOptions {
@@ -14,7 +14,6 @@ export function useElapsedTime({
   isActive,
   onUpdate,
 }: UseElapsedTimeOptions) {
-  const [displayTime, setDisplayTime] = useState(initialElapsed)
   const baseRef = useRef(initialElapsed)
   const startRef = useRef<number | null>(null)
   const lastSavedRef = useRef(initialElapsed)
@@ -55,8 +54,6 @@ export function useElapsedTime({
         startRef.current = Date.now()
       }
     }
-    setDisplayTime(initialElapsed)
-    // Always call setDisplayTime in a rAF so the tick can correct it
   }, [initialElapsed, isActive])
 
   // Pause/resume on isActive toggle
@@ -70,13 +67,6 @@ export function useElapsedTime({
     }
     activeRef.current = isActive
   }, [isActive, save])
-
-  // Tick display every second
-  useEffect(() => {
-    if (!isActive) return
-    const id = setInterval(() => setDisplayTime(calcElapsed()), 1000)
-    return () => clearInterval(id)
-  }, [isActive, calcElapsed])
 
   // Persist every 10 s while active
   useEffect(() => {
@@ -119,5 +109,5 @@ export function useElapsedTime({
     return () => window.removeEventListener('beforeunload', onUnload)
   }, [sessionId])
 
-  return { displayTime, flush }
+  return { flush }
 }
