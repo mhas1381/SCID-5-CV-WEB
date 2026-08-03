@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -36,12 +36,37 @@ const AdminUsersPage = lazy(() => import('@/pages/admin/AdminUsersPage').then(m 
 const AdminActivityPage = lazy(() => import('@/pages/admin/AdminActivityPage').then(m => ({ default: m.AdminActivityPage })))
 const AdminFeedbackPage = lazy(() => import('@/pages/admin/AdminFeedbackPage').then(m => ({ default: m.AdminFeedbackPage })))
 
+/**
+ * Tracks navigation direction from the browser history index that react-router
+ * stores in `history.state.idx`: going forward (push/link) slides in from the
+ * right, going back (browser back button) slides in from the left. The new page
+ * mounts while the direction is still computed against the previous index, so
+ * the very first render already carries the correct direction.
+ */
+function useNavDirection(pathname: string): 'forward' | 'back' {
+  const prevIdxRef = useRef<number | null>(null)
+  const [direction, setDirection] = useState<'forward' | 'back'>('forward')
+
+  useEffect(() => {
+    const idx = (window.history.state as { idx?: number | null } | null)?.idx ?? null
+    if (prevIdxRef.current !== null && idx !== null) {
+      if (idx < prevIdxRef.current) setDirection('back')
+      else if (idx > prevIdxRef.current) setDirection('forward')
+    }
+    prevIdxRef.current = idx
+  }, [pathname])
+
+  return direction
+}
+
 function AppContent() {
   useDirection()
   useTheme()
   const { i18n } = useTranslation()
   const location = useLocation()
   const isRtl = i18n.language === 'fa'
+  const direction = useNavDirection(location.pathname)
+  const slide = (isRtl ? -1 : 1) * (direction === 'back' ? -32 : 32)
 
   return (
     <ErrorBoundary>
@@ -49,10 +74,10 @@ function AppContent() {
         <AnimatePresence initial={false}>
           <motion.div
             key={location.pathname}
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.2 }}
+            initial={{ opacity: 0, x: slide }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -slide }}
+            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
           >
             <Routes location={location}>
               {/* Public Routes */}
