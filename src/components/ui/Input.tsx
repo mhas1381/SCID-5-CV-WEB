@@ -17,7 +17,9 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     const [hasPersian, setHasPersian] = useState(false)
     const isPassword = type === 'password'
     const placeholder =
-      isPassword && props.placeholder ? `\u202B${props.placeholder}\u202C` : props.placeholder
+      isPassword && props.placeholder && PERSIAN_REGEX.test(props.placeholder)
+        ? `\u202B${props.placeholder}\u202C`
+        : props.placeholder
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
       setCapsLock(e.getModifierState('CapsLock'))
@@ -52,13 +54,11 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               'placeholder:text-[hsl(var(--muted-foreground))]',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))] focus-visible:ring-offset-2',
               'disabled:cursor-not-allowed disabled:opacity-50',
-              isPassword && 'text-left',
               error && 'border-red-500 focus-visible:ring-red-500 dark:border-red-700 dark:focus-visible:ring-red-700',
               endAdornment && 'ltr:pr-10 rtl:pl-10',
               className
             )}
             type={type}
-            dir={isPassword ? 'ltr' : undefined}
             onChange={handleChange}
             onKeyDown={handleKeyDown}
             {...props}

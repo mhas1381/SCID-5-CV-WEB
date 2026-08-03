@@ -291,7 +291,14 @@
     "phase_overview": "مرور کلی",
     "completedOn": "تکمیل شده در",
     "moduleLabel": "ماژول",
-    "timeLabel": "زمان"
+    "timeLabel": "زمان",
+    "filters": "فیلترها",
+    "allStatuses": "همه وضعیت‌ها",
+    "fromDate": "از تاریخ",
+    "toDate": "تا تاریخ",
+    "clearFilters": "حذف فیلترها",
+    "resultsCount": "{{count}} جلسه",
+    "statusFilter": "وضعیت"
   },
   "profile": {
     "description": "مدیریت اطلاعات حرفه‌ای و شخصی شما",

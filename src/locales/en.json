@@ -291,7 +291,14 @@
     "phase_overview": "Overview",
     "completedOn": "Completed on",
     "moduleLabel": "Module",
-    "timeLabel": "Time"
+    "timeLabel": "Time",
+    "filters": "Filters",
+    "allStatuses": "All statuses",
+    "fromDate": "From date",
+    "toDate": "To date",
+    "clearFilters": "Clear filters",
+    "resultsCount": "{{count}} sessions",
+    "statusFilter": "Status"
   },
   "profile": {
     "description": "Manage your professional and personal information",

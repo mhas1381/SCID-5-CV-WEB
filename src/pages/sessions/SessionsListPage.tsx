@@ -4,11 +4,17 @@ import { useTranslation } from 'react-i18next'
 import { AnimatePresence, motion } from 'framer-motion'
 import { toast } from 'sonner'
 import { useGetSessionsQuery, useDeleteSessionMutation, useContinueSessionMutation } from '@/store/api/interviewApi'
-import type { Session } from '@/types'
+import type { Session, SessionStatus } from '@/types'
 import { Button, Card, CardContent, LoadingSpinner } from '@/components/ui'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
-import { ClipboardList, Search, Trash2, Play, FileText, Eye } from 'lucide-react'
+import { JalaliDatePicker } from '@/components/ui/JalaliDatePicker'
+import { ClipboardList, Search, Trash2, Play, FileText, Eye, RotateCcw } from 'lucide-react'
 import { cn } from '@/utils/cn'
+import { toPersianNum } from '@/utils/date'
+
+const PAGE_SIZE = 100
+
+const STATUS_OPTIONS: SessionStatus[] = ['not_started', 'in_progress', 'completed', 'abandoned']
 
 const formatElapsed = (seconds?: number) => {
   if (seconds === undefined || seconds === null) return null
@@ -89,14 +95,52 @@ export function SessionsListPage() {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
+  const [status, setStatus] = useState('')
+  const [fromDate, setFromDate] = useState('')
+  const [toDate, setToDate] = useState('')
+  const [page, setPage] = useState(1)
   const [deleteTarget, setDeleteTarget] = useState<Session | null>(null)
   const [deletingId, setDeletingId] = useState<number | null>(null)
   const [deleteSession] = useDeleteSessionMutation()
   const [continueSession, { isLoading: isContinuing }] = useContinueSessionMutation()
+
+  const queryParams = useMemo(() => {
+    const params: Record<string, unknown> = { page, page_size: PAGE_SIZE }
+    if (status) params.status = status
+    if (fromDate) params.from = fromDate
+    if (toDate) params.to = toDate
+    return params
+  }, [status, fromDate, toDate, page])
+
+  const setStatusFilter = (value: string) => {
+    setStatus(value)
+    setPage(1)
+  }
+  const setFromFilter = (value: string) => {
+    setFromDate(value)
+    setPage(1)
+  }
+  const setToFilter = (value: string) => {
+    setToDate(value)
+    setPage(1)
+  }
+
   // Abandonment is fired as a raw keepalive fetch (not an RTK mutation), so it
   // can't invalidate the cache itself. Refetch on mount so a session abandoned
   // via navigation always shows its real status.
-  const { data: sessionsData, isLoading } = useGetSessionsQuery({}, { refetchOnMountOrArgChange: true })
+  const { data: sessionsData, isLoading, isFetching } = useGetSessionsQuery(queryParams, { refetchOnMountOrArgChange: true })
+
+  const hasActiveFilters = !!(status || fromDate || toDate)
+
+  const clearFilters = () => {
+    setStatus('')
+    setFromDate('')
+    setToDate('')
+    setPage(1)
+  }
+
+  const totalCount = sessionsData?.count ?? 0
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE))
 
   const handleDelete = useCallback(async () => {
     if (!deleteTarget) return
@@ -146,16 +190,61 @@ export function SessionsListPage() {
         </Button>
       </div>
 
-      <div className="relative max-w-sm">
-        <Search className="absolute rtl:right-3 ltr:left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[hsl(var(--muted-foreground))]" />
-        <input
-          type="text"
-          placeholder={t('sessions.searchPlaceholder')}
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full rtl:pr-10 rtl:pl-4 ltr:pl-10 ltr:pr-4 py-2 rounded-lg border border-[hsl(var(--input))] bg-transparent text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
-        />
-      </div>
+      <Card>
+        <CardContent className="pt-4">
+          <div className="flex flex-wrap items-end gap-3">
+            <div className="relative min-w-52 flex-1">
+              <Search className="absolute rtl:right-3 ltr:left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[hsl(var(--muted-foreground))]" />
+              <input
+                type="text"
+                placeholder={t('sessions.searchPlaceholder')}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full rtl:pr-10 rtl:pl-4 ltr:pl-10 ltr:pr-4 py-2 rounded-lg border border-[hsl(var(--input))] bg-transparent text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="block text-xs font-medium text-[hsl(var(--muted-foreground))]">
+                {t('sessions.statusFilter')}
+              </label>
+              <select
+                value={status}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="h-9 w-full min-w-36 rounded-lg border border-[hsl(var(--input))] bg-[hsl(var(--card))] px-2 py-1 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
+              >
+                <option value="">{t('sessions.allStatuses')}</option>
+                {STATUS_OPTIONS.map((s) => (
+                  <option key={s} value={s}>
+                    {t(`sessions.status_${s}`)}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <JalaliDatePicker
+              label={t('sessions.fromDate')}
+              value={fromDate}
+              onChange={setFromFilter}
+            />
+
+            <JalaliDatePicker
+              label={t('sessions.toDate')}
+              value={toDate}
+              onChange={setToFilter}
+            />
+
+            <Button
+              variant="outline"
+              onClick={clearFilters}
+              disabled={!hasActiveFilters}
+            >
+              <RotateCcw className="rtl:ml-1.5 ltr:mr-1.5 h-4 w-4" />
+              {t('sessions.clearFilters')}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {isLoading ? (
         <LoadingSpinner size="xl" className="py-12" />
@@ -303,6 +392,36 @@ export function SessionsListPage() {
           </div>
         </AnimatePresence>
       )}
+
+      {totalCount > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-xs text-[hsl(var(--muted-foreground))]">
+            {t('sessions.resultsCount', { count: toPersianNum(String(totalCount)) })}
+          </p>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page <= 1 || isFetching}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+            >
+              {t('common.previous')}
+            </Button>
+            <span className="text-xs text-[hsl(var(--muted-foreground))] whitespace-nowrap">
+              {t('common.page')} {toPersianNum(String(page))} / {toPersianNum(String(totalPages))}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page >= totalPages || isFetching}
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            >
+              {t('common.next')}
+            </Button>
+          </div>
+        </div>
+      )}
+
       <ConfirmDialog
         open={!!deleteTarget}
         title={t('sessions.deleteTitle')}
