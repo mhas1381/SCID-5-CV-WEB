@@ -3,6 +3,9 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
 
+/** Cloud backend (Vercel) used automatically for production builds. */
+const PRODUCTION_API_URL = 'https://smart-scid-5-cv.vercel.app'
+
 /** Base Content-Security-Policy injected into the built HTML. */
 function securityHeadersPlugin(apiBase?: string): Plugin {
   return {
@@ -50,7 +53,12 @@ function securityHeadersPlugin(apiBase?: string): Plugin {
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
-  const apiBase = env.VITE_API_URL as string | undefined
+  // Same resolution as src/config.ts: explicit env var wins, otherwise
+  // production builds fall back to the cloud backend (so the CSP
+  // connect-src allows cross-origin API calls without extra setup).
+  const apiBase =
+    (env.VITE_API_URL as string | undefined) ||
+    (mode === 'production' ? PRODUCTION_API_URL : '')
   return {
     plugins: [react(), tailwindcss(), securityHeadersPlugin(apiBase)],
     resolve: {
