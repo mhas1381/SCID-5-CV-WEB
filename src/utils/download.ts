@@ -1,12 +1,13 @@
 import { apiUrl } from '@/config'
+import { readTokens } from '@/utils/tokenStorage'
 
 export async function downloadSessionPdf(
   sessionId: number,
   fallbackName?: string,
 ): Promise<void> {
-  const token = localStorage.getItem('access_token')
+  const { access } = readTokens()
   const resp = await fetch(apiUrl(`/v1/interviews/sessions/${sessionId}/pdf/`), {
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    headers: access ? { Authorization: `Bearer ${access}` } : {},
   })
 
   if (!resp.ok) {

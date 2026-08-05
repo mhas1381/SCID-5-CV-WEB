@@ -10,6 +10,7 @@ import { useCompleteProfileMutation, useGetMeQuery } from '@/store/api/authApi'
 import { useUpdateProfileMutation } from '@/store/api/profileApi'
 import { useAppDispatch, useAppSelector } from '@/hooks/useAppStore'
 import { setCredentials, logout } from '@/store/slices/authSlice'
+import type { AuthTokens } from '@/types'
 import { getErrorMessage } from '@/utils/error'
 import { toEnglishDigits } from '@/utils/string'
 
@@ -17,8 +18,8 @@ const otpSchema = z.object({
   first_name: z.string().min(1, 'نام الزامی است'),
   last_name: z.string().min(1, 'نام خانوادگی الزامی است'),
   email: z.string().email('ایمیل معتبر وارد کنید').min(1, 'ایمیل الزامی است'),
-  password: z.string().min(8, 'رمز عبور باید حداقل ۸ کاراکتر باشد'),
-  confirm_password: z.string().min(8, 'تکرار رمز عبور باید حداقل ۸ کاراکتر باشد'),
+  password: z.string().min(10, 'رمز عبور باید حداقل ۱۰ کاراکتر باشد'),
+  confirm_password: z.string().min(10, 'تکرار رمز عبور باید حداقل ۱۰ کاراکتر باشد'),
 }).refine((data) => data.password === data.confirm_password, {
   message: 'رمز عبور و تکرار آن یکسان نیستند',
   path: ['confirm_password'],
@@ -60,11 +61,12 @@ export function CompleteRegistrationPage() {
   }))
 
   const isGoogle = (location.state as any)?.isGoogle
-  const googleUser = (location.state as any)?.user
+  const googleUser = authUser
   const statePhone = (location.state as any)?.phone
-  const stateTokens = (location.state as any)?.tokens
   const phone = statePhone || authUser?.phone_number || ''
-  const tokens = stateTokens || (authTokens.access ? authTokens : null)
+  const tokens: AuthTokens | null = authTokens.access && authTokens.refresh
+    ? { access: authTokens.access, refresh: authTokens.refresh }
+    : null
 
   const serverImage = googleUser?.profile_image
   const profileImageSrc = useMemo(() => {
@@ -124,7 +126,7 @@ export function CompleteRegistrationPage() {
 
       dispatch(setCredentials({
         user: result.user,
-        tokens: tokens,
+        tokens: tokens!,
       }))
 
       setSuccess(true)
@@ -271,6 +273,7 @@ export function CompleteRegistrationPage() {
                 label={t('auth.phoneNumber')}
                 placeholder={t('auth.phonePlaceholder')}
                 dir="ltr"
+                autoComplete="tel"
                 error={googleForm.formState.errors.phone_number?.message}
                 {...googleForm.register('phone_number')}
               />

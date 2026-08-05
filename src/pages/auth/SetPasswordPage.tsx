@@ -10,8 +10,8 @@ import { useSetPasswordMutation } from '@/store/api/authApi'
 import { getErrorMessage } from '@/utils/error'
 
 const passwordSchema = z.object({
-  password: z.string().min(6, 'رمز عبور حداقل ۶ کاراکتر'),
-  confirm_password: z.string().min(6, 'تکرار رمز عبور'),
+  password: z.string().min(10, 'رمز عبور حداقل ۱۰ کاراکتر'),
+  confirm_password: z.string().min(10, 'تکرار رمز عبور'),
 }).refine((data) => data.password === data.confirm_password, {
   message: 'رمز عبور و تکرار آن باید یکسان باشند',
   path: ['confirm_password'],
@@ -103,6 +103,7 @@ export function SetPasswordPage() {
               label={t('auth.password')}
               type={showPassword ? 'text' : 'password'}
               placeholder={t('auth.passwordMinLength')}
+              autoComplete="new-password"
               error={errors.password?.message}
               endAdornment={
                 <button
@@ -124,6 +125,7 @@ export function SetPasswordPage() {
               label={t('auth.confirmPassword')}
               type={showConfirmPass ? 'text' : 'password'}
               placeholder={t('auth.confirmPassword')}
+              autoComplete="new-password"
               error={errors.confirm_password?.message}
               endAdornment={
                 <button

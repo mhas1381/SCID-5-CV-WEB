@@ -84,7 +84,7 @@ export function SettingsPage() {
       toast.error(t('settings.passwordsMismatch'))
       return
     }
-    if (newPassword.length < 8) {
+    if (newPassword.length < 10) {
       toast.error(t('settings.passwordMinLength'))
       return
     }
@@ -108,7 +108,7 @@ export function SettingsPage() {
       toast.error(t('settings.passwordsMismatch'))
       return
     }
-    if (setPass.length < 8) {
+    if (setPass.length < 10) {
       toast.error(t('settings.passwordMinLength'))
       return
     }
@@ -149,7 +149,7 @@ export function SettingsPage() {
       toast.error(t('settings.passwordsMismatch'))
       return
     }
-    if (forgotPass.length < 8) {
+    if (forgotPass.length < 10) {
       toast.error(t('settings.passwordMinLength'))
       return
     }
@@ -192,6 +192,7 @@ export function SettingsPage() {
                 type={showCurrent ? 'text' : 'password'}
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
+                autoComplete="current-password"
                 endAdornment={
                   <button
                     type="button"
@@ -207,6 +208,7 @@ export function SettingsPage() {
                 type={showNew ? 'text' : 'password'}
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
+                autoComplete="new-password"
                 endAdornment={
                   <button
                     type="button"
@@ -223,6 +225,7 @@ export function SettingsPage() {
                 type={showConfirm ? 'text' : 'password'}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
+                autoComplete="new-password"
                 endAdornment={
                   <button
                     type="button"
@@ -247,6 +250,7 @@ export function SettingsPage() {
                 type={showNew ? 'text' : 'password'}
                 value={setPass}
                 onChange={(e) => setSetPass(e.target.value)}
+                autoComplete="new-password"
                 endAdornment={
                   <button
                     type="button"
@@ -263,6 +267,7 @@ export function SettingsPage() {
                 type={showConfirm ? 'text' : 'password'}
                 value={setConfirmPass}
                 onChange={(e) => setSetConfirmPass(e.target.value)}
+                autoComplete="new-password"
                 endAdornment={
                   <button
                     type="button"
@@ -314,6 +319,8 @@ export function SettingsPage() {
                   value={otpCode}
                   onChange={(e) => setOtpCode(e.target.value)}
                   placeholder="12345"
+                  autoComplete="one-time-code"
+                  inputMode="numeric"
                   className="flex-1"
                 />
                 <Button onClick={handleVerifyOTP} isLoading={verifyingOTP} className="mt-6">
@@ -344,6 +351,7 @@ export function SettingsPage() {
                 type={showNew ? 'text' : 'password'}
                 value={forgotPass}
                 onChange={(e) => setForgotPass(e.target.value)}
+                autoComplete="new-password"
                 endAdornment={
                   <button
                     type="button"
@@ -360,6 +368,7 @@ export function SettingsPage() {
                 type={showConfirm ? 'text' : 'password'}
                 value={forgotConfirmPass}
                 onChange={(e) => setForgotConfirmPass(e.target.value)}
+                autoComplete="new-password"
                 endAdornment={
                   <button
                     type="button"

@@ -92,7 +92,7 @@ export function LoginPage() {
       setTimeout(() => {
         if (!result.user.has_password || result.user.phone_number?.startsWith('0990')) {
           navigate('/complete-registration', {
-            state: { isGoogle: true, user: result.user },
+            state: { isGoogle: true },
           })
         } else {
           navigate('/dashboard')
@@ -141,16 +141,14 @@ export function LoginPage() {
 
       const targetPath = result.is_new_user ? '/complete-registration' : '/dashboard'
       isLoggingInRef.current = true
-      const access = result.access
-      const refresh = result.refresh
       dispatch(setCredentials({
         user: result.user,
-        tokens: { access, refresh },
+        tokens: { access: result.access, refresh: result.refresh },
       }))
       setTimeout(() => {
         navigate(targetPath, {
           replace: true,
-          state: { phone: phoneNumber, tokens: { access, refresh } },
+          state: { phone: phoneNumber },
         })
         isLoggingInRef.current = false
       }, 0)
@@ -252,6 +250,7 @@ export function LoginPage() {
                 label={t('auth.phoneNumber')}
                 placeholder={t('auth.phonePlaceholder')}
                 dir="ltr"
+                autoComplete="tel"
                 className="text-center text-lg py-3"
                 error={phoneForm.formState.errors.phone_number?.message}
                 {...phoneForm.register('phone_number')}
@@ -287,6 +286,8 @@ export function LoginPage() {
                 label={t('auth.otpCode')}
                 placeholder={t('auth.otpPlaceholder')}
                 dir="ltr"
+                autoComplete="one-time-code"
+                inputMode="numeric"
                 className="text-center text-2xl tracking-[1em] py-4"
                 maxLength={5}
                 error={otpForm.formState.errors.otp_code?.message}
@@ -322,6 +323,7 @@ export function LoginPage() {
                 label={t('auth.phoneNumber')}
                 placeholder={t('auth.phonePlaceholder')}
                 dir="ltr"
+                autoComplete="username"
                 className="text-lg py-3"
                 error={passwordForm.formState.errors.phone_number?.message}
                 {...passwordForm.register('phone_number')}
@@ -332,6 +334,7 @@ export function LoginPage() {
                 label={t('auth.password')}
                 placeholder={t('auth.password')}
                 type="password"
+                autoComplete="current-password"
                 className="text-lg py-3"
                 error={passwordForm.formState.errors.password?.message}
                 {...passwordForm.register('password')}

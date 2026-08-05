@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit'
 import type { User, AuthTokens } from '@/types'
+import { readTokens, writeTokens, clearTokens } from '@/utils/tokenStorage'
 
 interface AuthState {
   user: User | null
@@ -10,11 +11,13 @@ interface AuthState {
   error: string | null
 }
 
+const persisted = readTokens()
+
 const initialState: AuthState = {
   user: null,
-  accessToken: localStorage.getItem('access_token'),
-  refreshToken: localStorage.getItem('refresh_token'),
-  isAuthenticated: !!localStorage.getItem('access_token'),
+  accessToken: persisted.access,
+  refreshToken: persisted.refresh,
+  isAuthenticated: !!persisted.access,
   isLoading: false,
   error: null,
 }
@@ -30,8 +33,7 @@ const authSlice = createSlice({
       state.refreshToken = tokens.refresh
       state.isAuthenticated = true
       state.error = null
-      localStorage.setItem('access_token', tokens.access)
-      localStorage.setItem('refresh_token', tokens.refresh)
+      writeTokens({ access: tokens.access, refresh: tokens.refresh })
     },
     setUser: (state, action: PayloadAction<User>) => {
       state.user = action.payload
@@ -39,16 +41,14 @@ const authSlice = createSlice({
     setTokens: (state, action: PayloadAction<AuthTokens>) => {
       state.accessToken = action.payload.access
       state.refreshToken = action.payload.refresh
-      localStorage.setItem('access_token', action.payload.access)
-      localStorage.setItem('refresh_token', action.payload.refresh)
+      writeTokens({ access: action.payload.access, refresh: action.payload.refresh })
     },
     logout: (state) => {
       state.user = null
       state.accessToken = null
       state.refreshToken = null
       state.isAuthenticated = false
-      localStorage.removeItem('access_token')
-      localStorage.removeItem('refresh_token')
+      clearTokens()
     },
     setError: (state, action: PayloadAction<string | null>) => {
       state.error = action.payload
