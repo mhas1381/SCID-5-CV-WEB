@@ -3,8 +3,11 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
 
-/** Cloud backend (Vercel) used automatically for production builds. */
-const PRODUCTION_API_URL = 'https://smart-scid-5-cv.vercel.app'
+/** Cloud backend (Vercel) used automatically for production builds.
+ * Must include the "/api" prefix so the app calls /api/v1/... (kept in
+ * sync with src/config.ts). Only the origin is used for the CSP.
+ */
+const PRODUCTION_API_URL = 'https://smart-scid-5-cv.vercel.app/api'
 
 /** Base Content-Security-Policy injected into the built HTML. */
 function securityHeadersPlugin(apiBase?: string): Plugin {

@@ -1,5 +1,8 @@
-/** Cloud backend (Vercel) used automatically for production builds. */
-const PRODUCTION_API_URL = 'https://smart-scid-5-cv.vercel.app'
+/** Cloud backend (Vercel) used automatically for production builds.
+ * Must include the "/api" prefix: endpoint paths start with "/v1/..." so
+ * apiUrl() produces https://smart-scid-5-cv.vercel.app/api/v1/...
+ */
+const PRODUCTION_API_URL = 'https://smart-scid-5-cv.vercel.app/api'
 
 function resolveApiBase(): string {
   const envApiBase = import.meta.env.VITE_API_URL as string | undefined
