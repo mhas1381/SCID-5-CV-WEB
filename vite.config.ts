@@ -1,6 +1,7 @@
 import { defineConfig, type Plugin, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+import { VitePWA } from 'vite-plugin-pwa'
 import path from 'path'
 
 /** Cloud backend (Vercel) used automatically for production builds.
@@ -63,7 +64,54 @@ export default defineConfig(({ mode }) => {
     (env.VITE_API_URL as string | undefined) ||
     (mode === 'production' ? PRODUCTION_API_URL : '')
   return {
-    plugins: [react(), tailwindcss(), securityHeadersPlugin(apiBase)],
+    plugins: [
+      react(),
+      tailwindcss(),
+      securityHeadersPlugin(apiBase),
+      VitePWA({
+        registerType: 'autoUpdate',
+        // External registerSW.js (same-origin) so the injected script stays
+        // allowed by the strict `script-src 'self'` CSP in index.html.
+        injectRegister: 'script',
+        includeAssets: [
+          'favicon.svg',
+          'favicon-16x16.png',
+          'favicon-32x32.png',
+          'apple-touch-icon.png',
+        ],
+        manifest: {
+          name: 'SCID-5-CV',
+          short_name: 'SCID-5',
+          id: '/',
+          description: 'مصاحبه ساختاریافته SCID-5-CV',
+          lang: 'fa',
+          dir: 'rtl',
+          start_url: '/',
+          scope: '/',
+          display: 'standalone',
+          orientation: 'portrait',
+          theme_color: '#4f14e8',
+          background_color: '#ffffff',
+          icons: [
+            { src: '/pwa-192x192.png', sizes: '192x192', type: 'image/png' },
+            { src: '/pwa-512x512.png', sizes: '512x512', type: 'image/png' },
+            {
+              src: '/pwa-maskable-512x512.png',
+              sizes: '512x512',
+              type: 'image/png',
+              purpose: 'maskable',
+            },
+          ],
+        },
+        workbox: {
+          globPatterns: ['**/*.{js,css,html,svg,png,woff,woff2}'],
+          maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+          navigateFallback: '/index.html',
+          // Never cache API/media responses (clinical data) in the SW.
+          navigateFallbackDenylist: [/^\/api\//, /^\/media\//],
+        },
+      }),
+    ],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),

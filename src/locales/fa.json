@@ -660,5 +660,9 @@
     "lastNameMin": "نام خانوادگی حداقل ۲ کاراکتر",
     "nationalIdLength": "کد ملی ۱۰ رقم",
     "phoneMin": "شماره تماس معتبر"
+  },
+  "pwa": {
+    "install": "نصب برنامه",
+    "installPrompt": "برنامه SCID-5-CV را روی دستگاه خود نصب کنید"
   }
 }

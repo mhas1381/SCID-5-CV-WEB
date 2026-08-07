@@ -19,6 +19,7 @@ import { useGetMeQuery } from '@/store/api/authApi'
 import { useGetProfileQuery } from '@/store/api/profileApi'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { ThemeToggle } from './ThemeToggle'
+import { InstallPWAButton } from './InstallPWAButton'
 import { logout } from '@/store/slices/authSlice'
 
 interface SidebarProps {
@@ -130,6 +131,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
             <span className="flex-1">{t('nav.adminPanel')}</span>
           </NavLink>
         )}
+        <InstallPWAButton />
         <Button
           variant="ghost"
           className="w-full justify-start text-[hsl(var(--muted-foreground))]"

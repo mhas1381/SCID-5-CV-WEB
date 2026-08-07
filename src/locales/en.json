@@ -660,5 +660,9 @@
     "lastNameMin": "Last name must be at least 2 characters",
     "nationalIdLength": "National ID must be 10 digits",
     "phoneMin": "Enter a valid phone number"
+  },
+  "pwa": {
+    "install": "Install App",
+    "installPrompt": "Install the SCID-5-CV app on your device"
   }
 }
