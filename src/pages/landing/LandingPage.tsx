@@ -113,6 +113,9 @@ export function LandingPage() {
           </div>
           <div className="flex items-center gap-1.5">
             <ThemeToggle />
+            <Button variant="ghost" onClick={() => navigate('/about')}>
+              درباره ما
+            </Button>
             <div className="h-5 w-px bg-[hsl(var(--border))] mx-0.5" />
             <Button onClick={() => navigate('/login')}>
               شروع کنید
