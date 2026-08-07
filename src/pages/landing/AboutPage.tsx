@@ -93,15 +93,15 @@ export function AboutPage() {
 
       {/* ── Hero ── */}
       <section className="relative overflow-hidden">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20 text-center">
-          <div className="flex justify-center mb-6">
-            <div className="rounded-2xl bg-[hsl(var(--primary))]/10 p-4">
-              <GraduationCap className="h-14 w-14 text-[hsl(var(--primary))]" />
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 text-center">
+          <div className="flex justify-center mb-4">
+            <div className="rounded-2xl bg-[hsl(var(--primary))]/10 p-3">
+              <GraduationCap className="h-10 w-10 text-[hsl(var(--primary))]" />
             </div>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold leading-tight">درباره ما</h1>
-          <p className="text-lg text-[hsl(var(--muted-foreground))] mt-3 font-medium">About Us</p>
-          <p className="text-base text-[hsl(var(--muted-foreground))] mt-6 max-w-2xl mx-auto leading-relaxed">
+          <h1 className="text-3xl md:text-4xl font-bold leading-tight">درباره ما</h1>
+          <p className="text-base text-[hsl(var(--muted-foreground))] mt-2 font-medium">About Us</p>
+          <p className="text-sm sm:text-base text-[hsl(var(--muted-foreground))] mt-4 max-w-2xl mx-auto leading-relaxed">
             سامانه هوشمند مصاحبه بالینی SCID-5-CV با ترکیب دانش روان‌شناسی بالینی و فناوری
             مهندسی نرم‌افزار طراحی شده است تا ابزاری دقیق و در دسترس برای انجام مصاحبه‌های
             ساختاریافته بر اساس معیارهای DSM-5 در اختیار درمانگران قرار دهد.
@@ -111,7 +111,7 @@ export function AboutPage() {
 
       {/* ── Team ── */}
       <section className="border-y border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
           <div className="text-center mb-14 md:mb-20">
             <h2 className="text-3xl md:text-5xl font-bold">تیم سامانه</h2>
             <p className="text-[hsl(var(--muted-foreground))] mt-3 text-base md:text-lg">
@@ -165,8 +165,8 @@ export function AboutPage() {
 
       {/* ── Values ── */}
       <section>
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="text-center mb-12">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+          <div className="text-center mb-8">
             <h2 className="text-2xl md:text-3xl font-bold">ارزش‌های ما</h2>
             <p className="text-[hsl(var(--muted-foreground))] mt-2 text-base">
               آنچه در مسیر توسعه این سامانه به آن پایبند بوده‌ایم

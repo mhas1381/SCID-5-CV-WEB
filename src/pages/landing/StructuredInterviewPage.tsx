@@ -106,15 +106,15 @@ export function StructuredInterviewPage() {
 
       {/* ── Hero ── */}
       <section className="relative overflow-hidden">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20 text-center">
-          <div className="flex justify-center mb-6">
-            <div className="rounded-2xl bg-[hsl(var(--primary))]/10 p-4">
-              <History className="h-14 w-14 text-[hsl(var(--primary))]" />
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 text-center">
+          <div className="flex justify-center mb-4">
+            <div className="rounded-2xl bg-[hsl(var(--primary))]/10 p-3">
+              <History className="h-10 w-10 text-[hsl(var(--primary))]" />
             </div>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold leading-tight">مصاحبه بالینی ساختاریافته</h1>
-          <p className="text-lg text-[hsl(var(--muted-foreground))] mt-3 font-medium">Structured Clinical Interview</p>
-          <p className="text-base text-[hsl(var(--muted-foreground))] mt-6 max-w-2xl mx-auto leading-relaxed">
+          <h1 className="text-3xl md:text-4xl font-bold leading-tight">مصاحبه بالینی ساختاریافته</h1>
+          <p className="text-base text-[hsl(var(--muted-foreground))] mt-2 font-medium">Structured Clinical Interview</p>
+          <p className="text-sm sm:text-base text-[hsl(var(--muted-foreground))] mt-4 max-w-2xl mx-auto leading-relaxed">
             آشنایی با SCID-5-CV و نحوه کارکرد سامانه هوشمند مصاحبه بالینی — از معرفی علمی تا گام‌های عملی ارزیابی و تشخیص.
           </p>
         </div>
@@ -122,8 +122,8 @@ export function StructuredInterviewPage() {
 
       {/* ── Scientific Intro ── */}
       <section className="border-y border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-sm">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20">
-          <div className="mb-12">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+          <div className="mb-8">
             <h2 className="text-2xl md:text-4xl font-bold">مصاحبه ساختاریافته چیست؟</h2>
             <p className="text-[hsl(var(--muted-foreground))] mt-3 text-base md:text-lg leading-relaxed">
               مصاحبه بالینی ساختاریافته، روشی نظام‌مند برای جمع‌آوری نشانه‌ها و علائم روان‌پزشکی است که در آن
@@ -149,7 +149,7 @@ export function StructuredInterviewPage() {
 
       {/* ── SCID-5-CV Intro ── */}
       <section>
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
           <div className="text-center mb-12">
             <h2 className="text-2xl md:text-4xl font-bold">SCID-5-CV چیست؟</h2>
             <p className="text-[hsl(var(--muted-foreground))] mt-3 text-base md:text-lg max-w-2xl mx-auto">
@@ -197,7 +197,7 @@ export function StructuredInterviewPage() {
 
       {/* ── Modules ── */}
       <section className="border-y border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
           <div className="text-center mb-12">
             <h2 className="text-2xl md:text-4xl font-bold">ساختار سامانه؛ ماژول‌ها</h2>
             <p className="text-[hsl(var(--muted-foreground))] mt-3 text-base md:text-lg">
@@ -238,7 +238,7 @@ export function StructuredInterviewPage() {
 
       {/* ── How It Works ── */}
       <section>
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
           <div className="text-center mb-12">
             <h2 className="text-2xl md:text-4xl font-bold">سامانه چطور کار می‌کند؟</h2>
             <p className="text-[hsl(var(--muted-foreground))] mt-3 text-base md:text-lg">
@@ -266,7 +266,7 @@ export function StructuredInterviewPage() {
 
       {/* ── Algorithm ── */}
       <section className="border-y border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-sm">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
           <div className="text-center mb-12">
             <h2 className="text-2xl md:text-4xl font-bold">الگوریتم تشخیصی</h2>
             <p className="text-[hsl(var(--muted-foreground))] mt-3 text-base md:text-lg">

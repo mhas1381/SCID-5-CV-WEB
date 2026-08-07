@@ -59,10 +59,10 @@ export function Sidebar({ open, onClose }: SidebarProps) {
       )}
     >
       <div className="flex items-center justify-between border-b border-[hsl(var(--border))] px-4 py-3">
-        <div className="flex items-center gap-2">
+        <NavLink to="/" onClick={onClose} className="flex items-center gap-2">
           <Brain className="h-6 w-6 text-[hsl(var(--primary))]" />
           <span className="text-lg font-bold">SCID-5-CV</span>
-        </div>
+        </NavLink>
         <div className="flex items-center gap-1">
           <ThemeToggle />
           <LanguageSwitcher />

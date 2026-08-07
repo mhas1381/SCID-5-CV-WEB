@@ -1,7 +1,7 @@
-import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Brain, ClipboardList, ShieldCheck, BarChart3, Users, Languages, Lock, ArrowLeft, ChevronLeft, GraduationCap } from 'lucide-react'
+import { Brain, ClipboardList, ShieldCheck, BarChart3, Users, Languages, Lock, 
+  ArrowLeft, ChevronLeft, GraduationCap, User } from 'lucide-react'
 import { Button, Card, CardContent } from '@/components/ui'
 import { ThemeToggle } from '@/components/layout/ThemeToggle'
 import { useAppSelector } from '@/hooks/useAppStore'
@@ -88,21 +88,15 @@ const steps = [
 export function LandingPage() {
   const navigate = useNavigate()
   const { i18n } = useTranslation()
-  const { isAuthenticated } = useAppSelector((state) => state.auth)
+  const { isAuthenticated, user } = useAppSelector((state) => state.auth)
   const isRtl = i18n.language === 'fa'
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/dashboard', { replace: true })
-    }
-  }, [isAuthenticated, navigate])
 
   return (
     <div className="min-h-screen flex flex-col">
       {/* ── Header ── */}
       <header className="border-b border-[var(--glass-border)] sticky top-0 bg-[var(--glass-bg)] backdrop-blur-xl z-50 shadow-[var(--glass-shadow)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
+          <button type="button" onClick={() => navigate('/')} className="flex items-center gap-2.5 text-start">
             <div className="rounded-lg bg-[hsl(var(--primary))]/10 p-1.5">
               <Brain className="h-6 w-6 text-[hsl(var(--primary))]" />
             </div>
@@ -110,7 +104,7 @@ export function LandingPage() {
               <span className="text-base font-bold">SCID-5-CV</span>
               <span className="text-[10px] text-[hsl(var(--muted-foreground))] hidden sm:block">Smart Clinical Interview</span>
             </div>
-          </div>
+          </button>
           <div className="flex items-center gap-1.5">
             <ThemeToggle />
             <Button variant="ghost" onClick={() => navigate('/structured-interview')}>
@@ -120,10 +114,17 @@ export function LandingPage() {
               درباره ما
             </Button>
             <div className="h-5 w-px bg-[hsl(var(--border))] mx-0.5" />
-            <Button onClick={() => navigate('/login')}>
-              شروع کنید
-              <ArrowLeft className={`${isRtl ? 'mr-1.5' : 'ml-1.5'} h-4 w-4`} />
-            </Button>
+            {isAuthenticated ? (
+              <Button onClick={() => navigate('/dashboard')}>
+                <User className={`${isRtl ? 'ml-1.5' : 'mr-1.5'} h-4 w-4`} />
+                {user?.first_name || user?.phone_number || 'پروفایل'}
+              </Button>
+            ) : (
+              <Button onClick={() => navigate('/login')}>
+                شروع کنید
+                <ArrowLeft className={`${isRtl ? 'mr-1.5' : 'ml-1.5'} h-4 w-4`} />
+              </Button>
+            )}
           </div>
         </div>
       </header>

@@ -49,7 +49,7 @@ function AdminSidebar({ open, onClose }: AdminSidebarProps) {
       )}
     >
       <div className="flex items-center justify-between border-b border-[hsl(var(--border))] px-4 py-3">
-        <div className="flex items-center gap-2">
+        <NavLink to="/" onClick={onClose} className="flex items-center gap-2">
           <ShieldCheck className="h-6 w-6 text-[hsl(var(--primary))]" />
           <div>
             <span className="block text-sm font-bold leading-tight">SCID-5-CV</span>
@@ -57,7 +57,7 @@ function AdminSidebar({ open, onClose }: AdminSidebarProps) {
               {t('admin.title')}
             </span>
           </div>
-        </div>
+        </NavLink>
         <div className="flex items-center gap-0.5">
           <ThemeToggle />
           <LanguageSwitcher />
