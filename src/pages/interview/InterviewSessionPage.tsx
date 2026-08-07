@@ -17,12 +17,49 @@ import { useElapsedTime } from '@/hooks/useElapsedTime'
 import { SessionTimerText } from '@/components/interview/SessionTimerText'
 import { useAbandonOnExit } from '@/hooks/useAbandonOnExit'
 import { Button, Card, CardHeader, CardTitle, CardContent, PageLoader, LoadingSpinner } from '@/components/ui'
-import { AlertCircle, CheckCircle, ArrowLeft, ChevronRight, FileText, Play, History } from 'lucide-react'
+import { AlertCircle, CheckCircle, XCircle, ArrowLeft, ChevronRight, FileText, Play, History } from 'lucide-react'
 import { cn } from '@/utils/cn'
 import { getErrorMessage } from '@/utils/error'
 import { toEnglishDigits } from '@/utils/string'
 import type { Question, ReviewResponse, SubmitAnswerRequest, SessionResponse } from '@/types'
 import { ReviewHistoryModal } from './ReviewHistoryModal'
+
+type QuestionBlock =
+  | { kind: 'main'; text: string }
+  | { kind: 'followup'; text: string }
+  | { kind: 'if'; flavor: 'yes' | 'no' | 'other'; label: string; text: string }
+
+const IF_NO_PATTERN = /^(اگر\s+خیر|if\s+no)/i
+const IF_YES_PATTERN = /^(اگر\s+بله|if\s+yes)/i
+const IF_PATTERN = /^(اگر|if)/i
+
+function parseQuestionBlocks(text: string): QuestionBlock[] {
+  const lines = text
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean)
+
+  if (lines.length === 0) return []
+
+  const blocks: QuestionBlock[] = [{ kind: 'main', text: lines[0] }]
+
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i]
+    if (IF_PATTERN.test(line)) {
+      const labelMatch = line.match(/^[^:：]+/)
+      const label = labelMatch ? labelMatch[0].trim() : line
+      let flavor: 'yes' | 'no' | 'other' = 'other'
+      if (IF_YES_PATTERN.test(line)) flavor = 'yes'
+      else if (IF_NO_PATTERN.test(line)) flavor = 'no'
+      const text = line.slice(label.length).replace(/^[:：]\s*/, '')
+      blocks.push({ kind: 'if', flavor, label, text })
+    } else {
+      blocks.push({ kind: 'followup', text: line })
+    }
+  }
+
+  return blocks
+}
 
 export function InterviewSessionPage() {
   const { id } = useParams<{ id: string }>()
@@ -367,21 +404,31 @@ export function InterviewSessionPage() {
 
   const q = currentQuestion
   const questionText = isRtl && q.text_fa ? q.text_fa : q.text
+  const questionBlocks = parseQuestionBlocks(questionText).filter((b) => b.kind !== 'main')
+  const questionMainText = parseQuestionBlocks(questionText).find((b) => b.kind === 'main')?.text ?? questionText
   const criteriaText =
     isRtl && q.criteria_text_fa ? q.criteria_text_fa : q.criteria_text
 
   // Parse criteria text into parts
   let criteriaPart = ''
   let notePart = ''
+  let criteriaCode = ''
   if (criteriaText) {
     const noteMarker = isRtl ? 'نکته:' : 'Note:'
     const noteIdx = criteriaText.indexOf(noteMarker)
+    let crit = ''
     if (noteIdx !== -1) {
-      criteriaPart = criteriaText.slice(0, noteIdx).trim().replace(/^معیار:\s*/i, '').trim()
+      crit = criteriaText.slice(0, noteIdx).trim().replace(/^معیار:\s*/i, '').trim()
       notePart = criteriaText.slice(noteIdx + noteMarker.length).trim()
     } else {
-      criteriaPart = criteriaText.replace(/^معیار:\s*/i, '').trim()
+      crit = criteriaText.replace(/^معیار:\s*/i, '').trim()
     }
+    const codeMatch = crit.match(/^([A-Z][0-9]+[a-z]?\.)\s*/)
+    if (codeMatch) {
+      criteriaCode = codeMatch[1].replace(/\.$/, '')
+      crit = crit.slice(codeMatch[0].length).trim()
+    }
+    criteriaPart = crit
   }
 
   const options = q.response_options || []
@@ -396,13 +443,68 @@ export function InterviewSessionPage() {
     return (
       <Card className="flex-1 flex flex-col min-h-0 overflow-hidden" data-testid="review-card">
         <CardHeader className="overflow-y-auto flex-1 min-h-0">
-          <div className="flex items-start justify-between gap-2">
-            <CardTitle className="text-2xl leading-relaxed whitespace-pre-line">
-              {rqText}
-            </CardTitle>
-            <span className="shrink-0 text-xs text-[hsl(var(--muted-foreground))] font-mono">
-              {rq.question_id}
-            </span>
+          <div className="space-y-3">
+            <div className="flex items-start justify-between gap-2">
+              <CardTitle className="flex-1 min-w-0 text-2xl leading-relaxed whitespace-pre-line">
+                {parseQuestionBlocks(rqText).find((b) => b.kind === 'main')?.text ?? rqText}
+              </CardTitle>
+              <span className="shrink-0 text-xs text-[hsl(var(--muted-foreground))] font-mono">
+                {rq.question_id}
+              </span>
+            </div>
+            {parseQuestionBlocks(rqText)
+              .filter((b) => b.kind !== 'main')
+              .map((block, idx) => {
+                if (block.kind === 'if') {
+                  const isYes = block.flavor === 'yes'
+                  const isNo = block.flavor === 'no'
+                  return (
+                    <div
+                      key={idx}
+                      className={cn(
+                        'flex items-start gap-3 rounded-lg border-2 p-4',
+                        isYes
+                          ? 'border-emerald-400 bg-emerald-50 dark:border-emerald-600 dark:bg-emerald-950/40'
+                          : isNo
+                          ? 'border-red-400 bg-red-50 dark:border-red-600 dark:bg-red-950/40'
+                          : 'border-orange-400 bg-orange-50 dark:border-orange-600 dark:bg-orange-950/40'
+                      )}
+                    >
+                      <div className="shrink-0 mt-0.5">
+                        {isYes ? (
+                          <CheckCircle className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+                        ) : isNo ? (
+                          <XCircle className="h-6 w-6 text-red-600 dark:text-red-400" />
+                        ) : (
+                          <AlertCircle className="h-6 w-6 text-orange-600 dark:text-orange-400" />
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <span
+                          className={cn(
+                            'inline-flex items-center rounded px-2 py-0.5 text-sm font-bold',
+                            isYes
+                              ? 'bg-emerald-500 text-white dark:bg-emerald-600'
+                              : isNo
+                              ? 'bg-red-500 text-white dark:bg-red-600'
+                              : 'bg-orange-500 text-white dark:bg-orange-600'
+                          )}
+                        >
+                          {block.label}
+                        </span>
+                        <p className="mt-2 text-lg text-[hsl(var(--foreground))] leading-relaxed whitespace-pre-line">
+                          {block.text}
+                        </p>
+                      </div>
+                    </div>
+                  )
+                }
+                return (
+                  <p key={idx} className="text-base text-[hsl(var(--muted-foreground))] leading-relaxed whitespace-pre-line">
+                    {block.text}
+                  </p>
+                )
+              })}
           </div>
           <div className="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-200">
             <div className="flex items-center gap-2 font-semibold">
@@ -566,13 +668,66 @@ export function InterviewSessionPage() {
       {/* Question Card — fills remaining space */}
       <Card className="flex-1 flex flex-col min-h-0 overflow-hidden">
         <CardHeader className="overflow-y-auto flex-1 min-h-0">
-          <div className="flex items-start justify-between gap-2">
-            <CardTitle className="text-2xl leading-relaxed whitespace-pre-line">
-              {questionText}
-            </CardTitle>
-            <span className="shrink-0 text-xs text-[hsl(var(--muted-foreground))] font-mono">
-              {q.question_id}
-            </span>
+          <div className="space-y-3">
+            <div className="flex items-start gap-2">
+              <CardTitle className="flex-1 min-w-0 text-2xl leading-relaxed whitespace-pre-line">
+                {questionMainText}
+              </CardTitle>
+              <span className="shrink-0 text-xs text-[hsl(var(--muted-foreground))] font-mono">
+                {q.question_id}
+              </span>
+            </div>
+            {questionBlocks.map((block, idx) => {
+              if (block.kind === 'if') {
+                const isYes = block.flavor === 'yes'
+                const isNo = block.flavor === 'no'
+                return (
+                  <div
+                    key={idx}
+                    className={cn(
+                      'flex items-start gap-3 rounded-lg border-2 p-4',
+                      isYes
+                        ? 'border-emerald-400 bg-emerald-50 dark:border-emerald-600 dark:bg-emerald-950/40'
+                        : isNo
+                        ? 'border-red-400 bg-red-50 dark:border-red-600 dark:bg-red-950/40'
+                        : 'border-orange-400 bg-orange-50 dark:border-orange-600 dark:bg-orange-950/40'
+                    )}
+                  >
+                    <div className="shrink-0 mt-0.5">
+                      {isYes ? (
+                        <CheckCircle className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+                      ) : isNo ? (
+                        <XCircle className="h-6 w-6 text-red-600 dark:text-red-400" />
+                      ) : (
+                        <AlertCircle className="h-6 w-6 text-orange-600 dark:text-orange-400" />
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <span
+                        className={cn(
+                          'inline-flex items-center rounded px-2 py-0.5 text-sm font-bold',
+                          isYes
+                            ? 'bg-emerald-500 text-white dark:bg-emerald-600'
+                            : isNo
+                            ? 'bg-red-500 text-white dark:bg-red-600'
+                            : 'bg-orange-500 text-white dark:bg-orange-600'
+                        )}
+                      >
+                        {block.label}
+                      </span>
+                      <p className="mt-2 text-lg text-[hsl(var(--foreground))] leading-relaxed whitespace-pre-line">
+                        {block.text}
+                      </p>
+                    </div>
+                  </div>
+                )
+              }
+              return (
+                <p key={idx} className="text-base text-[hsl(var(--muted-foreground))] leading-relaxed whitespace-pre-line">
+                  {block.text}
+                </p>
+              )
+            })}
           </div>
           {(criteriaPart || notePart) && (
             <div className="mt-4 flex flex-row gap-3 items-stretch">
@@ -580,9 +735,16 @@ export function InterviewSessionPage() {
                 <div className="flex-1 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))] overflow-hidden">
                   <div className="h-1 bg-[hsl(var(--muted-foreground))]" />
                   <div className="p-3">
-                    <span className="text-xs font-bold text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
-                      {isRtl ? 'معیار' : 'Criterion'}
-                    </span>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs font-bold text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
+                        {isRtl ? 'معیار' : 'Criterion'}
+                      </span>
+                      {criteriaCode && (
+                        <span className="inline-flex items-center rounded bg-[hsl(var(--primary))]/10 px-2 py-0.5 text-xs font-bold text-[hsl(var(--primary))]">
+                          {criteriaCode}
+                        </span>
+                      )}
+                    </div>
                     <p className="mt-1 text-sm text-[hsl(var(--foreground))] leading-relaxed">
                       {criteriaPart}
                     </p>
