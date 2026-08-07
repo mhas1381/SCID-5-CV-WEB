@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { GoogleLogin } from '@react-oauth/google'
 import type { CredentialResponse } from '@react-oauth/google'
-import { Brain, Smartphone, KeyRound, Globe, ArrowLeft, CheckCircle } from 'lucide-react'
+import { Brain, Smartphone, KeyRound, Globe, ArrowLeft, CheckCircle, Eye, EyeOff } from 'lucide-react'
 import { Button, Input, Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
 import { useSendOTPMutation, useVerifyOTPMutation, useGoogleLoginMutation, usePasswordLoginMutation } from '@/store/api/authApi'
 import { useAppDispatch, useAppSelector } from '@/hooks/useAppStore'
@@ -69,6 +69,7 @@ export function LoginPage() {
   const [otpStep, setOtpStep] = useState<'phone' | 'otp'>('phone')
   const [phoneNumber, setPhoneNumber] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [showPassword, setShowPassword] = useState(false)
 
   const [sendOTP, { isLoading: isSending }] = useSendOTPMutation()
   const [verifyOTP, { isLoading: isVerifying }] = useVerifyOTPMutation()
@@ -333,10 +334,20 @@ export function LoginPage() {
                 id="password_field"
                 label={t('auth.password')}
                 placeholder={t('auth.password')}
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 autoComplete="current-password"
                 className="text-lg py-3"
                 error={passwordForm.formState.errors.password?.message}
+                endAdornment={
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] transition-colors"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                }
                 {...passwordForm.register('password')}
               />
 
