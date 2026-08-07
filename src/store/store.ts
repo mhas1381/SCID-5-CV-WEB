@@ -4,7 +4,10 @@ import { baseApi } from './api/baseApi'
 
 const apiResetMiddleware: import('@reduxjs/toolkit').Middleware = () => (next) => (action) => {
   const result = next(action)
-  if ((action as { type: string }).type === 'auth/logout') {
+  const type = (action as { type: string }).type
+  // Reset the API cache when a new login happens (token changes) or on logout,
+  // so queries refetch with the correct credentials instead of showing stale data.
+  if (type === 'auth/logout' || type === 'auth/setCredentials') {
     next(baseApi.util.resetApiState())
   }
   return result
