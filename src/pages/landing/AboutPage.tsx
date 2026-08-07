@@ -6,6 +6,9 @@ import { ThemeToggle } from '@/components/layout/ThemeToggle'
 
 import asnavandiPic from '@/assets/Asnavandi.png'
 import khazaeiPic from '@/assets/Khazaei.png'
+import khuLogo from '@/assets/khu-logo.png'
+import uscLogo from '@/assets/usc-logo.png'
+import sbuLogo from '@/assets/sbu-logo.svg'
 
 const team = [
   {
@@ -16,8 +19,8 @@ const team = [
     chip: 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300',
     bio: 'کارشناسی مهندسی کامپیوتر از دانشگاه خوارزمی و دانشجوی کارشناسی ارشد روان‌شناسی بالینی دانشگاه علم و فرهنگ. ترکیب دانش مهندسی و روان‌شناسی بالینی را در طراحی این سامانه به‌کار برده است.',
     education: [
-      'کارشناسی مهندسی کامپیوتر — دانشگاه خوارزمی',
-      'کارشناسی ارشد روان‌شناسی بالینی — دانشگاه علم و فرهنگ',
+      { label: 'کارشناسی مهندسی کامپیوتر', university: 'دانشگاه خوارزمی', logo: khuLogo },
+      { label: 'کارشناسی ارشد روان‌شناسی بالینی', university: 'دانشگاه علم و فرهنگ', logo: uscLogo },
     ],
   },
   {
@@ -28,8 +31,8 @@ const team = [
     chip: 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300',
     bio: 'دکتری روان‌شناسی بالینی از دانشگاه شهید بهشتی و عضو هیئت علمی دانشگاه علم و فرهنگ. نظارت علمی و بالینی بر محتوای مصاحبه‌های SCID-5-CV این سامانه بر عهده ایشان بوده است.',
     education: [
-      'دکتری روان‌شناسی بالینی — دانشگاه شهید بهشتی',
-      'عضو هیئت علمی — دانشگاه علم و فرهنگ',
+      { label: 'دکتری روان‌شناسی بالینی', university: 'دانشگاه شهید بهشتی', logo: sbuLogo },
+      { label: 'عضو هیئت علمی', university: 'دانشگاه علم و فرهنگ', logo: uscLogo },
     ],
   },
 ]
@@ -108,44 +111,51 @@ export function AboutPage() {
 
       {/* ── Team ── */}
       <section className="border-y border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-sm">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-bold">تیم سامانه</h2>
-            <p className="text-[hsl(var(--muted-foreground))] mt-2 text-base">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
+          <div className="text-center mb-14 md:mb-20">
+            <h2 className="text-3xl md:text-5xl font-bold">تیم سامانه</h2>
+            <p className="text-[hsl(var(--muted-foreground))] mt-3 text-base md:text-lg">
               ترکیب دانش فنی و تخصص بالینی در ساخت این پروژه
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {team.map((member) => (
+          <div className="space-y-10 md:space-y-16">
+            {team.map((member, idx) => (
               <Card key={member.name} className="overflow-hidden">
                 <div className={`h-1.5 bg-gradient-to-r ${member.accent}`} />
-                <CardContent className="p-6 flex flex-col items-center text-center">
-                  <div className="relative">
-                    <div className="absolute -inset-1 rounded-full bg-gradient-to-r opacity-30 blur-md" />
+                <CardContent className="p-6 md:p-10 flex flex-col lg:flex-row items-center lg:items-start gap-8 lg:gap-14">
+                  <div className={`relative shrink-0 ${idx % 2 === 1 ? 'lg:order-2' : ''}`}>
+                    <div className={`absolute -inset-2 rounded-full bg-gradient-to-r ${member.accent} opacity-30 blur-xl`} />
                     <img
                       src={member.image}
                       alt={member.name}
-                      className="relative h-32 w-32 rounded-full object-cover border-4 border-[hsl(var(--card))] shadow-lg"
+                      className="relative h-48 w-48 md:h-64 md:w-64 rounded-3xl object-cover border-4 border-[hsl(var(--card))] shadow-2xl"
                     />
                   </div>
-                  <h3 className="text-xl font-bold mt-4">{member.name}</h3>
-                  <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium mt-2 ${member.chip}`}>
-                    {member.role}
-                  </span>
-                  <p className="text-sm text-[hsl(var(--muted-foreground))] leading-relaxed mt-4">
-                    {member.bio}
-                  </p>
-                  <ul className="w-full mt-5 space-y-2 text-sm">
-                    {member.education.map((item) => (
-                      <li
-                        key={item}
-                        className="flex items-center gap-2 rounded-lg border border-[hsl(var(--border))] bg-[var(--glass-bg)] px-3 py-2 text-right"
-                      >
-                        <GraduationCap className="h-4 w-4 shrink-0 text-[hsl(var(--primary))]" />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
+                  <div className={`flex-1 text-center lg:text-right ${idx % 2 === 1 ? 'lg:order-1' : ''}`}>
+                    <h3 className="text-2xl md:text-3xl font-bold">{member.name}</h3>
+                    <span className={`inline-flex items-center rounded-full px-4 py-1.5 text-sm font-medium mt-3 ${member.chip}`}>
+                      {member.role}
+                    </span>
+                    <p className="text-base md:text-lg text-[hsl(var(--muted-foreground))] leading-relaxed mt-5">
+                      {member.bio}
+                    </p>
+                    <ul className="mt-7 space-y-3 text-base md:text-lg">
+                      {member.education.map((item) => (
+                        <li
+                          key={item.label}
+                          className="flex items-center gap-4 rounded-xl border border-[hsl(var(--border))] bg-[var(--glass-bg)] px-4 py-3 text-right"
+                        >
+                          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-white border border-[hsl(var(--border))] p-1.5 shadow-sm">
+                            <img src={item.logo} alt={item.university} className="h-full w-full object-contain" />
+                          </span>
+                          <div className="flex flex-col">
+                            <span className="font-semibold">{item.label}</span>
+                            <span className="text-sm text-[hsl(var(--muted-foreground))]">{item.university}</span>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </CardContent>
               </Card>
             ))}
