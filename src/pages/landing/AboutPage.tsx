@@ -24,7 +24,7 @@ const team = [
     ],
   },
   {
-    name: 'دکتر خزائی',
+    name: 'دکتر محمود خزائی',
     role: 'مشاور علمی و بالینی',
     image: khazaeiPic,
     accent: 'from-emerald-600 to-teal-500',
