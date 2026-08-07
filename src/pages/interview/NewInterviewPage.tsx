@@ -242,10 +242,10 @@ export function NewInterviewPage() {
 
       {/* Module selection */}
       <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <div>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="min-w-0">
             <h2 className="flex items-center gap-2 text-base font-semibold">
-              <Layers className="h-5 w-5" />
+              <Layers className="h-5 w-5 shrink-0" />
               {t('interview.selectModules')}
             </h2>
             <p className="text-sm text-[hsl(var(--muted-foreground))] mt-1">

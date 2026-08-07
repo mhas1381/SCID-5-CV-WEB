@@ -269,10 +269,10 @@ export function OverviewPage() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">{t('interview.overviewTitle')}</h1>
-          <p className="text-[hsl(var(--muted-foreground))] mt-1">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl font-bold break-words">{t('interview.overviewTitle')}</h1>
+          <p className="text-[hsl(var(--muted-foreground))] mt-1 break-words">
             {t('interview.overviewDescription')}
           </p>
         </div>
@@ -284,9 +284,9 @@ export function OverviewPage() {
 
       {/* Section stepper */}
       <div className="space-y-3">
-        <div className="flex items-center justify-between text-xs text-[hsl(var(--muted-foreground))]">
-          <span>{sectionTitle}</span>
-          <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between gap-2 text-xs text-[hsl(var(--muted-foreground))]">
+          <span className="truncate min-w-0">{sectionTitle}</span>
+          <div className="flex items-center gap-3 shrink-0">
             <span className="flex items-center gap-1">
               <Clock className="h-3 w-3" />
               <SessionTimerText
@@ -354,11 +354,12 @@ export function OverviewPage() {
         </CardContent>
       </Card>
 
-      <div className="flex items-center justify-between pb-8">
+      <div className="flex items-center justify-between gap-2 pb-8">
         <Button
           variant="outline"
           onClick={goBack}
           disabled={isFirstSection}
+          className="flex-1 sm:flex-none"
         >
           <ArrowRight className="ml-2 h-4 w-4" />
           {t('common.previous')}
@@ -367,6 +368,7 @@ export function OverviewPage() {
         <Button
           onClick={goNext}
           isLoading={isLastSection && (isSaving || isCompleting)}
+          className="flex-1 sm:flex-none"
         >
           {isLastSection ? (
             <>{t('interview.overviewSubmit')} <CheckCircle className="mr-2 h-4 w-4" /></>

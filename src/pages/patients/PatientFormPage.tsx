@@ -296,11 +296,11 @@ export function PatientFormPage() {
               </div>
             </div>
 
-            <div className="flex gap-4 pt-4 border-t border-[hsl(var(--border))]">
-              <Button type="submit" isLoading={isCreating || isUpdating} className="min-w-[120px]">
+            <div className="flex flex-col gap-3 pt-4 border-t border-[hsl(var(--border))] sm:flex-row sm:gap-4">
+              <Button type="submit" isLoading={isCreating || isUpdating} className="w-full sm:w-auto sm:min-w-[120px]">
                 {isEdit ? t('common.save') : t('patients.registerPatient')}
               </Button>
-              <Button type="button" variant="outline" onClick={() => navigate('/patients')}>
+              <Button type="button" variant="outline" onClick={() => navigate('/patients')} className="w-full sm:w-auto">
                 {t('common.cancel')}
               </Button>
             </div>

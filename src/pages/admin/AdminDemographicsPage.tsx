@@ -266,7 +266,7 @@ export function AdminDemographicsPage() {
                     <button
                       type="button"
                       onClick={() => toggleGroup(group.code)}
-                      className="flex w-full items-center justify-between gap-4 p-4 text-start"
+                      className="flex w-full flex-wrap items-center justify-between gap-x-4 gap-y-2 p-4 text-start"
                     >
                       <div className="flex items-center gap-2 min-w-0">
                         <ChevronDown
@@ -280,7 +280,7 @@ export function AdminDemographicsPage() {
                         >
                           {group.code}
                         </span>
-                        <span className="text-sm font-semibold truncate">
+                        <span className="text-sm font-semibold break-words">
                           {group.moduleName}
                         </span>
                       </div>
@@ -307,9 +307,9 @@ export function AdminDemographicsPage() {
                         <div className="mt-3 space-y-2 border-t border-[hsl(var(--border))] pt-3">
                           {group.members.map((row) => (
                             <div key={row.criteria_id}>
-                              <div className="flex items-center justify-between gap-4 mb-1">
+                              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 mb-1">
                                 <div className="flex items-center gap-2 min-w-0">
-                                  <span className="text-sm truncate">{row.displayName}</span>
+                                  <span className="text-sm break-words">{row.displayName}</span>
                                   <span className="shrink-0 rounded bg-[hsl(var(--muted))] px-1.5 py-0.5 text-[10px] text-[hsl(var(--muted-foreground))]">
                                     {row.diagnosis_code}
                                   </span>

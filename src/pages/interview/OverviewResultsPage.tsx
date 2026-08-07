@@ -94,8 +94,8 @@ export function OverviewResultsPage() {
                       const questionText = isRtl && q.text_fa ? q.text_fa : q.text
                       return (
                         <div key={q.key} className="flex items-start justify-between gap-4 px-4 py-3 text-sm">
-                          <span className="text-[hsl(var(--muted-foreground))] flex-1">{questionText}</span>
-                          <span className="font-medium text-[hsl(var(--foreground))] shrink-0 max-w-[50%] text-left" dir="ltr">
+                          <span className="text-[hsl(var(--muted-foreground))] flex-1 break-words">{questionText}</span>
+                          <span className="font-medium text-[hsl(var(--foreground))] shrink-0 max-w-[50%] text-left break-words" dir="ltr">
                             {displayVal}
                           </span>
                         </div>

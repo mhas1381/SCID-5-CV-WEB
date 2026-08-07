@@ -191,7 +191,7 @@ export function AdminAgreementPage() {
                       <button
                         type="button"
                         onClick={() => toggleGroup(group.code)}
-                        className="flex w-full items-center justify-between gap-4 px-4 py-3 text-start hover:bg-[hsl(var(--accent))]/50 transition-colors"
+                        className="flex w-full flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3 text-start hover:bg-[hsl(var(--accent))]/50 transition-colors"
                       >
                         <div className="flex items-center gap-2 min-w-0">
                           <ChevronDown
@@ -205,7 +205,7 @@ export function AdminAgreementPage() {
                           >
                             {group.code}
                           </span>
-                          <span className="text-sm font-semibold truncate">{group.moduleName}</span>
+                          <span className="text-sm font-semibold break-words">{group.moduleName}</span>
                         </div>
                         <div className="flex items-center gap-4 shrink-0 text-xs text-[hsl(var(--muted-foreground))]">
                           <span className="tabular-nums">

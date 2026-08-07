@@ -381,7 +381,7 @@ export function LoginPage() {
                   theme="outline"
                   text="signin_with"
                   shape="rectangular"
-                  width="350"
+                  width="100%"
                 />
               </div>
             </div>

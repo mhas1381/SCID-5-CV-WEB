@@ -178,13 +178,13 @@ export function ProfilePage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <User className="h-6 w-6 text-[hsl(var(--primary))]" />
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl font-bold flex items-center gap-2 break-words">
+            <User className="h-5 w-5 sm:h-6 sm:w-6 text-[hsl(var(--primary))] shrink-0" />
             {t('nav.profile')}
           </h1>
-          <p className="mt-1 text-sm text-[hsl(var(--muted-foreground))]">
+          <p className="mt-1 text-sm text-[hsl(var(--muted-foreground))] break-words">
             {t('profile.description')}
           </p>
         </div>

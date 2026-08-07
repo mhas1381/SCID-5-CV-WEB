@@ -177,14 +177,14 @@ export function SessionsListPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">{t('sessions.title')}</h1>
-          <p className="text-[hsl(var(--muted-foreground))] mt-1">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl font-bold break-words">{t('sessions.title')}</h1>
+          <p className="text-[hsl(var(--muted-foreground))] mt-1 break-words">
             {t('sessions.description')}
           </p>
         </div>
-        <Button onClick={() => navigate('/interview')}>
+        <Button onClick={() => navigate('/interview')} className="shrink-0">
           <ClipboardList className="ml-2 h-4 w-4" />
           {t('sessions.newSession')}
         </Button>
@@ -332,7 +332,7 @@ export function SessionsListPage() {
                       )}
                     </div>
 
-                    <div className="flex items-center gap-2 px-3 py-3 border-t border-[hsl(var(--border))]">
+                    <div className="grid grid-cols-2 gap-2 px-3 py-3 border-t border-[hsl(var(--border))] sm:flex sm:flex-wrap sm:items-center">
                       {session.phase === 'overview' ? (
                         <Button
                           size="sm"
@@ -381,7 +381,7 @@ export function SessionsListPage() {
                           {i18n.language === 'fa' ? 'نتایج' : 'Results'}
                         </Button>
                       )}
-                      <div className="flex-1" />
+                      <div className="hidden sm:flex flex-1" />
                       <Button
                         size="sm"
                         variant="danger"

@@ -570,16 +570,16 @@ export function InterviewSessionPage() {
   return (
     <div className="h-full flex flex-col space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between flex-shrink-0">
-        <div>
-          <h1 className="text-xl font-bold leading-tight">
+      <div className="flex flex-col gap-3 flex-shrink-0 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+        <div className="min-w-0">
+          <h1 className="text-xl font-bold leading-tight break-words">
             {currentModuleName || `${t('interview.module')} ${currentModuleCode}`}
           </h1>
-          <p className="text-sm text-[hsl(var(--muted-foreground))]">
+          <p className="text-sm text-[hsl(var(--muted-foreground))] break-words">
             {session.patient_name}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 sm:justify-end">
           <span
             className={cn(
               'px-3 py-1 rounded-full text-xs font-medium',
@@ -608,7 +608,7 @@ export function InterviewSessionPage() {
             data-testid="review-history-toggle"
           >
             <History className="ml-1 h-4 w-4" />
-            {t('interview.reviewHistory')}
+            <span className="hidden sm:inline">{t('interview.reviewHistory')}</span>
           </Button>
         </div>
       </div>
@@ -782,7 +782,7 @@ export function InterviewSessionPage() {
                         key={opt.id}
                         onClick={() => handleAnswer({ selected_option_id: opt.id, text_response: noteText || undefined })}
                         disabled={isSubmitting}
-                        className="flex-1 flex flex-col items-center justify-center gap-2 rounded-xl border-2 py-10 px-4 text-lg font-semibold transition-all hover:shadow-md disabled:opacity-50 border-[hsl(var(--border))] hover:border-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/5"
+                        className="flex-1 flex flex-col items-center justify-center gap-2 rounded-xl border-2 py-6 sm:py-10 px-4 text-base sm:text-lg font-semibold transition-all hover:shadow-md disabled:opacity-50 border-[hsl(var(--border))] hover:border-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/5"
                       >
                         <span>{label}</span>
                       </button>
@@ -834,7 +834,7 @@ export function InterviewSessionPage() {
                 const val = fd.get('text_response') as string
                 if (val.trim()) handleAnswer({ text_response: val })
               }}
-              className={q.input_type === 'text' ? 'flex gap-2' : 'space-y-2'}
+              className={q.input_type === 'text' ? 'flex flex-col gap-2 sm:flex-row' : 'space-y-2'}
             >
               {q.input_type === 'text' ? (
                 <input
@@ -865,7 +865,7 @@ export function InterviewSessionPage() {
                 const val = Number(toEnglishDigits(rawVal))
                 if (!isNaN(val)) handleAnswer({ numeric_response: val })
               }}
-              className="flex gap-2"
+              className="flex flex-col gap-2 sm:flex-row"
             >
               <input
                 name="numeric_response"
@@ -886,7 +886,7 @@ export function InterviewSessionPage() {
                 const val = fd.get('date_response') as string
                 if (val) handleAnswer({ date_response: val })
               }}
-              className="flex gap-2"
+              className="flex flex-col gap-2 sm:flex-row"
             >
               <input
                 name="date_response"
@@ -904,7 +904,7 @@ export function InterviewSessionPage() {
       )}
 
       {/* Bottom navigation */}
-      <div className="flex justify-between items-center flex-shrink-0 pb-4 gap-3">
+      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center flex-shrink-0 pb-4 gap-3">
         {isReviewing ? (
           <Button variant="outline" size="lg" onClick={handleReviewResume} className="w-full">
             <ArrowLeft className="ml-2 h-5 w-5" />
@@ -918,11 +918,12 @@ export function InterviewSessionPage() {
               onClick={handlePrev}
               disabled={!canGoPrev || isNavigating}
               isLoading={isNavigating}
+              className="w-full sm:w-auto sm:flex-1"
             >
               <ChevronRight className="ml-2 h-5 w-5" />
               {isRtl ? 'قبلی' : 'Prev'}
             </Button>
-            <Button variant="outline" size="lg" onClick={handleComplete} isLoading={isCompleting}>
+            <Button variant="outline" size="lg" onClick={handleComplete} isLoading={isCompleting} className="w-full sm:w-auto sm:flex-1">
               <CheckCircle className="ml-2 h-5 w-5" />
               {t('interview.complete')}
             </Button>

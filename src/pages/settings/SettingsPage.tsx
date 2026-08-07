@@ -298,11 +298,11 @@ export function SettingsPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           {forgotStep === 'idle' && (
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-[hsl(var(--muted-foreground))]">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <p className="flex-1 text-sm text-[hsl(var(--muted-foreground))] break-words">
                 {t('settings.forgotPasswordHint', { phone: phoneNumber })}
               </p>
-              <Button variant="outline" onClick={handleSendOTP} isLoading={sendingOTP}>
+              <Button variant="outline" onClick={handleSendOTP} isLoading={sendingOTP} className="shrink-0">
                 {t('settings.sendOTP')}
               </Button>
             </div>
@@ -313,7 +313,7 @@ export function SettingsPage() {
               <p className="text-sm text-[hsl(var(--muted-foreground))]">
                 {t('settings.otpSentHint', { phone: phoneNumber })}
               </p>
-              <div className="flex items-center gap-3">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-3">
                 <Input
                   label={t('settings.otpCode')}
                   value={otpCode}
@@ -321,9 +321,9 @@ export function SettingsPage() {
                   placeholder="12345"
                   autoComplete="one-time-code"
                   inputMode="numeric"
-                  className="flex-1"
+                  className="flex-1 sm:min-w-0"
                 />
-                <Button onClick={handleVerifyOTP} isLoading={verifyingOTP} className="mt-6">
+                <Button onClick={handleVerifyOTP} isLoading={verifyingOTP} className="shrink-0">
                   {t('settings.verifyOTP')}
                 </Button>
               </div>

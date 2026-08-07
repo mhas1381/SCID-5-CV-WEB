@@ -723,14 +723,14 @@ export function InterviewResultsPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">{t('results.title')}</h1>
-          <p className="text-[hsl(var(--muted-foreground))] mt-1">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl font-bold break-words">{t('results.title')}</h1>
+          <p className="text-[hsl(var(--muted-foreground))] mt-1 break-words">
             {t('results.description')}
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
           {/* TODO: re-enable confirm-all diagnoses button */}
           {/* {resultsData && modules.length > 0 && (
             <>
