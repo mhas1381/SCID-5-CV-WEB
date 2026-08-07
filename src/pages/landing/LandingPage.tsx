@@ -113,6 +113,9 @@ export function LandingPage() {
           </div>
           <div className="flex items-center gap-1.5">
             <ThemeToggle />
+            <Button variant="ghost" onClick={() => navigate('/structured-interview')}>
+              مصاحبه ساختاریافته
+            </Button>
             <Button variant="ghost" onClick={() => navigate('/about')}>
               درباره ما
             </Button>

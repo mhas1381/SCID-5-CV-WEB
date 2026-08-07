@@ -14,6 +14,7 @@ import { AdminRoute } from '@/components/auth/AdminRoute'
 
 const LandingPage = lazy(() => import('@/pages/landing/LandingPage').then(m => ({ default: m.LandingPage })))
 const AboutPage = lazy(() => import('@/pages/landing/AboutPage').then(m => ({ default: m.AboutPage })))
+const StructuredInterviewPage = lazy(() => import('@/pages/landing/StructuredInterviewPage').then(m => ({ default: m.StructuredInterviewPage })))
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage').then(m => ({ default: m.LoginPage })))
 const SetPasswordPage = lazy(() => import('@/pages/auth/SetPasswordPage').then(m => ({ default: m.SetPasswordPage })))
 const CompleteRegistrationPage = lazy(() => import('@/pages/auth/CompleteRegistrationPage').then(m => ({ default: m.CompleteRegistrationPage })))
@@ -84,6 +85,7 @@ function AppContent() {
               {/* Public Routes */}
               <Route path="/" element={<LandingPage />} />
               <Route path="/about" element={<AboutPage />} />
+              <Route path="/structured-interview" element={<StructuredInterviewPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/complete-registration" element={<CompleteRegistrationPage />} />
               <Route path="/set-password" element={<SetPasswordPage />} />
