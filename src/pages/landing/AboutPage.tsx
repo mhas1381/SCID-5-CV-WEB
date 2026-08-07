@@ -71,7 +71,7 @@ export function AboutPage() {
       {/* ── Header ── */}
       <header className="border-b border-[var(--glass-border)] sticky top-0 bg-[var(--glass-bg)] backdrop-blur-xl z-50 shadow-[var(--glass-shadow)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
+          <button type="button" onClick={() => navigate('/')} className="flex items-center gap-2.5 text-start">
             <div className="rounded-lg bg-[hsl(var(--primary))]/10 p-1.5">
               <Brain className="h-6 w-6 text-[hsl(var(--primary))]" />
             </div>
@@ -79,7 +79,7 @@ export function AboutPage() {
               <span className="text-base font-bold">SCID-5-CV</span>
               <span className="text-[10px] text-[hsl(var(--muted-foreground))] hidden sm:block">Smart Clinical Interview</span>
             </div>
-          </div>
+          </button>
           <div className="flex items-center gap-1.5">
             <ThemeToggle />
             <div className="h-5 w-px bg-[hsl(var(--border))] mx-0.5" />

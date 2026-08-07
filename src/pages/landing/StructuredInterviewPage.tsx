@@ -23,7 +23,7 @@ const modules = [
   { code: 'D', name_fa: 'تشخیص افتراقی اختلالات خلقی', name_en: 'Mood Disorders', questions: 26, disorders: 'دوقطبی I و II، افسردگی اساسی و سایر اختلالات خلقی' },
   { code: 'E', name_fa: 'اختلالات مصرف مواد', name_en: 'Substance Use', questions: 45, disorders: 'الکل و ۸ نوع غیرالکل (کشیدنی‌ها، مواد افیونی، محرک‌ها و …)' },
   { code: 'F', name_fa: 'اختلالات اضطرابی', name_en: 'Anxiety Disorders', questions: 54, disorders: 'پانیک، آگورافوبیا، اضطراب اجتماعی و اضطراب فراگیر' },
-  { code: 'G', name_fa: 'ناخن‌خواهی و PTSD', name_en: 'OCD & PTSD', questions: 19, disorders: 'اختلال وسواسی-جبری و اختلال استرس پس از سانحه' },
+  { code: 'G', name_fa: 'وسواس جبری و PTSD', name_en: 'OCD & PTSD', questions: 19, disorders: 'اختلال وسواسی-جبری و اختلال استرس پس از سانحه' },
   { code: 'H', name_fa: 'اختلال بیش‌فعالی بزرگ‌سالان', name_en: 'Adult ADHD', questions: 27, disorders: 'ترکیبی، کم‌توجهی و تکانشگری-بیش‌فعالی' },
   { code: 'I', name_fa: 'غربالگری سایر اختلالات', name_en: 'Screening', questions: 17, disorders: 'فقط غربالگری بدون معیار تشخیصی' },
   { code: 'J', name_fa: 'اختلال سازگاری', name_en: 'Adjustment Disorder', questions: 4, disorders: 'اختلال سازگاری (F43.2)' },
@@ -85,7 +85,7 @@ export function StructuredInterviewPage() {
       {/* ── Header ── */}
       <header className="border-b border-[var(--glass-border)] sticky top-0 bg-[var(--glass-bg)] backdrop-blur-xl z-50 shadow-[var(--glass-shadow)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
+          <button type="button" onClick={() => navigate('/')} className="flex items-center gap-2.5 text-start">
             <div className="rounded-lg bg-[hsl(var(--primary))]/10 p-1.5">
               <Brain className="h-6 w-6 text-[hsl(var(--primary))]" />
             </div>
@@ -93,7 +93,7 @@ export function StructuredInterviewPage() {
               <span className="text-base font-bold">SCID-5-CV</span>
               <span className="text-[10px] text-[hsl(var(--muted-foreground))] hidden sm:block">Structured Clinical Interview</span>
             </div>
-          </div>
+          </button>
           <div className="flex items-center gap-1.5">
             <ThemeToggle />
             <Button variant="outline" onClick={() => navigate('/')}>
@@ -112,8 +112,8 @@ export function StructuredInterviewPage() {
               <History className="h-10 w-10 text-[hsl(var(--primary))]" />
             </div>
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold leading-tight">مصاحبه بالینی ساختاریافته</h1>
-          <p className="text-base text-[hsl(var(--muted-foreground))] mt-2 font-medium">Structured Clinical Interview</p>
+          <h1 className="text-3xl md:text-4xl font-bold leading-tight">راهنمای سامانه</h1>
+          <p className="text-base text-[hsl(var(--muted-foreground))] mt-2 font-medium">مصاحبه بالینی ساختاریافته</p>
           <p className="text-sm sm:text-base text-[hsl(var(--muted-foreground))] mt-4 max-w-2xl mx-auto leading-relaxed">
             آشنایی با SCID-5-CV و نحوه کارکرد سامانه هوشمند مصاحبه بالینی — از معرفی علمی تا گام‌های عملی ارزیابی و تشخیص.
           </p>
