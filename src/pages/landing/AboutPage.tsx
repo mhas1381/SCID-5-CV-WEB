@@ -1,6 +1,7 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Brain, ArrowLeft, GraduationCap, HeartHandshake, Target, ScrollText } from 'lucide-react'
+import { Brain, ArrowLeft, GraduationCap, HeartHandshake, Target, ScrollText, Stethoscope, Briefcase, type LucideIcon } from 'lucide-react'
 import { Button, Card, CardContent } from '@/components/ui'
 import { ThemeToggle } from '@/components/layout/ThemeToggle'
 
@@ -22,6 +23,26 @@ const team = [
       { label: 'کارشناسی مهندسی کامپیوتر', university: 'دانشگاه خوارزمی', logo: khuLogo },
       { label: 'کارشناسی ارشد روان‌شناسی بالینی', university: 'دانشگاه علم و فرهنگ', logo: uscLogo },
     ],
+    details: [
+      {
+        id: 'education',
+        title: 'تحصیلات',
+        icon: GraduationCap,
+        items: [
+          { title: 'کارشناسی مهندسی کامپیوتر', desc: 'دانشجوی مهندسی کامپیوتر دانشگاه خوارزمی از سال ۱۳۹۹ تا ۱۴۰۳.' },
+          { title: 'کارشناسی ارشد روان‌شناسی بالینی', desc: 'ادامه تحصیل در مقطع کارشناسی ارشد روان‌شناسی بالینی در دانشگاه علم و فرهنگ.' },
+        ],
+      },
+      {
+        id: 'career',
+        title: 'سوابق کاری',
+        icon: Briefcase,
+        items: [
+          { title: 'دوآپس فناوری‌های ارتباطات سینا', desc: 'فعالیت به‌عنوان دوآپس (DevOps) از دی ۱۴۰۳ تا اردیبهشت ۱۴۰۴.' },
+          { title: 'برنامه‌نویس بک‌اند ترجمان گام دوم', desc: 'فعالیت به‌عنوان برنامه‌نویس بک‌اند از خرداد ۱۴۰۴ تاکنون.' },
+        ],
+      },
+    ],
   },
   {
     name: 'دکتر محمود خزائی',
@@ -29,13 +50,109 @@ const team = [
     image: khazaeiPic,
     accent: 'from-emerald-600 to-teal-500',
     chip: 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300',
-    bio: 'دکتری روان‌شناسی بالینی از دانشگاه شهید بهشتی و عضو هیئت علمی دانشگاه علم و فرهنگ. نظارت علمی و بالینی بر محتوای مصاحبه‌های SCID-5-CV این سامانه بر عهده ایشان بوده است.',
+    bio: 'دکتری تخصصی روان‌شناسی بالینی از دانشگاه شهید بهشتی و عضو هیئت علمی دانشگاه علم و فرهنگ. از سال ۱۳۹۳ در زمینه زوج‌درمانی با رویکرد شناختی-رفتاری فعالیت دارد و نظارت علمی و بالینی بر محتوای مصاحبه‌های SCID-5-CV این سامانه بر عهده ایشان بوده است.',
     education: [
-      { label: 'دکتری روان‌شناسی بالینی', university: 'دانشگاه شهید بهشتی', logo: sbuLogo },
+      { label: 'دکتری تخصصی روان‌شناسی بالینی', university: 'دانشگاه شهید بهشتی', logo: sbuLogo },
       { label: 'عضو هیئت علمی', university: 'دانشگاه علم و فرهنگ', logo: uscLogo },
+    ],
+    details: [
+      {
+        id: 'education',
+        title: 'سوابق تحصیلی و کاری',
+        icon: GraduationCap,
+        items: [
+          { title: 'تحصیلات', desc: 'دکترای تخصصی روان‌شناسی بالینی از دانشگاه شهید بهشتی؛ کارشناسی ارشد روان‌شناسی بالینی و کارشناسی روان‌شناسی عمومی از دانشگاه علامه طباطبایی.' },
+          { title: 'سابقه حرفه‌ای', desc: 'از سال ۱۳۸۵ وارد حوزه روان‌شناسی بالینی شده و از سال ۱۳۹۳ به‌عنوان زوج‌درمانگر با رویکرد شناختی-رفتاری فعالیت می‌کند.' },
+          { title: 'سوابق بالینی', desc: 'کلینیک خانواده و کودک دانشگاه شهید بهشتی، مرکز مشاوره شماره ۲ دانشگاه شهید بهشتی (بلوار کشاورز) و کلینیک صبح صادق.' },
+          { title: 'سوابق آموزشی', desc: 'تدریس به‌عنوان استاد مدعو در دانشگاه پیام نور و دستیاری آموزشی در آموزش‌های مجازی و حضوری دانشکده روان‌شناسی و علوم تربیتی دانشگاه شهید بهشتی.' },
+          { title: 'کارورزی بالینی', desc: 'تکمیل دوره کارورزی مقطع دکتری تخصصی در بیمارستان روزبه و بیمارستان امام خمینی.' },
+        ],
+      },
+      {
+        id: 'research',
+        title: 'پژوهش و تألیف',
+        icon: ScrollText,
+        items: [
+          { title: 'رساله دکتری تخصصی', desc: 'رساله دکتری در زمینه بخشودگی خیانت زناشویی انجام شده است.' },
+          { title: 'مقالات', desc: 'ارائه مقالات متعدد در حوزه زوج‌درمانی.' },
+          { title: 'حوزه‌های پژوهشی مورد علاقه', desc: 'زوج‌درمانی شناختی-رفتاری، بخشودگی خیانت زناشویی، اصول عملکرد حرفه‌ای و فلسفه دیالوگ.' },
+        ],
+      },
+      {
+        id: 'professional',
+        title: 'فعالیت‌های حرفه‌ای',
+        icon: Stethoscope,
+        items: [
+          { title: 'داوری علمی', desc: 'داور مجله خانواده پژوهی.' },
+          { title: 'مشاوره پژوهشی', desc: 'فعالیت در زمینه مشاوره‌های پژوهشی.' },
+          { title: 'خدمات بالینی', desc: 'ارائه خدمات بالینی به‌عنوان زوج‌درمانگر، مشاور پیش از ازدواج و مداخلات در حوزه روابط بین فردی.' },
+        ],
+      },
     ],
   },
 ]
+
+type DetailSection = {
+  id: string
+  title: string
+  icon: LucideIcon
+  items: { title: string; desc: string }[]
+}
+
+function MemberDetails({ sections }: { sections: DetailSection[] }) {
+  const [active, setActive] = useState(sections[0]?.id ?? '')
+  const activeSection = sections.find((s) => s.id === active) ?? sections[0]
+
+  return (
+    <div className="mt-8">
+      <div role="tablist" aria-label="جزئیات" className="flex flex-wrap gap-2 justify-center lg:justify-start">
+        {sections.map((s) => (
+          <button
+            key={s.id}
+            type="button"
+            role="tab"
+            id={`member-tab-${s.id}`}
+            aria-selected={active === s.id}
+            aria-controls={`member-panel-${s.id}`}
+            onClick={() => setActive(s.id)}
+            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all ${
+              active === s.id
+                ? 'bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-sm'
+                : 'border border-[hsl(var(--border))] text-[hsl(var(--muted-foreground))] hover:border-[hsl(var(--primary))]/50 hover:text-[hsl(var(--foreground))]'
+            }`}
+          >
+            <s.icon className="h-4 w-4" />
+            {s.title}
+          </button>
+        ))}
+      </div>
+      {activeSection && (
+        <div
+          role="tabpanel"
+          id={`member-panel-${activeSection.id}`}
+          aria-labelledby={`member-tab-${activeSection.id}`}
+          className="mt-4 rounded-2xl border border-[hsl(var(--border))] bg-[var(--glass-bg)] p-5 md:p-6 text-right"
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <activeSection.icon className="h-5 w-5 text-[hsl(var(--primary))]" />
+            <h4 className="font-bold">{activeSection.title}</h4>
+          </div>
+          <ul className="space-y-4">
+            {activeSection.items.map((item) => (
+              <li key={item.title} className="flex gap-3">
+                <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-[hsl(var(--primary))]" />
+                <div className="min-w-0">
+                  <span className="font-semibold text-sm md:text-base">{item.title}</span>
+                  <p className="text-sm text-[hsl(var(--muted-foreground))] mt-0.5 leading-relaxed">{item.desc}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  )
+}
 
 const values = [
   {
@@ -155,6 +272,7 @@ export function AboutPage() {
                         </li>
                       ))}
                     </ul>
+                    {member.details && <MemberDetails sections={member.details} />}
                   </div>
                 </CardContent>
               </Card>
