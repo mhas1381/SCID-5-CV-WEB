@@ -14,15 +14,17 @@ interface AdminRouteProps {
  */
 export function AdminRoute({ children }: AdminRouteProps) {
   const { t } = useTranslation()
-  const { isAuthenticated, isLoading: authLoading } = useAppSelector(
-    (state) => state.auth
-  )
+  const {
+    isAuthenticated,
+    isLoading: authLoading,
+    user: authUser,
+  } = useAppSelector((state) => state.auth)
   const { data: user, isLoading: userLoading } = useGetMeQuery(undefined, {
     skip: !isAuthenticated,
   })
   const location = useLocation()
 
-  if (authLoading || (isAuthenticated && userLoading)) {
+  if (authLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <LoadingSpinner size="xl" label={t('admin.accessChecking')} />
@@ -34,7 +36,22 @@ export function AdminRoute({ children }: AdminRouteProps) {
     return <Navigate to="/login" state={{ from: location }} replace />
   }
 
-  const isAdmin = user?.role === 'admin' || user?.is_staff || user?.is_superuser
+  // Fall back to the user from the login response so the check never blocks
+  // forever if getMe stalls (same hardening as ProtectedRoute).
+  const profileUser = user ?? authUser
+
+  if (!profileUser && userLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <LoadingSpinner size="xl" label={t('admin.accessChecking')} />
+      </div>
+    )
+  }
+
+  const isAdmin =
+    profileUser?.role === 'admin' ||
+    profileUser?.is_staff ||
+    profileUser?.is_superuser
 
   if (!isAdmin) {
     return <Navigate to="/dashboard" replace />

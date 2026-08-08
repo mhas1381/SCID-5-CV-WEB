@@ -84,9 +84,26 @@ export const baseQueryWithAuth: BaseQueryFn<
   return result
 }
 
+const apiTagTypes = [
+  'User',
+  'Profile',
+  'Patient',
+  'PatientNote',
+  'Session',
+  'Overview',
+  'OverviewQuestions',
+  'Dashboard',
+  'Settings',
+  'DiagnosticResult',
+  'AdminUsers',
+] as const
+
+export type ApiTag = (typeof apiTagTypes)[number]
+export const API_TAG_TYPES: ApiTag[] = [...apiTagTypes]
+
 export const baseApi = createApi({
   reducerPath: 'api',
   baseQuery: baseQueryWithAuth,
-  tagTypes: ['User', 'Profile', 'Patient', 'PatientNote', 'Session', 'Overview', 'OverviewQuestions', 'Dashboard', 'Settings', 'DiagnosticResult', 'AdminUsers'],
+  tagTypes: apiTagTypes,
   endpoints: () => ({}),
 })
