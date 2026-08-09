@@ -329,6 +329,7 @@ export interface SessionResponse {
   id: number
   question: number
   question_id_str: string
+  substance: string | null
   selected_option: number | null
   selected_option_label: string | null
   selected_option_label_fa: string | null

@@ -306,7 +306,8 @@
     "clearFilters": "Clear filters",
     "resultsCount": "{{count}} sessions",
     "statusFilter": "Status",
-    "startedAtLabel": "Started"
+    "startedAtLabel": "Started",
+    "notesLabel": "Notes"
   },
   "profile": {
     "description": "Manage your professional and personal information",

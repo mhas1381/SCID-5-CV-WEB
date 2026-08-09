@@ -306,7 +306,8 @@
     "clearFilters": "حذف فیلترها",
     "resultsCount": "{{count}} جلسه",
     "statusFilter": "وضعیت",
-    "startedAtLabel": "شروع"
+    "startedAtLabel": "شروع",
+    "notesLabel": "یادداشت"
   },
   "profile": {
     "description": "مدیریت اطلاعات حرفه‌ای و شخصی شما",

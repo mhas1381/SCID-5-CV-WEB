@@ -330,6 +330,12 @@ export function SessionsListPage() {
                           {formatDateTime(session.started_at)}
                         </p>
                       )}
+                      {session.notes && (
+                        <p className="line-clamp-2">
+                          <span className="text-[hsl(var(--foreground))] font-medium ml-1">{t('sessions.notesLabel')}:</span>
+                          {session.notes}
+                        </p>
+                      )}
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 px-3 py-3 border-t border-[hsl(var(--border))] sm:flex sm:flex-wrap sm:items-center">
