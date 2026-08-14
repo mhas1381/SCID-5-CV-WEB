@@ -22,6 +22,8 @@ export interface DemographicsParams {
   province?: string
   from?: string
   to?: string
+  /** "real" (default), "test", or "all" */
+  test_data?: string
 }
 
 export const adminApi = baseApi.injectEndpoints({

@@ -25,6 +25,7 @@ interface FilterState {
   province: string
   from: string
   to: string
+  test_data: string
 }
 
 const EMPTY_FILTERS: FilterState = {
@@ -35,7 +36,18 @@ const EMPTY_FILTERS: FilterState = {
   province: '',
   from: '',
   to: '',
+  test_data: 'real',
 }
+
+const TRADITIONAL_FILTER_KEYS: (keyof FilterState)[] = [
+  'gender',
+  'education',
+  'marital_status',
+  'age_group',
+  'province',
+  'from',
+  'to',
+]
 
 export function AdminDemographicsPage() {
   const { t, i18n } = useTranslation()
@@ -53,6 +65,7 @@ export function AdminDemographicsPage() {
     ...(applied.province && { province: applied.province }),
     ...(applied.from && { from: applied.from }),
     ...(applied.to && { to: applied.to }),
+    test_data: applied.test_data,
   }
 
   const { data, isLoading } = useGetAdminDemographicsQuery(queryParams)
@@ -71,7 +84,21 @@ export function AdminDemographicsPage() {
     setApplied(EMPTY_FILTERS)
   }
 
-  const hasActiveFilters = Object.values(applied).some((v) => v !== '')
+  // Data-source toggles: "real" (default), "test", or "all" (both).
+  const realOn = filters.test_data === 'real' || filters.test_data === 'all'
+  const testOn = filters.test_data === 'test' || filters.test_data === 'all'
+  const setDataFlags = (real: boolean, test: boolean) => {
+    let value: string
+    if (real && test) value = 'all'
+    else if (real) value = 'real'
+    else if (test) value = 'test'
+    else value = 'real'
+    setFilters((prev) => ({ ...prev, test_data: value }))
+  }
+
+  const hasActiveFilters =
+    TRADITIONAL_FILTER_KEYS.some((key) => applied[key] !== '') ||
+    applied.test_data !== 'real'
 
   const toggleGroup = (code: string) => {
     setExpandedGroups((prev) => ({ ...prev, [code]: !prev[code] }))
@@ -216,6 +243,32 @@ export function AdminDemographicsPage() {
               value={filters.to}
               onChange={setDateFilter('to')}
             />
+
+            <div className="space-y-1">
+              <label className="block text-xs font-medium text-[hsl(var(--muted-foreground))]">
+                {t('admin.demographics.dataSource')}
+              </label>
+              <div className="flex flex-wrap gap-x-5 gap-y-2 pt-2">
+                <label className="flex cursor-pointer select-none items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={realOn}
+                    onChange={() => setDataFlags(!realOn, testOn)}
+                    className="h-4 w-4 rounded border-[hsl(var(--input))]"
+                  />
+                  {t('admin.demographics.realData')}
+                </label>
+                <label className="flex cursor-pointer select-none items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={testOn}
+                    onChange={() => setDataFlags(realOn, !testOn)}
+                    className="h-4 w-4 rounded border-[hsl(var(--input))]"
+                  />
+                  {t('admin.demographics.testData')}
+                </label>
+              </div>
+            </div>
 
             <div className="flex items-end gap-2">
               <Button onClick={applyFilters} className="flex-1">
