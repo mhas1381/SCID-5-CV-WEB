@@ -2,9 +2,14 @@ import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import {
   useGetSessionQuery,
   useGetDiagnosticResultsQuery,
+  useGetInterpretationQuery,
+  useGenerateInterpretationMutation,
+  useUpdateInterpretationMutation,
   // TODO: re-enable with approve/disagree buttons
   // useConfirmDiagnosticResultMutation,
   // useConfirmAllDiagnosticResultsMutation,
@@ -25,6 +30,10 @@ import {
   Download,
   ShieldCheck,
   MessageSquare,
+  Sparkles,
+  Pencil,
+  RotateCw,
+  X,
 } from 'lucide-react'
 import { cn } from '@/utils/cn'
 import { formatDate, toPersianNum } from '@/utils/date'
@@ -656,6 +665,251 @@ function FeedbackCard({
   )
 }
 
+function AiInterpretationCard({
+  sessionId,
+  isRtl,
+  t,
+}: {
+  sessionId: number
+  isRtl: boolean
+  t: (key: string) => string
+}) {
+  const {
+    data,
+    isLoading: isLoadingStored,
+    isFetching: isFetchingStored,
+    isError: isStoredError,
+    refetch,
+  } = useGetInterpretationQuery(sessionId, { skip: !sessionId })
+  const [generateInterpretation, { isLoading: isGenerating }] =
+    useGenerateInterpretationMutation()
+  const [updateInterpretation, { isLoading: isSaving }] =
+    useUpdateInterpretationMutation()
+
+  const [isEditing, setIsEditing] = useState(false)
+  const [editText, setEditText] = useState('')
+  const [isPromptOpen, setIsPromptOpen] = useState(false)
+  const [customPrompt, setCustomPrompt] = useState('')
+
+  const interpretation = data?.interpretation?.trim() ?? ''
+  const isBusy = isGenerating || isSaving
+
+  const handleGenerate = async () => {
+    if (isBusy || !sessionId) return
+    try {
+      await generateInterpretation({ sessionId }).unwrap()
+    } catch (err) {
+      toast.error(getErrorMessage(err, t('results.aiInterpretationError')))
+    }
+  }
+
+  const handleReanalyze = async () => {
+    if (isGenerating || !sessionId) return
+    try {
+      await generateInterpretation({
+        sessionId,
+        prompt: customPrompt.trim(),
+      }).unwrap()
+      setIsPromptOpen(false)
+      setCustomPrompt('')
+    } catch (err) {
+      toast.error(getErrorMessage(err, t('results.aiInterpretationError')))
+    }
+  }
+
+  const startEdit = () => {
+    setEditText(interpretation)
+    setIsEditing(true)
+  }
+
+  const cancelEdit = () => {
+    setIsEditing(false)
+    setEditText('')
+  }
+
+  const saveEdit = async () => {
+    if (isSaving) return
+    try {
+      await updateInterpretation({
+        sessionId,
+        interpretation: editText,
+      }).unwrap()
+      setIsEditing(false)
+      toast.success(t('results.feedbackSuccess'))
+    } catch (err) {
+      toast.error(getErrorMessage(err, t('results.aiInterpretationError')))
+    }
+  }
+
+  return (
+    <Card className="overflow-hidden">
+      <CardHeader>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <CardTitle className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-[hsl(var(--primary))]" />
+            {t('results.aiInterpretation')}
+          </CardTitle>
+          {interpretation && !isEditing && (
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-muted text-[hsl(var(--muted-foreground))]">
+                <Sparkles className="h-3 w-3" />
+                {t('results.aiInterpretationGenerated')}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsPromptOpen(true)}
+                disabled={isBusy}
+                isLoading={isGenerating}
+              >
+                <RotateCw className="h-3.5 w-3.5" />
+                {t('results.aiInterpretationReanalyze')}
+              </Button>
+              <Button variant="outline" size="sm" onClick={startEdit} disabled={isBusy}>
+                <Pencil className="h-3.5 w-3.5" />
+                {t('common.edit')}
+              </Button>
+            </div>
+          )}
+        </div>
+        <p className="text-sm text-[hsl(var(--muted-foreground))]">
+          {t('results.aiInterpretationDescription')}
+        </p>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {isLoadingStored ? (
+          <div className="space-y-2 animate-pulse">
+            <div className="h-3 w-full rounded bg-muted" />
+            <div className="h-3 w-11/12 rounded bg-muted" />
+            <div className="h-3 w-3/4 rounded bg-muted" />
+          </div>
+        ) : isStoredError ? (
+          <div className="rounded-lg border border-red-500/40 bg-red-50/60 p-4 text-sm text-red-700 dark:bg-red-950/20 dark:text-red-300">
+            {t('results.aiInterpretationError')}
+            <button
+              type="button"
+              onClick={() => refetch()}
+              className="ms-2 text-[hsl(var(--primary))] hover:underline"
+            >
+              {t('common.retry')}
+            </button>
+          </div>
+        ) : !interpretation && !isGenerating ? (
+          <div className="space-y-3">
+            <p className="text-sm text-[hsl(var(--muted-foreground))]">
+              {t('results.aiInterpretationEmpty')}
+            </p>
+            <Button onClick={handleGenerate} isLoading={isGenerating} disabled={isBusy}>
+              <Sparkles className="ms-1 h-4 w-4" />
+              {t('results.aiInterpretationGenerate')}
+            </Button>
+          </div>
+        ) : isEditing ? (
+          <div className="space-y-3">
+            <textarea
+              value={editText}
+              onChange={(e) => setEditText(e.target.value)}
+              rows={12}
+              dir={isRtl ? 'rtl' : 'ltr'}
+              className="w-full rounded-lg border border-[hsl(var(--input))] bg-[hsl(var(--card))] px-4 py-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))] resize-y"
+            />
+            <div className="flex items-center justify-end gap-2">
+              <Button variant="outline" size="sm" onClick={cancelEdit} disabled={isSaving}>
+                {t('common.cancel')}
+              </Button>
+              <Button size="sm" onClick={saveEdit} isLoading={isSaving}>
+                {t('common.save')}
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div dir={isRtl ? 'rtl' : 'ltr'} className="text-sm text-foreground">
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  h1: (props) => <h1 {...props} className="text-lg font-bold mb-2" />,
+                  h2: (props) => <h2 {...props} className="text-base font-bold mb-2" />,
+                  h3: (props) => <h3 {...props} className="text-sm font-bold mb-2" />,
+                  p: (props) => <p {...props} className="mb-3 leading-7" />,
+                  ul: (props) => (
+                    <ul {...props} className={`mb-3 space-y-1 ${isRtl ? 'ms-5' : 'me-5'} list-disc`} />
+                  ),
+                  ol: (props) => (
+                    <ol {...props} className={`mb-3 space-y-1 ${isRtl ? 'ms-5' : 'me-5'} list-decimal`} />
+                  ),
+                  li: (props) => <li {...props} className="leading-7" />,
+                  strong: (props) => <strong {...props} className="font-bold" />,
+                  em: (props) => <em {...props} className="italic" />,
+                  hr: (props) => <hr {...props} className="my-3 border-[hsl(var(--border))]" />,
+                  blockquote: (props) => (
+                    <blockquote
+                      {...props}
+                      className="mb-3 border-s-4 border-[hsl(var(--primary))] ps-3 text-muted-foreground"
+                    />
+                  ),
+                }}
+              >
+                {interpretation}
+              </ReactMarkdown>
+            </div>
+            {(isGenerating || isFetchingStored) && (
+              <p className="text-xs text-[hsl(var(--muted-foreground))] animate-pulse">
+                {t('results.aiInterpretationLoading')}
+              </p>
+            )}
+          </>
+        )}
+      </CardContent>
+
+      {isPromptOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="relative w-full max-w-lg rounded-xl bg-[var(--glass-bg)] backdrop-blur-xl p-5 shadow-[var(--glass-shadow)] border border-[var(--glass-border)]">
+            <div className="flex items-center justify-between gap-2 mb-3">
+              <h3 className="text-base font-semibold">
+                {t('results.aiInterpretationReanalyzeTitle')}
+              </h3>
+              <button
+                type="button"
+                onClick={() => setIsPromptOpen(false)}
+                className="p-1 rounded-md text-[hsl(var(--muted-foreground))] hover:bg-accent"
+                aria-label="close"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <p className="text-sm text-[hsl(var(--muted-foreground))] mb-3">
+              {t('results.aiInterpretationPromptHint')}
+            </p>
+            <textarea
+              value={customPrompt}
+              onChange={(e) => setCustomPrompt(e.target.value)}
+              rows={5}
+              dir={isRtl ? 'rtl' : 'ltr'}
+              placeholder={t('results.aiInterpretationPromptPlaceholder')}
+              className="w-full rounded-lg border border-[hsl(var(--input))] bg-[hsl(var(--card))] px-4 py-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))] resize-y"
+            />
+            <div className="mt-4 flex items-center justify-end gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsPromptOpen(false)}
+                disabled={isGenerating}
+              >
+                {t('common.cancel')}
+              </Button>
+              <Button size="sm" onClick={handleReanalyze} isLoading={isGenerating}>
+                <Sparkles className="ms-1 h-4 w-4" />
+                {t('results.aiInterpretationReanalyze')}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+    </Card>
+  )
+}
+
 export function InterviewResultsPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
@@ -834,6 +1088,8 @@ export function InterviewResultsPage() {
               />
             ))}
           </div>
+
+          <AiInterpretationCard sessionId={sessionId} isRtl={isRtl} t={t} />
 
           {resultsData.has_preexisting_diagnosis && resultsData.agreement && (
             <ValidityCard agreement={resultsData.agreement} isRtl={isRtl} t={t} />

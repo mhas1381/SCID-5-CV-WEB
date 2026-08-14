@@ -330,6 +330,7 @@ export interface Session {
   completed_at: string | null
   notes?: string | null
   elapsed_time?: number
+  ai_interpretation?: string | null
   responses?: SessionResponse[]
   total_responses?: number
 }
@@ -588,6 +589,10 @@ export interface DiagnosticResultsResponse {
   modules: ModuleGroupResult[]
   has_preexisting_diagnosis: boolean
   agreement: AgreementData
+}
+
+export interface InterpretationResponse {
+  interpretation: string
 }
 
 // ==========================================================

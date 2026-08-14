@@ -31,7 +31,8 @@
     "notSelected": "انتخاب نشده",
     "email": "ایمیل",
     "seconds": "ثانیه",
-    "minutes": "دقیقه"
+    "minutes": "دقیقه",
+    "retry": "تلاش مجدد"
   },
   "nav": {
     "dashboard": "داشبورد",
@@ -275,7 +276,18 @@
     "approve": "تایید",
     "reject": "عدم تایید",
     "approveActive": "لغو تایید",
-    "rejectActive": "لغو عدم تایید"
+    "rejectActive": "لغو عدم تایید",
+    "aiInterpretation": "تحلیل بالینی (تفسیر ترکیبی)",
+    "aiInterpretationDescription": "تفسیر منسجم هوش مصنوعی از تشخیص‌های الگوریتمی این جلسه.",
+    "aiInterpretationLoading": "در حال تولید تحلیل بالینی توسط هوش مصنوعی...",
+    "aiInterpretationGenerated": "تولید شده توسط هوش مصنوعی",
+    "aiInterpretationError": "تولید تحلیل بالینی با خطا مواجه شد. لطفاً دوباره تلاش کنید.",
+    "aiInterpretationEmpty": "تحلیل بالینی هنوز تولید نشده است.",
+    "aiInterpretationGenerate": "تولید تحلیل بالینی توسط هوش مصنوعی",
+    "aiInterpretationReanalyze": "تحلیل مجدد",
+    "aiInterpretationReanalyzeTitle": "تحلیل مجدد توسط هوش مصنوعی",
+    "aiInterpretationPromptHint": "در صورت تمایل، دستورالعمل یا تأکید خاص خود را برای تحلیل مجدد بنویسید. در صورت خالی ماندن، تحلیل با درخواست استاندارد تولید می‌شود.",
+    "aiInterpretationPromptPlaceholder": "مثلاً: به‌صورت اختصاصی بر روی نشانه‌های اضطراب تمرکز کن..."
   },
   "sessions": {
     "title": "تاریخچه جلسات",

@@ -95,6 +95,7 @@ const apiTagTypes = [
   'Dashboard',
   'Settings',
   'DiagnosticResult',
+  'Interpretation',
   'AdminUsers',
 ] as const
 

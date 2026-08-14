@@ -5,6 +5,7 @@ import type {
   CompleteSessionResponse,
   DiagnosticCriteriaItem,
   DiagnosticResultsResponse,
+  InterpretationResponse,
   Module,
   NavigateResponse,
   Overview,
@@ -167,6 +168,50 @@ export const interviewApi = baseApi.injectEndpoints({
       ],
     }),
 
+    // GET /api/v1/interviews/sessions/{id}/interpretation/
+    // Read-only: returns the stored interpretation (empty when none exists).
+    // Used as an active query so an existing interpretation is shown on page
+    // load without triggering any AI call.
+    getInterpretation: builder.query<InterpretationResponse, number>({
+      query: (sessionId) => `v1/interviews/sessions/${sessionId}/interpretation/`,
+      providesTags: (result, error, sessionId) => [
+        { type: 'Interpretation', id: sessionId },
+      ],
+    }),
+
+    // POST /api/v1/interviews/sessions/{id}/interpretation/
+    // Generates (or regenerates) the interpretation, optionally steered by a
+    // clinician-supplied prompt.
+    generateInterpretation: builder.mutation<
+      InterpretationResponse,
+      { sessionId: number; prompt?: string }
+    >({
+      query: ({ sessionId, prompt = '' }) => ({
+        url: `v1/interviews/sessions/${sessionId}/interpretation/`,
+        method: 'POST',
+        body: { prompt },
+      }),
+      invalidatesTags: (result, error, { sessionId }) => [
+        { type: 'Interpretation', id: sessionId },
+      ],
+    }),
+
+    // PATCH /api/v1/interviews/sessions/{id}/interpretation/
+    // Persists the clinician's edited (or cleared) interpretation text.
+    updateInterpretation: builder.mutation<
+      InterpretationResponse,
+      { sessionId: number; interpretation: string }
+    >({
+      query: ({ sessionId, interpretation }) => ({
+        url: `v1/interviews/sessions/${sessionId}/interpretation/`,
+        method: 'PATCH',
+        body: { interpretation },
+      }),
+      invalidatesTags: (result, error, { sessionId }) => [
+        { type: 'Interpretation', id: sessionId },
+      ],
+    }),
+
     // Confirm / unconfirm / disagree a single diagnostic result
     confirmDiagnosticResult: builder.mutation<
       { detail: string; result_id: number; clinician_confirmed: boolean; clinician_disagreed: boolean; confirmation_status: string },
@@ -247,6 +292,9 @@ export const {
   useCompleteSessionMutation,
   useGetSessionProgressQuery,
   useGetDiagnosticResultsQuery,
+  useGetInterpretationQuery,
+  useGenerateInterpretationMutation,
+  useUpdateInterpretationMutation,
   useConfirmDiagnosticResultMutation,
   useConfirmAllDiagnosticResultsMutation,
   useSubmitSystemFeedbackMutation,
