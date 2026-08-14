@@ -284,10 +284,10 @@
     "aiInterpretationError": "Failed to generate the AI interpretation. Please try again.",
     "aiInterpretationEmpty": "The AI interpretation has not been generated yet.",
     "aiInterpretationGenerate": "Generate AI interpretation",
-    "aiInterpretationReanalyze": "Reanalyze",
-    "aiInterpretationReanalyzeTitle": "Reanalyze with AI",
-    "aiInterpretationPromptHint": "Optionally write your own instruction or emphasis for the reanalysis. If left empty, the standard request is used.",
-    "aiInterpretationPromptPlaceholder": "e.g. Focus specifically on anxiety symptoms..."
+    "aiInterpretationReanalyze": "Generate / Analyze with AI",
+    "aiInterpretationReanalyzeTitle": "AI Prompt",
+    "aiInterpretationPromptHint": "This is the default prompt sent to the AI. Edit it if you wish; leaving it empty uses the system default prompt.",
+    "aiInterpretationPromptPlaceholder": "AI prompt..."
   },
   "sessions": {
     "title": "Session History",

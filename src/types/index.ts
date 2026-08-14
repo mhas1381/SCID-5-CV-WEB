@@ -593,6 +593,7 @@ export interface DiagnosticResultsResponse {
 
 export interface InterpretationResponse {
   interpretation: string
+  default_prompt?: string
 }
 
 // ==========================================================

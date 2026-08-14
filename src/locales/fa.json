@@ -284,10 +284,10 @@
     "aiInterpretationError": "تولید تحلیل بالینی با خطا مواجه شد. لطفاً دوباره تلاش کنید.",
     "aiInterpretationEmpty": "تحلیل بالینی هنوز تولید نشده است.",
     "aiInterpretationGenerate": "تولید تحلیل بالینی توسط هوش مصنوعی",
-    "aiInterpretationReanalyze": "تحلیل مجدد",
-    "aiInterpretationReanalyzeTitle": "تحلیل مجدد توسط هوش مصنوعی",
-    "aiInterpretationPromptHint": "در صورت تمایل، دستورالعمل یا تأکید خاص خود را برای تحلیل مجدد بنویسید. در صورت خالی ماندن، تحلیل با درخواست استاندارد تولید می‌شود.",
-    "aiInterpretationPromptPlaceholder": "مثلاً: به‌صورت اختصاصی بر روی نشانه‌های اضطراب تمرکز کن..."
+    "aiInterpretationReanalyze": "تولید / تحلیل با هوش مصنوعی",
+    "aiInterpretationReanalyzeTitle": "پرامپت هوش مصنوعی",
+    "aiInterpretationPromptHint": "این همان پرامپت پیش‌فرضی است که به هوش مصنوعی ارسال می‌شود. در صورت تمایل آن را ویرایش کنید؛ اگر خالی بگذارید، پرامپت پیش‌فرض سیستم استفاده می‌شود.",
+    "aiInterpretationPromptPlaceholder": "پرامپت هوش مصنوعی..."
   },
   "sessions": {
     "title": "تاریخچه جلسات",

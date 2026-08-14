@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -689,29 +690,23 @@ function AiInterpretationCard({
   const [isEditing, setIsEditing] = useState(false)
   const [editText, setEditText] = useState('')
   const [isPromptOpen, setIsPromptOpen] = useState(false)
-  const [customPrompt, setCustomPrompt] = useState('')
+  const [promptText, setPromptText] = useState('')
 
   const interpretation = data?.interpretation?.trim() ?? ''
+  const defaultPrompt = data?.default_prompt ?? ''
   const isBusy = isGenerating || isSaving
+
+  const openPromptModal = () => {
+    setPromptText(defaultPrompt)
+    setIsPromptOpen(true)
+  }
 
   const handleGenerate = async () => {
     if (isBusy || !sessionId) return
     try {
-      await generateInterpretation({ sessionId }).unwrap()
-    } catch (err) {
-      toast.error(getErrorMessage(err, t('results.aiInterpretationError')))
-    }
-  }
-
-  const handleReanalyze = async () => {
-    if (isGenerating || !sessionId) return
-    try {
-      await generateInterpretation({
-        sessionId,
-        prompt: customPrompt.trim(),
-      }).unwrap()
+      await generateInterpretation({ sessionId, prompt: promptText.trim() }).unwrap()
       setIsPromptOpen(false)
-      setCustomPrompt('')
+      setPromptText('')
     } catch (err) {
       toast.error(getErrorMessage(err, t('results.aiInterpretationError')))
     }
@@ -758,9 +753,8 @@ function AiInterpretationCard({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setIsPromptOpen(true)}
+                onClick={openPromptModal}
                 disabled={isBusy}
-                isLoading={isGenerating}
               >
                 <RotateCw className="h-3.5 w-3.5" />
                 {t('results.aiInterpretationReanalyze')}
@@ -799,7 +793,7 @@ function AiInterpretationCard({
             <p className="text-sm text-[hsl(var(--muted-foreground))]">
               {t('results.aiInterpretationEmpty')}
             </p>
-            <Button onClick={handleGenerate} isLoading={isGenerating} disabled={isBusy}>
+            <Button onClick={openPromptModal} isLoading={isGenerating} disabled={isBusy}>
               <Sparkles className="ms-1 h-4 w-4" />
               {t('results.aiInterpretationGenerate')}
             </Button>
@@ -862,50 +856,50 @@ function AiInterpretationCard({
         )}
       </CardContent>
 
-      {isPromptOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="relative w-full max-w-lg rounded-xl bg-[var(--glass-bg)] backdrop-blur-xl p-5 shadow-[var(--glass-shadow)] border border-[var(--glass-border)]">
-            <div className="flex items-center justify-between gap-2 mb-3">
-              <h3 className="text-base font-semibold">
-                {t('results.aiInterpretationReanalyzeTitle')}
-              </h3>
-              <button
-                type="button"
-                onClick={() => setIsPromptOpen(false)}
-                className="p-1 rounded-md text-[hsl(var(--muted-foreground))] hover:bg-accent"
-                aria-label="close"
-              >
-                <X className="h-4 w-4" />
-              </button>
+      {isPromptOpen &&
+        createPortal(
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 sm:p-8">
+            <div className="relative flex w-full max-w-3xl flex-col rounded-2xl bg-[var(--glass-bg)] backdrop-blur-xl p-6 shadow-[var(--glass-shadow)] border border-[var(--glass-border)] max-h-[85vh]">
+              <div className="flex items-center justify-between gap-2 mb-3">
+                <h3 className="text-base font-semibold">
+                  {t('results.aiInterpretationReanalyzeTitle')}
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setIsPromptOpen(false)}
+                  className="p-1 rounded-md text-[hsl(var(--muted-foreground))] hover:bg-accent"
+                  aria-label="close"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <p className="text-sm text-[hsl(var(--muted-foreground))] mb-3">
+                {t('results.aiInterpretationPromptHint')}
+              </p>
+              <textarea
+                value={promptText}
+                onChange={(e) => setPromptText(e.target.value)}
+                dir={isRtl ? 'rtl' : 'ltr'}
+                className="w-full flex-1 rounded-lg border border-[hsl(var(--input))] bg-[hsl(var(--card))] px-4 py-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))] resize-none overflow-y-auto min-h-[240px]"
+              />
+              <div className="mt-4 flex items-center justify-end gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsPromptOpen(false)}
+                  disabled={isGenerating}
+                >
+                  {t('common.cancel')}
+                </Button>
+                <Button size="sm" onClick={handleGenerate} isLoading={isGenerating}>
+                  <Sparkles className="ms-1 h-4 w-4" />
+                  {t('results.aiInterpretationReanalyze')}
+                </Button>
+              </div>
             </div>
-            <p className="text-sm text-[hsl(var(--muted-foreground))] mb-3">
-              {t('results.aiInterpretationPromptHint')}
-            </p>
-            <textarea
-              value={customPrompt}
-              onChange={(e) => setCustomPrompt(e.target.value)}
-              rows={5}
-              dir={isRtl ? 'rtl' : 'ltr'}
-              placeholder={t('results.aiInterpretationPromptPlaceholder')}
-              className="w-full rounded-lg border border-[hsl(var(--input))] bg-[hsl(var(--card))] px-4 py-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))] resize-y"
-            />
-            <div className="mt-4 flex items-center justify-end gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsPromptOpen(false)}
-                disabled={isGenerating}
-              >
-                {t('common.cancel')}
-              </Button>
-              <Button size="sm" onClick={handleReanalyze} isLoading={isGenerating}>
-                <Sparkles className="ms-1 h-4 w-4" />
-                {t('results.aiInterpretationReanalyze')}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body,
+        )}
     </Card>
   )
 }
