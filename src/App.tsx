@@ -16,6 +16,7 @@ const LandingPage = lazy(() => import('@/pages/landing/LandingPage').then(m => (
 const AboutPage = lazy(() => import('@/pages/landing/AboutPage').then(m => ({ default: m.AboutPage })))
 const StructuredInterviewPage = lazy(() => import('@/pages/landing/StructuredInterviewPage').then(m => ({ default: m.StructuredInterviewPage })))
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage').then(m => ({ default: m.LoginPage })))
+const RegisterPage = lazy(() => import('@/pages/auth/RegisterPage').then(m => ({ default: m.RegisterPage })))
 const SetPasswordPage = lazy(() => import('@/pages/auth/SetPasswordPage').then(m => ({ default: m.SetPasswordPage })))
 const CompleteRegistrationPage = lazy(() => import('@/pages/auth/CompleteRegistrationPage').then(m => ({ default: m.CompleteRegistrationPage })))
 const DashboardPage = lazy(() => import('@/pages/dashboard/DashboardPage').then(m => ({ default: m.DashboardPage })))
@@ -87,6 +88,7 @@ function AppContent() {
               <Route path="/about" element={<AboutPage />} />
               <Route path="/structured-interview" element={<StructuredInterviewPage />} />
               <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
               <Route path="/complete-registration" element={<CompleteRegistrationPage />} />
               <Route path="/set-password" element={<SetPasswordPage />} />
 

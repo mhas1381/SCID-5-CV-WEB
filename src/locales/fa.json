@@ -412,6 +412,13 @@
     "digit": "حداقل یک عدد (0-9)",
     "specialChar": "حداقل یک کاراکتر خاص (!@#$%^&*)"
   },
+  "register": {
+    "subtitle": "لطفاً اطلاعات خود را برای ثبت نام وارد کنید",
+    "emailLabel": "ایمیل",
+    "submitBtn": "ثبت نام",
+    "errorRegister": "خطا در ثبت نام",
+    "loginLink": "ورود به حساب"
+  },
   "completeRegistration": {
     "title": "تکمیل اطلاعات",
     "subtitle": "لطفاً اطلاعات خود را تکمیل کنید",
@@ -571,6 +578,9 @@
       "toDate": "تا تاریخ",
       "apply": "اعمال فیلتر",
       "filteredSessions": "{{count}} جلسه پس از اعمال فیلتر",
+      "dataSource": "منبع داده",
+      "realData": "داده‌های واقعی",
+      "testData": "داده‌های تستی",
       "disorderPrevalence": "شیوع اختلالات",
       "sessionsLabel": "جلسه",
       "dimension_gender": "به تفکیک جنسیت",

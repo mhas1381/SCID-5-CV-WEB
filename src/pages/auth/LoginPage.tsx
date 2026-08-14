@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { useNavigate, Navigate } from 'react-router-dom'
+import { useNavigate, Navigate, Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -56,6 +56,9 @@ const tabs = [
   { key: 'google', labelKey: 'auth.loginWithGoogle', icon: Globe },
 ] as const
 
+/** The SMS/OTP tab is intentionally hidden from the UI (its logic stays in place). */
+const VISIBLE_TABS = tabs.filter((tab) => tab.key !== 'otp')
+
 type TabKey = (typeof tabs)[number]['key']
 
 export function LoginPage() {
@@ -65,7 +68,7 @@ export function LoginPage() {
   const { isAuthenticated } = useAppSelector((state) => state.auth)
   const isLoggingInRef = useRef(false)
 
-  const [activeTab, setActiveTab] = useState<TabKey>('otp')
+  const [activeTab, setActiveTab] = useState<TabKey>('password')
   const [otpStep, setOtpStep] = useState<'phone' | 'otp'>('phone')
   const [phoneNumber, setPhoneNumber] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -217,8 +220,8 @@ export function LoginPage() {
 
         <CardContent className="space-y-6 pb-8">
           {/* ---- Tabs ---- */}
-          <div className="grid grid-cols-3 gap-2" role="tablist">
-            {tabs.map(({ key, labelKey, icon: Icon }) => (
+          <div className="grid grid-cols-2 gap-2" role="tablist">
+            {VISIBLE_TABS.map(({ key, labelKey, icon: Icon }) => (
               <button
                 key={key}
                 role="tab"
@@ -386,6 +389,19 @@ export function LoginPage() {
               </div>
             </div>
           )}
+
+          {/* ---- Register link ---- */}
+          <div className="border-t border-[hsl(var(--border))] pt-4 text-center">
+            <p className="align-middle text-sm text-[hsl(var(--muted-foreground))] whitespace-nowrap p-0 leading-normal">
+              {t('auth.noAccount')}{' '}
+              <Link
+                to="/register"
+                className="font-medium text-[hsl(var(--primary))] hover:underline align-middle"
+              >
+                {t('register.submitBtn')}
+              </Link>
+            </p>
+          </div>
         </CardContent>
       </Card>
     </div>

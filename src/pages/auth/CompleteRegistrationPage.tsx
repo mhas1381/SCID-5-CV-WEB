@@ -18,8 +18,8 @@ const otpSchema = z.object({
   first_name: z.string().min(1, 'نام الزامی است'),
   last_name: z.string().min(1, 'نام خانوادگی الزامی است'),
   email: z.string().email('ایمیل معتبر وارد کنید').min(1, 'ایمیل الزامی است'),
-  password: z.string().min(10, 'رمز عبور باید حداقل ۱۰ کاراکتر باشد'),
-  confirm_password: z.string().min(10, 'تکرار رمز عبور باید حداقل ۱۰ کاراکتر باشد'),
+  password: z.string().min(8, 'رمز عبور باید حداقل ۸ کاراکتر باشد'),
+  confirm_password: z.string().min(8, 'تکرار رمز عبور باید حداقل ۸ کاراکتر باشد'),
 }).refine((data) => data.password === data.confirm_password, {
   message: 'رمز عبور و تکرار آن یکسان نیستند',
   path: ['confirm_password'],

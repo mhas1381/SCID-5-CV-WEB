@@ -1,5 +1,5 @@
 import { baseApi } from './baseApi'
-import type { User, SendOTPRequest, SendOTPResponse, SendOTPError, VerifyOTPRequest, VerifyOTPResponse, GoogleLoginResponse, PasswordLoginRequest, SetPasswordRequest, SetPasswordResponse, AuthTokens, TokenRefreshRequest } from '@/types'
+import type { User, SendOTPRequest, SendOTPResponse, SendOTPError, VerifyOTPRequest, VerifyOTPResponse, GoogleLoginResponse, PasswordLoginRequest, RegisterRequest, RegisterResponse, SetPasswordRequest, SetPasswordResponse, AuthTokens, TokenRefreshRequest } from '@/types'
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -29,6 +29,14 @@ export const authApi = baseApi.injectEndpoints({
     completeProfile: builder.mutation<any, any>({
       query: (data) => ({
         url: 'v1/accounts/profile/complete/',
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['User'],
+    }),
+    register: builder.mutation<RegisterResponse, RegisterRequest>({
+      query: (data) => ({
+        url: 'v1/accounts/register/',
         method: 'POST',
         body: data,
       }),
@@ -69,6 +77,7 @@ export const {
   useVerifyOTPMutation,
   useSetPasswordMutation,
   useCompleteProfileMutation,
+  useRegisterMutation,
   useGetMeQuery,
   useRefreshTokenMutation,
   useGoogleLoginMutation,

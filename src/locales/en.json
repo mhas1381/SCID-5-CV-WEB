@@ -412,6 +412,13 @@
     "digit": "At least one digit (0-9)",
     "specialChar": "At least one special character (!@#$%^&*)"
   },
+  "register": {
+    "subtitle": "Please enter your information to register",
+    "emailLabel": "Email",
+    "submitBtn": "Register",
+    "errorRegister": "Registration error",
+    "loginLink": "Login to account"
+  },
   "completeRegistration": {
     "title": "Complete Profile",
     "subtitle": "Please complete your information",
@@ -571,6 +578,9 @@
       "toDate": "To",
       "apply": "Apply Filters",
       "filteredSessions": "{{count}} sessions after filtering",
+      "dataSource": "Data source",
+      "realData": "Real data",
+      "testData": "Test data",
       "disorderPrevalence": "Disorder Prevalence",
       "sessionsLabel": "sessions",
       "dimension_gender": "By Gender",

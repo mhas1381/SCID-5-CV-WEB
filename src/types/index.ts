@@ -61,6 +61,24 @@ export interface PasswordLoginRequest {
   password: string
 }
 
+/** POST /api/v1/accounts/register/ → body */
+export interface RegisterRequest {
+  phone_number: string
+  password: string
+  confirm_password: string
+  first_name: string
+  last_name: string
+  email: string
+}
+
+/** POST /api/v1/accounts/register/ → 201 response */
+export interface RegisterResponse {
+  refresh: string
+  access: string
+  user: User
+  message: string
+}
+
 /** GET /api/v1/dashboard/summary/ → response */
 export interface DashboardSummary {
   total_patients: number
