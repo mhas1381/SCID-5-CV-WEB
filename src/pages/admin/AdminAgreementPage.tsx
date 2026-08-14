@@ -6,6 +6,7 @@ import { GitCompareArrows, ThumbsUp, PlusCircle, MinusCircle, Users, Stethoscope
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, Legend } from 'recharts'
 import { toPersianNum } from '@/utils/date'
 import { MAIN_MODULE_CODES, MODULE_COLORS } from '@/utils/modules'
+import { chartTooltipProps } from '@/utils/charts'
 
 const CATEGORY_COLORS: Record<string, string> = {
   tp: '#22c55e',
@@ -156,7 +157,7 @@ export function AdminAgreementPage() {
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis dataKey="name" tick={{ fontSize: 12 }} />
                 <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
-                <Tooltip formatter={(value) => [value, t('admin.agreement.criteriaCount')]} />
+                <Tooltip {...chartTooltipProps} formatter={(value) => [value, t('admin.agreement.criteriaCount')]} />
                 <Bar dataKey="value" radius={[4, 4, 0, 0]}>
                   {chartData.map((entry) => (
                     <Cell key={entry.key} fill={entry.color} />

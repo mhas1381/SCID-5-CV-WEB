@@ -8,6 +8,7 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   BarChart, Bar, Cell, Legend,
 } from 'recharts'
+import { chartTooltipProps } from '@/utils/charts'
 import { cn } from '@/utils/cn'
 
 function formatMinutes(seconds: number): string {
@@ -134,7 +135,7 @@ export function AdminInterviewsPage() {
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                     <XAxis dataKey="date" tick={{ fontSize: 11 }} tickFormatter={(v: string) => v.slice(5)} />
                     <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
-                    <Tooltip />
+                    <Tooltip {...chartTooltipProps} />
                     <Line
                       type="monotone"
                       dataKey="count"
@@ -171,6 +172,7 @@ export function AdminInterviewsPage() {
                     <XAxis dataKey="code" tick={{ fontSize: 12 }} />
                     <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
                     <Tooltip
+                      {...chartTooltipProps}
                       formatter={(value, _name, entry) => [
                         value,
                         entry?.payload?.label || '',

@@ -8,6 +8,7 @@ import {
 import {
   PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend,
 } from 'recharts'
+import { chartTooltipProps } from '@/utils/charts'
 import { formatDate } from '@/utils/date'
 
 const STATUS_COLORS: Record<string, string> = {
@@ -98,7 +99,7 @@ export function AdminDashboardPage() {
                         <Cell key={entry.name} fill={entry.color} />
                       ))}
                     </Pie>
-                    <Tooltip />
+                    <Tooltip {...chartTooltipProps} />
                     <Legend />
                   </PieChart>
                 </ResponsiveContainer>
