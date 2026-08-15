@@ -75,7 +75,19 @@
     "passwordLogin": "Login with Password",
     "passwordLoginBtn": "Login",
     "loginWithPassword": "Login with Password",
-    "loginWithOTP": "Login with OTP"
+    "loginWithOTP": "Login with OTP",
+    "forgotPassword": "Forgot password?",
+    "forgotPasswordTitle": "Forgot Password",
+    "forgotPasswordHint": "Enter the email for your account and we'll send you a link to reset your password",
+    "forgotPasswordSent": "If an account exists for that email, a reset link has been sent. Please check your inbox.",
+    "forgotPasswordSentTitle": "Email Sent",
+    "forgotPasswordError": "Failed to send the reset email. Please try again.",
+    "forgotPasswordBackToLogin": "Back to login",
+    "sendResetLink": "Send Reset Link",
+    "resetPasswordTitle": "Set New Password",
+    "resetPasswordHint": "Enter your new password",
+    "resetPasswordSuccess": "Password changed successfully. Redirecting to login...",
+    "resetPasswordInvalid": "This reset link is invalid or has expired."
   },
   "dashboard": {
     "title": "Dashboard",

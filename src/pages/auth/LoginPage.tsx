@@ -357,6 +357,13 @@ export function LoginPage() {
               <Button type="submit" className="w-full" size="lg" isLoading={isPasswordLogging}>
                 {t('auth.passwordLoginBtn')}
               </Button>
+
+              <Link
+                to="/forgot-password"
+                className="block text-center text-sm text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--primary))] transition-colors"
+              >
+                {t('auth.forgotPassword')}
+              </Link>
             </form>
           )}
 

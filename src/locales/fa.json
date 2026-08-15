@@ -75,7 +75,19 @@
     "passwordLogin": "ورود با رمز عبور",
     "passwordLoginBtn": "ورود",
     "loginWithPassword": "ورود با رمز عبور",
-    "loginWithOTP": "ورود با کد یکبار مصرف"
+    "loginWithOTP": "ورود با کد یکبار مصرف",
+    "forgotPassword": "رمز عبور را فراموش کرده‌اید؟",
+    "forgotPasswordTitle": "فراموشی رمز عبور",
+    "forgotPasswordHint": "ایمیل حساب خود را وارد کنید تا لینک بازنشانی رمز عبور برای شما ارسال شود",
+    "forgotPasswordSent": "اگر ایمیلی با این آدرس وجود داشته باشد، لینک بازیابی برایتان ارسال شد. لطفاً صندوق ورودی خود را بررسی کنید.",
+    "forgotPasswordSentTitle": "ایمیل ارسال شد",
+    "forgotPasswordError": "ارسال ایمیل بازیابی با خطا مواجه شد. لطفاً دوباره تلاش کنید.",
+    "forgotPasswordBackToLogin": "بازگشت به ورود",
+    "sendResetLink": "ارسال لینک بازیابی",
+    "resetPasswordTitle": "تنظیم رمز عبور جدید",
+    "resetPasswordHint": "رمز عبور جدید خود را وارد کنید",
+    "resetPasswordSuccess": "رمز عبور با موفقیت تغییر کرد. به صفحه ورود منتقل می‌شوید.",
+    "resetPasswordInvalid": "لینک بازیابی نامعتبر یا منقضی شده است."
   },
   "dashboard": {
     "title": "داشبورد",

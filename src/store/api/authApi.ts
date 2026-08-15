@@ -1,5 +1,5 @@
 import { baseApi } from './baseApi'
-import type { User, SendOTPRequest, SendOTPResponse, SendOTPError, VerifyOTPRequest, VerifyOTPResponse, GoogleLoginResponse, PasswordLoginRequest, RegisterRequest, RegisterResponse, SetPasswordRequest, SetPasswordResponse, AuthTokens, TokenRefreshRequest } from '@/types'
+import type { User, SendOTPRequest, SendOTPResponse, SendOTPError, VerifyOTPRequest, VerifyOTPResponse, GoogleLoginResponse, PasswordLoginRequest, RegisterRequest, RegisterResponse, SetPasswordRequest, SetPasswordResponse, AuthTokens, TokenRefreshRequest, PasswordResetRequest, PasswordResetResponse, PasswordResetConfirmRequest, PasswordResetConfirmResponse } from '@/types'
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -69,6 +69,20 @@ export const authApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['User'],
     }),
+    requestPasswordReset: builder.mutation<PasswordResetResponse, PasswordResetRequest>({
+      query: (data) => ({
+        url: 'v1/accounts/auth/password-reset/',
+        method: 'POST',
+        body: data,
+      }),
+    }),
+    confirmPasswordReset: builder.mutation<PasswordResetConfirmResponse, PasswordResetConfirmRequest>({
+      query: (data) => ({
+        url: 'v1/accounts/auth/password-reset/confirm/',
+        method: 'POST',
+        body: data,
+      }),
+    }),
   }),
 })
 
@@ -82,4 +96,6 @@ export const {
   useRefreshTokenMutation,
   useGoogleLoginMutation,
   usePasswordLoginMutation,
+  useRequestPasswordResetMutation,
+  useConfirmPasswordResetMutation,
 } = authApi

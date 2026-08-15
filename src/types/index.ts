@@ -111,14 +111,37 @@ export interface SetPasswordResponse {
   detail: string
 }
 
+/** POST /api/v1/accounts/token/refresh/ → body & response */
+export interface TokenRefreshRequest {
+  refresh: string
+}
+
 export interface AuthTokens {
   access: string
   refresh: string
 }
 
-/** POST /api/v1/accounts/token/refresh/ → body & response */
-export interface TokenRefreshRequest {
-  refresh: string
+/** POST /api/v1/accounts/auth/password-reset/ → body */
+export interface PasswordResetRequest {
+  email: string
+}
+
+/** POST /api/v1/accounts/auth/password-reset/ → 200 response */
+export interface PasswordResetResponse {
+  detail: string
+}
+
+/** POST /api/v1/accounts/auth/password-reset/confirm/ → body */
+export interface PasswordResetConfirmRequest {
+  uid: string
+  token: string
+  password: string
+  confirm_password: string
+}
+
+/** POST /api/v1/accounts/auth/password-reset/confirm/ → 200 response */
+export interface PasswordResetConfirmResponse {
+  detail: string
 }
 
 // ==========================================================

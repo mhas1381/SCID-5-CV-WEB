@@ -18,6 +18,8 @@ const StructuredInterviewPage = lazy(() => import('@/pages/landing/StructuredInt
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage').then(m => ({ default: m.LoginPage })))
 const RegisterPage = lazy(() => import('@/pages/auth/RegisterPage').then(m => ({ default: m.RegisterPage })))
 const SetPasswordPage = lazy(() => import('@/pages/auth/SetPasswordPage').then(m => ({ default: m.SetPasswordPage })))
+const ForgotPasswordPage = lazy(() => import('@/pages/auth/ForgotPasswordPage').then(m => ({ default: m.ForgotPasswordPage })))
+const ResetPasswordPage = lazy(() => import('@/pages/auth/ResetPasswordPage').then(m => ({ default: m.ResetPasswordPage })))
 const CompleteRegistrationPage = lazy(() => import('@/pages/auth/CompleteRegistrationPage').then(m => ({ default: m.CompleteRegistrationPage })))
 const DashboardPage = lazy(() => import('@/pages/dashboard/DashboardPage').then(m => ({ default: m.DashboardPage })))
 const PatientsPage = lazy(() => import('@/pages/patients/PatientsPage').then(m => ({ default: m.PatientsPage })))
@@ -89,6 +91,8 @@ function AppContent() {
               <Route path="/structured-interview" element={<StructuredInterviewPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="/reset-password" element={<ResetPasswordPage />} />
               <Route path="/complete-registration" element={<CompleteRegistrationPage />} />
               <Route path="/set-password" element={<SetPasswordPage />} />
 
