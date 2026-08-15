@@ -504,6 +504,8 @@ export interface ProgressResponse {
   current_module: string | null
   current_question: string | null
   total_questions_in_module: number
+  /** 1-based position of the current question in the module sequence */
+  current_position: number
   answered_total: number
   progress_percent: number
 }

@@ -90,6 +90,7 @@ const apiTagTypes = [
   'Patient',
   'PatientNote',
   'Session',
+  'Progress',
   'Overview',
   'OverviewQuestions',
   'Dashboard',

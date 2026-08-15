@@ -634,7 +634,7 @@ export function InterviewSessionPage() {
             />
           </div>
           <p className="text-xs text-[hsl(var(--muted-foreground))] text-center mt-1">
-            {progress.answered_total} / {progress.total_questions_in_module} (
+            {progress.current_position} / {progress.total_questions_in_module} (
             {Math.round(progressPercent)}%)
           </p>
         </div>

@@ -113,6 +113,10 @@ export const interviewApi = baseApi.injectEndpoints({
         method: 'POST',
         body,
       }),
+      invalidatesTags: (result, error, { sessionId }) => [
+        { type: 'Session', id: sessionId },
+        { type: 'Progress', id: sessionId },
+      ],
     }),
 
     // POST /api/v1/interviews/sessions/{id}/navigate/
@@ -122,7 +126,10 @@ export const interviewApi = baseApi.injectEndpoints({
         method: 'POST',
         body: { question_id },
       }),
-      invalidatesTags: (result, error, { sessionId }) => [{ type: 'Session', id: sessionId }],
+      invalidatesTags: (result, error, { sessionId }) => [
+        { type: 'Session', id: sessionId },
+        { type: 'Progress', id: sessionId },
+      ],
     }),
 
     // GET /api/v1/interviews/sessions/{id}/review/?question_id=X
@@ -141,7 +148,11 @@ export const interviewApi = baseApi.injectEndpoints({
         url: `v1/interviews/sessions/${id}/complete-overview/`,
         method: 'POST',
       }),
-      invalidatesTags: (result, error, id) => [{ type: 'Session', id }, 'Session'],
+      invalidatesTags: (result, error, id) => [
+        { type: 'Session', id },
+        'Session',
+        { type: 'Progress', id },
+      ],
     }),
 
     // POST /api/v1/interviews/sessions/{id}/complete/
@@ -150,12 +161,17 @@ export const interviewApi = baseApi.injectEndpoints({
         url: `v1/interviews/sessions/${id}/complete/`,
         method: 'POST',
       }),
-      invalidatesTags: (result, error, id) => [{ type: 'Session', id }, 'Session'],
+      invalidatesTags: (result, error, id) => [
+        { type: 'Session', id },
+        'Session',
+        { type: 'Progress', id },
+      ],
     }),
 
     // GET /api/v1/interviews/sessions/{id}/progress/
     getSessionProgress: builder.query<ProgressResponse, number>({
       query: (id) => `v1/interviews/sessions/${id}/progress/`,
+      providesTags: (result, error, id) => [{ type: 'Progress', id }],
     }),
 
     // ==========================================================
