@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useGetAdminAgreementQuery } from '@/store/api/adminApi'
+import { selectDataSource } from '@/store/slices/dataSourceSlice'
+import { useAppSelector } from '@/hooks/useAppStore'
 import { Card, CardContent, CardHeader, CardTitle, LoadingSpinner, ExportButton } from '@/components/ui'
 import { GitCompareArrows, ThumbsUp, PlusCircle, MinusCircle, Users, Stethoscope, Percent, ChevronDown } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, Legend } from 'recharts'
@@ -19,7 +21,8 @@ export function AdminAgreementPage() {
   const { t, i18n } = useTranslation()
   const isFa = i18n.language === 'fa'
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({})
-  const { data, isLoading } = useGetAdminAgreementQuery()
+  const testData = useAppSelector(selectDataSource)
+  const { data, isLoading } = useGetAdminAgreementQuery({ test_data: testData })
 
   if (isLoading) {
     return <LoadingSpinner size="xl" className="py-20" />

@@ -1,5 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { useGetAdminInterviewAnalyticsQuery } from '@/store/api/adminApi'
+import { selectDataSource } from '@/store/slices/dataSourceSlice'
+import { useAppSelector } from '@/hooks/useAppStore'
 import { Card, CardContent, CardHeader, CardTitle, LoadingSpinner, ExportButton } from '@/components/ui'
 import {
   CheckCircle2, XCircle, Clock, Timer, ListChecks, ThumbsUp, BarChart3,
@@ -25,7 +27,8 @@ const MODULE_COLORS = [
 export function AdminInterviewsPage() {
   const { t, i18n } = useTranslation()
   const isFa = i18n.language === 'fa'
-  const { data, isLoading } = useGetAdminInterviewAnalyticsQuery({})
+  const testData = useAppSelector(selectDataSource)
+  const { data, isLoading } = useGetAdminInterviewAnalyticsQuery({ test_data: testData })
 
   if (isLoading) {
     return <LoadingSpinner size="xl" className="py-20" />

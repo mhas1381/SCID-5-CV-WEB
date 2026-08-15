@@ -1,5 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { useGetAdminOverviewQuery } from '@/store/api/adminApi'
+import { selectDataSource } from '@/store/slices/dataSourceSlice'
+import { useAppSelector } from '@/hooks/useAppStore'
 import { Card, CardContent, CardHeader, CardTitle, LoadingSpinner, ExportButton } from '@/components/ui'
 import {
   Users, Stethoscope, ClipboardList, CheckCircle2, XCircle, Clock,
@@ -20,7 +22,8 @@ const STATUS_COLORS: Record<string, string> = {
 
 export function AdminDashboardPage() {
   const { t } = useTranslation()
-  const { data, isLoading } = useGetAdminOverviewQuery()
+  const testData = useAppSelector(selectDataSource)
+  const { data, isLoading } = useGetAdminOverviewQuery({ test_data: testData })
 
   if (isLoading) {
     return <LoadingSpinner size="xl" className="py-20" />

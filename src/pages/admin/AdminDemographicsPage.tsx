@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useGetAdminDemographicsQuery } from '@/store/api/adminApi'
 import { useGetProvincesQuery } from '@/store/api/locationApi'
+import { setDataSource, selectDataSource } from '@/store/slices/dataSourceSlice'
+import { useAppDispatch, useAppSelector } from '@/hooks/useAppStore'
 import { Card, CardContent, CardHeader, CardTitle, LoadingSpinner, Button, ExportButton } from '@/components/ui'
 import { JalaliDatePicker } from '@/components/ui/JalaliDatePicker'
 import { Users, Filter, RotateCcw, CalendarDays, MapPin } from 'lucide-react'
@@ -26,7 +28,6 @@ interface FilterState {
   province: string
   from: string
   to: string
-  test_data: string
 }
 
 const EMPTY_FILTERS: FilterState = {
@@ -37,22 +38,13 @@ const EMPTY_FILTERS: FilterState = {
   province: '',
   from: '',
   to: '',
-  test_data: 'real',
 }
-
-const TRADITIONAL_FILTER_KEYS: (keyof FilterState)[] = [
-  'gender',
-  'education',
-  'marital_status',
-  'age_group',
-  'province',
-  'from',
-  'to',
-]
 
 export function AdminDemographicsPage() {
   const { t, i18n } = useTranslation()
   const isFa = i18n.language === 'fa'
+  const dispatch = useAppDispatch()
+  const testData = useAppSelector(selectDataSource)
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS)
   const [applied, setApplied] = useState<FilterState>(EMPTY_FILTERS)
   const { data: provinces } = useGetProvincesQuery()
@@ -65,8 +57,14 @@ export function AdminDemographicsPage() {
     ...(applied.province && { province: applied.province }),
     ...(applied.from && { from: applied.from }),
     ...(applied.to && { to: applied.to }),
-    test_data: applied.test_data,
+    test_data: testData,
   }
+
+  // test_data is excluded from the export URL because ExportButton appends the
+  // global data-source selection to every analytics export automatically.
+  const exportParams = Object.fromEntries(
+    Object.entries(queryParams).filter(([key]) => key !== 'test_data')
+  )
 
   const { data, isLoading } = useGetAdminDemographicsQuery(queryParams)
 
@@ -82,23 +80,31 @@ export function AdminDemographicsPage() {
   const resetFilters = () => {
     setFilters(EMPTY_FILTERS)
     setApplied(EMPTY_FILTERS)
+    dispatch(setDataSource('real'))
   }
 
-  // Data-source toggles: "real" (default), "test", or "all" (both).
-  const realOn = filters.test_data === 'real' || filters.test_data === 'all'
-  const testOn = filters.test_data === 'test' || filters.test_data === 'all'
+  // Global data-source toggles: "real" (default), "test", or "all" (both).
+  // These write to the shared Redux slice so every analytics page respects them.
+  const realOn = testData === 'real' || testData === 'all'
+  const testOn = testData === 'test' || testData === 'all'
   const setDataFlags = (real: boolean, test: boolean) => {
-    let value: string
+    let value: 'real' | 'test' | 'all'
     if (real && test) value = 'all'
     else if (real) value = 'real'
     else if (test) value = 'test'
     else value = 'real'
-    setFilters((prev) => ({ ...prev, test_data: value }))
+    dispatch(setDataSource(value))
   }
 
   const hasActiveFilters =
-    TRADITIONAL_FILTER_KEYS.some((key) => applied[key] !== '') ||
-    applied.test_data !== 'real'
+    applied.gender !== '' ||
+    applied.education !== '' ||
+    applied.marital_status !== '' ||
+    applied.age_group !== '' ||
+    applied.province !== '' ||
+    applied.from !== '' ||
+    applied.to !== '' ||
+    testData !== 'real'
 
   if (isLoading) {
     return <LoadingSpinner size="xl" className="py-20" />
@@ -152,7 +158,7 @@ export function AdminDemographicsPage() {
         </div>
         <ExportButton
           url={`v1/admin/export/demographics/?${new URLSearchParams(
-            Object.entries(queryParams).map(([key, value]) => [key, String(value)])
+            Object.entries(exportParams).map(([key, value]) => [key, String(value)])
           ).toString()}`}
           filename="admin-demographics.csv"
         />

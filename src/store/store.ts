@@ -1,5 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit'
 import authReducer from './slices/authSlice'
+import dataSourceReducer from './slices/dataSourceSlice'
 import { baseApi, API_TAG_TYPES } from './api/baseApi'
 
 const apiResetMiddleware: import('@reduxjs/toolkit').Middleware = () => (next) => (action) => {
@@ -21,6 +22,7 @@ const apiResetMiddleware: import('@reduxjs/toolkit').Middleware = () => (next) =
 export const store = configureStore({
   reducer: {
     auth: authReducer,
+    dataSource: dataSourceReducer,
     [baseApi.reducerPath]: baseApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>

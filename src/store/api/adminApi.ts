@@ -26,24 +26,39 @@ export interface DemographicsParams {
   test_data?: string
 }
 
+/** Query params shared by the global analytics endpoints. */
+export interface AnalyticsParams {
+  days?: number
+  /** "real" (default), "test", or "all" */
+  test_data?: string
+}
+
 export const adminApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getAdminOverview: builder.query<AdminOverview, void>({
-      query: () => 'v1/admin/overview/',
+    getAdminOverview: builder.query<AdminOverview, AnalyticsParams | void>({
+      query: (params) => ({
+        url: 'v1/admin/overview/',
+        params: params || undefined,
+      }),
     }),
 
     getAdminInterviewAnalytics: builder.query<
       AdminInterviewAnalytics,
-      { days?: number }
+      AnalyticsParams | void
     >({
-      query: ({ days = 30 } = {}) => ({
-        url: 'v1/admin/analytics/interviews/',
-        params: { days },
-      }),
+      query: (params) => {
+        const query: Record<string, string> = {}
+        if (params?.days != null) query.days = String(params.days)
+        if (params?.test_data) query.test_data = params.test_data
+        return { url: 'v1/admin/analytics/interviews/', params: query }
+      },
     }),
 
-    getAdminAgreement: builder.query<AdminAgreement, void>({
-      query: () => 'v1/admin/analytics/agreement/',
+    getAdminAgreement: builder.query<AdminAgreement, AnalyticsParams | void>({
+      query: (params) => ({
+        url: 'v1/admin/analytics/agreement/',
+        params: params || undefined,
+      }),
     }),
 
     getAdminDemographics: builder.query<AdminDemographics, DemographicsParams>(
