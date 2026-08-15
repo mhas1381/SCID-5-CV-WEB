@@ -1,8 +1,10 @@
 /** Cloud backend (Vercel) used automatically for production builds.
+ * Vercel rewrites "/api/*" and "/media/*" on this same origin to the backend
+ * (see vercel.json), so the backend hostname is never exposed to the browser.
  * Must include the "/api" prefix: endpoint paths start with "/v1/..." so
- * apiUrl() produces https://smart-scid-5-cv.vercel.app/api/v1/...
+ * apiUrl() produces /api/v1/... (same-origin, proxied).
  */
-const PRODUCTION_API_URL = 'https://smart-scid-5-cv.vercel.app/api'
+const PRODUCTION_API_URL = '/api'
 
 function resolveApiBase(): string {
   const envApiBase = import.meta.env.VITE_API_URL as string | undefined
@@ -10,7 +12,7 @@ function resolveApiBase(): string {
   // Local development: same-origin "/api" is proxied by the Vite dev server
   // to the local Django backend (see vite.config.ts).
   if (import.meta.env.DEV) return '/api'
-  // Production build: talk to the deployed cloud backend.
+  // Production build: same-origin "/api" is proxied by Vercel to the backend.
   return PRODUCTION_API_URL
 }
 

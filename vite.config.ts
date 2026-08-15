@@ -5,10 +5,11 @@ import { VitePWA } from 'vite-plugin-pwa'
 import path from 'path'
 
 /** Cloud backend (Vercel) used automatically for production builds.
- * Must include the "/api" prefix so the app calls /api/v1/... (kept in
- * sync with src/config.ts). Only the origin is used for the CSP.
+ * Vercel rewrites "/api/*" on this same origin to the backend
+ * (see vercel.json), so requests stay same-origin and the CSP only needs
+ * "self". Kept in sync with src/config.ts.
  */
-const PRODUCTION_API_URL = 'https://smart-scid-5-cv.vercel.app/api'
+const PRODUCTION_API_URL = '/api'
 
 /** Base Content-Security-Policy injected into the built HTML. */
 function securityHeadersPlugin(apiBase?: string): Plugin {
