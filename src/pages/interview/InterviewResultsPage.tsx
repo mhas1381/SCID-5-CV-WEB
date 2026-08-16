@@ -31,6 +31,8 @@ import {
   Download,
   ShieldCheck,
   MessageSquare,
+  Lightbulb,
+  AlertTriangle,
   Sparkles,
   Pencil,
   RotateCw,
@@ -41,7 +43,7 @@ import { formatDate, toPersianNum } from '@/utils/date'
 import { MODULE_COLORS } from '@/utils/modules'
 import { downloadSessionPdf } from '@/utils/download'
 import { getErrorMessage } from '@/utils/error'
-import type { DiagnosticResultItem, DiagnosticQuestionInfo, ModuleGroupResult, AgreementData } from '@/types'
+import type { DiagnosticResultItem, DiagnosticQuestionInfo, ModuleGroupResult, AgreementData, AdminFeedbackType } from '@/types'
 
 function formatCriteriaVal(val: unknown, isRtl: boolean): string {
   if (val === null || val === undefined) return '-'
@@ -621,7 +623,37 @@ function FeedbackCard({
   t: (key: string) => string
 }) {
   const [content, setContent] = useState('')
+  const [feedbackType, setFeedbackType] = useState<AdminFeedbackType>('general')
   const [submitFeedback, { isLoading }] = useSubmitSystemFeedbackMutation()
+
+  const FEEDBACK_TYPES: AdminFeedbackType[] = ['suggestion', 'problem', 'general']
+
+  const typeMeta: Record<
+    AdminFeedbackType,
+    { icon: typeof Lightbulb; active: string; inactive: string }
+  > = {
+    suggestion: {
+      icon: Lightbulb,
+      active:
+        'border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300',
+      inactive:
+        'border-[hsl(var(--border))] text-[hsl(var(--muted-foreground))] hover:border-blue-300 dark:hover:border-blue-700',
+    },
+    problem: {
+      icon: AlertTriangle,
+      active:
+        'border-red-500 bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-300',
+      inactive:
+        'border-[hsl(var(--border))] text-[hsl(var(--muted-foreground))] hover:border-red-300 dark:hover:border-red-700',
+    },
+    general: {
+      icon: Info,
+      active:
+        'border-[hsl(var(--primary))] bg-[hsl(var(--primary))]/5 text-[hsl(var(--primary))]',
+      inactive:
+        'border-[hsl(var(--border))] text-[hsl(var(--muted-foreground))] hover:border-[hsl(var(--ring))]',
+    },
+  }
 
   const handleSubmit = async () => {
     if (!content.trim()) {
@@ -629,9 +661,10 @@ function FeedbackCard({
       return
     }
     try {
-      await submitFeedback({ content, session_id: sessionId, feedback_type: 'general' }).unwrap()
+      await submitFeedback({ content, session_id: sessionId, feedback_type: feedbackType }).unwrap()
       toast.success(t('results.feedbackSuccess'))
       setContent('')
+      setFeedbackType('general')
     } catch (err) {
       toast.error(getErrorMessage(err, t('results.feedbackError')))
     }
@@ -649,6 +682,32 @@ function FeedbackCard({
         </p>
       </CardHeader>
       <CardContent className="space-y-3">
+        <div>
+          <span className="mb-2 block text-sm font-medium text-[hsl(var(--muted-foreground))]">
+            {t('results.feedbackTypeLabel')}
+          </span>
+          <div className="grid grid-cols-3 gap-2">
+            {FEEDBACK_TYPES.map((tpe) => {
+              const meta = typeMeta[tpe]
+              const Icon = meta.icon
+              const isActive = feedbackType === tpe
+              return (
+                <button
+                  key={tpe}
+                  type="button"
+                  onClick={() => setFeedbackType(tpe)}
+                  className={cn(
+                    'flex items-center justify-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-colors',
+                    isActive ? meta.active : meta.inactive
+                  )}
+                >
+                  <Icon className="h-4 w-4 shrink-0" />
+                  {t(`results.feedbackTypes.${tpe}`)}
+                </button>
+              )
+            })}
+          </div>
+        </div>
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}

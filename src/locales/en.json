@@ -281,6 +281,12 @@
     "feedbackSuccess": "Thank you! Your feedback was submitted.",
     "feedbackError": "Failed to submit feedback",
     "feedbackEmpty": "Feedback text is required",
+    "feedbackTypeLabel": "Feedback type",
+    "feedbackTypes": {
+      "suggestion": "Suggestion",
+      "problem": "Problem",
+      "general": "General"
+    },
     "disagreed": "Disagreed",
     "disagreeActive": "Remove disagreement",
     "disagreeSuccess": "Disagreement recorded",

@@ -281,6 +281,12 @@
     "feedbackSuccess": "فیدبک شما ثبت شد. متشکریم!",
     "feedbackError": "خطا در ثبت فیدبک",
     "feedbackEmpty": "متن فیدبک الزامی است",
+    "feedbackTypeLabel": "نوع فیدبک",
+    "feedbackTypes": {
+      "suggestion": "پیشنهاد",
+      "problem": "مشکل",
+      "general": "عمومی"
+    },
     "disagreed": "عدم تایید",
     "disagreeActive": "رفع عدم تایید",
     "disagreeSuccess": "عدم تایید ثبت شد",
