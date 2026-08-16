@@ -149,20 +149,20 @@ export function LandingPage() {
           </button>
           <div className="flex items-center gap-1.5">
             <ThemeToggle />
-            <Button variant="ghost" onClick={() => navigate('/structured-interview')}>
-راهنمای سامانه
+            <Button variant="ghost" onClick={() => navigate('/structured-interview')} className="hidden md:inline-flex">
+              راهنمای سامانه
             </Button>
-            <Button variant="ghost" onClick={() => navigate('/about')}>
+            <Button variant="ghost" onClick={() => navigate('/about')} className="hidden md:inline-flex">
               درباره ما
             </Button>
-            <div className="h-5 w-px bg-[hsl(var(--border))] mx-0.5" />
+            <div className="hidden md:block h-5 w-px bg-[hsl(var(--border))] mx-0.5" />
             {isAuthenticated ? (
-              <Button onClick={() => navigate('/dashboard')}>
+              <Button onClick={() => navigate('/dashboard')} className="px-3 sm:px-4">
                 <User className={`${isRtl ? 'ml-1.5' : 'mr-1.5'} h-4 w-4`} />
                 {user?.first_name || user?.phone_number || 'پروفایل'}
               </Button>
             ) : (
-              <Button onClick={() => navigate('/login')}>
+              <Button onClick={() => navigate('/login')} className="px-3 sm:px-4">
                 شروع کنید
                 <ArrowLeft className={`${isRtl ? 'mr-1.5' : 'ml-1.5'} h-4 w-4`} />
               </Button>
@@ -173,7 +173,7 @@ export function LandingPage() {
 
       {/* ── Hero ── */}
       <section className="relative overflow-hidden">
-        <div className="relative w-full aspect-[16/7]">
+        <div className="relative w-full aspect-[3/4] sm:aspect-[16/10] lg:aspect-[16/7]">
           <img
             src="/hero-illustration.webp"
             alt="سامانه هوشمند مصاحبه بالینی SCID-5-CV"
@@ -182,28 +182,31 @@ export function LandingPage() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/35 to-black/55" />
           <div className="absolute inset-0 flex items-center justify-center px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-4xl mx-auto">
-              <div className="flex justify-center mb-6">
-                <div className="rounded-2xl bg-white/10 p-4 backdrop-blur-md ring-1 ring-white/20">
-                  <Brain className="h-16 w-16 text-white" />
+              <div className="flex justify-center mb-4 sm:mb-6">
+                <div className="rounded-2xl bg-white/10 p-3 sm:p-4 backdrop-blur-md ring-1 ring-white/20">
+                  <Brain className="h-12 w-12 sm:h-16 sm:w-16 text-white" />
                 </div>
               </div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-white drop-shadow">
+              <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-white drop-shadow">
                 سامانه هوشمند مصاحبه بالینی
               </h1>
-              <p className="text-lg md:text-xl text-white/90 mt-3 font-medium">
+              <p className="text-base sm:text-lg md:text-xl text-white/90 mt-2 sm:mt-3 font-medium">
                 Smart Clinical Interview System
               </p>
-              <p className="text-base text-white/85 mt-6 max-w-2xl mx-auto leading-relaxed drop-shadow">
+              <p className="hidden sm:block text-base text-white/85 mt-4 sm:mt-6 max-w-2xl mx-auto leading-relaxed drop-shadow">
                 سامانه SCID-5-CV یک ابزار دیجیتال برای انجام مصاحبه‌های بالینی ساختاریافته
                 بر اساس معیارهای DSM-5 است. این سیستم به روانشناسان و روانپزشکان کمک می‌کند
                 تا فرآیند تشخیص را با دقت و سرعت بیشتری انجام دهند.
               </p>
-              <div className="flex items-center justify-center gap-4 mt-10">
-                <Button size="lg" className="liquid-glass-on-image" onClick={() => navigate('/login')}>
+              <p className="sm:hidden text-sm text-white/85 mt-3 max-w-xs mx-auto leading-relaxed drop-shadow">
+                ابزار دیجیتال مصاحبه بالینی ساختاریافته بر اساس معیارهای DSM-5
+              </p>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mt-6 sm:mt-10">
+                <Button size="lg" className="liquid-glass-on-image w-full sm:w-auto" onClick={() => navigate('/login')}>
                   شروع کنید
                   <ArrowLeft className={`${isRtl ? 'mr-2' : 'ml-2'} h-5 w-5`} />
                 </Button>
-                <Button variant="outline" size="lg" className="liquid-glass-on-image" onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}>
+                <Button variant="outline" size="lg" className="liquid-glass-on-image w-full sm:w-auto" onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}>
                   اطلاعات بیشتر
                   <ChevronLeft className={`${isRtl ? 'mr-2' : 'ml-2'} h-4 w-4`} />
                 </Button>
@@ -299,12 +302,12 @@ export function LandingPage() {
           <p className="text-[hsl(var(--muted-foreground))] text-base mb-8 max-w-xl mx-auto">
             همین حالا ثبت‌نام کنید و از ابزارهای حرفه‌ای سامانه برای تشخیص دقیق‌تر بهره‌مند شوید
           </p>
-          <div className="flex items-center justify-center gap-3">
-            <Button size="lg" onClick={() => navigate('/login')}>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Button size="lg" className="w-full sm:w-auto" onClick={() => navigate('/login')}>
               ثبت‌نام / ورود
               <ArrowLeft className={`${isRtl ? 'mr-2' : 'ml-2'} h-5 w-5`} />
             </Button>
-            <Button variant="outline" size="lg" onClick={() => navigate('/login')}>
+            <Button variant="outline" size="lg" className="w-full sm:w-auto" onClick={() => navigate('/login')}>
               شروع رایگان
             </Button>
           </div>

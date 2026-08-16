@@ -210,7 +210,7 @@ export function AboutPage() {
 
       {/* ── Hero ── */}
       <section className="relative overflow-hidden">
-        <div className="relative w-full aspect-[16/7]">
+        <div className="relative w-full aspect-[3/4] sm:aspect-[16/10] lg:aspect-[16/7]">
           <img
             src="/hero-illustration.webp"
             alt="سامانه هوشمند مصاحبه بالینی SCID-5-CV"
@@ -219,14 +219,14 @@ export function AboutPage() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/35 to-black/55" />
           <div className="absolute inset-0 flex items-center justify-center px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-4xl mx-auto">
-              <div className="flex justify-center mb-4">
+              <div className="flex justify-center mb-3 sm:mb-4">
                 <div className="rounded-2xl bg-white/10 p-3 backdrop-blur-md ring-1 ring-white/20">
                   <GraduationCap className="h-10 w-10 text-white" />
                 </div>
               </div>
-              <h1 className="text-3xl md:text-4xl font-bold leading-tight text-white drop-shadow">درباره ما</h1>
-              <p className="text-base text-white/90 mt-2 font-medium">About Us</p>
-              <p className="text-sm sm:text-base text-white/85 mt-4 max-w-2xl mx-auto leading-relaxed drop-shadow">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold leading-tight text-white drop-shadow">درباره ما</h1>
+              <p className="text-sm sm:text-base text-white/90 mt-2 font-medium">About Us</p>
+              <p className="text-sm sm:text-base text-white/85 mt-3 sm:mt-4 max-w-2xl mx-auto leading-relaxed drop-shadow">
                 سامانه هوشمند مصاحبه بالینی SCID-5-CV با ترکیب دانش روان‌شناسی بالینی و فناوری
                 مهندسی نرم‌افزار طراحی شده است تا ابزاری دقیق و در دسترس برای انجام مصاحبه‌های
                 ساختاریافته بر اساس معیارهای DSM-5 در اختیار درمانگران قرار دهد.
