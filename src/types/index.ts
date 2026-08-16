@@ -496,6 +496,12 @@ export interface ReviewResponse {
   response: AnswerResponseData | null
 }
 
+export interface RevertResponse {
+  detail: string
+  current_question: Question
+  session_status: string
+}
+
 // --- Progress ---
 
 export interface ProgressResponse {

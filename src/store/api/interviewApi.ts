@@ -15,6 +15,7 @@ import type {
   ProgressResponse,
   Question,
   ReviewResponse,
+  RevertResponse,
   Session,
   SessionCreateRequest,
   SubmitAnswerRequest,
@@ -127,6 +128,20 @@ export const interviewApi = baseApi.injectEndpoints({
         body: { question_id },
       }),
       invalidatesTags: (result, error, { sessionId }) => [
+        { type: 'Session', id: sessionId },
+        { type: 'Progress', id: sessionId },
+      ],
+    }),
+
+    // POST /api/v1/interviews/sessions/{id}/revert/
+    // Undo the last answer and rewind the session to the previous question so
+    // the clinician can change it.
+    revertAnswer: builder.mutation<RevertResponse, number>({
+      query: (sessionId) => ({
+        url: `v1/interviews/sessions/${sessionId}/revert/`,
+        method: 'POST',
+      }),
+      invalidatesTags: (result, error, sessionId) => [
         { type: 'Session', id: sessionId },
         { type: 'Progress', id: sessionId },
       ],
@@ -308,6 +323,7 @@ export const {
   useCreateSessionMutation,
   useSubmitAnswerMutation,
   useNavigateSessionMutation,
+  useRevertAnswerMutation,
   useReviewQuestionQuery,
   useCompleteOverviewMutation,
   useCompleteSessionMutation,

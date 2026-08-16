@@ -12,6 +12,7 @@ import {
   useContinueSessionMutation,
   useUpdateSessionMutation,
   useReviewQuestionQuery,
+  useRevertAnswerMutation,
 } from '@/store/api/interviewApi'
 import { useElapsedTime } from '@/hooks/useElapsedTime'
 import { SessionTimerText } from '@/components/interview/SessionTimerText'
@@ -88,9 +89,10 @@ export function InterviewSessionPage() {
   const [noteText, setNoteText] = useState('')
   const [submitAnswer, { isLoading: isSubmitting }] = useSubmitAnswerMutation()
   const [completeSession, { isLoading: isCompleting }] = useCompleteSessionMutation()
-  const [navigateSession, { isLoading: isNavigating }] = useNavigateSessionMutation()
+  const [navigateSession, { isLoading: _isNavigating }] = useNavigateSessionMutation()
   const [continueSession, { isLoading: isContinuing }] = useContinueSessionMutation()
   const [updateSession] = useUpdateSessionMutation()
+  const [revertAnswer, { isLoading: isReverting }] = useRevertAnswerMutation()
 
   // Read-only review of a previously answered question.
   const [reviewQuestionId, setReviewQuestionId] = useState<string | null>(null)
@@ -248,14 +250,22 @@ export function InterviewSessionPage() {
   }
 
   const handlePrev = async () => {
-    if (!canGoPrev) return
-    // Instead of navigating back (which would allow re-answering and corrupt
-    // the branching flow), open the read-only review of the previous answer.
-    const prevId = answeredQuestionIds[answeredQuestionIds.length - 1]
-    if (!prevId) return
+    if (!canGoPrev || isReverting) return
     setLocalError(null)
-    setReviewQuestionId(prevId)
-    setReviewOpen(true)
+    try {
+      const res = await revertAnswer(sessionId).unwrap()
+      // The returned question replaces the current one; the session is re-fetched
+      // through RTK invalidation, so the answer UI renders in edit mode.
+      setCurrentQuestion(res.current_question)
+      setNoteText('')
+      setReviewOpen(false)
+      setReviewQuestionId(null)
+      toast.success(res.detail)
+    } catch (err: any) {
+      const msg = getErrorMessage(err, t('interview.revertError'))
+      setLocalError(msg)
+      toast.error(msg)
+    }
   }
 
   const handleReviewSelect = (questionId: string) => {
@@ -923,12 +933,12 @@ export function InterviewSessionPage() {
               variant="outline"
               size="lg"
               onClick={handlePrev}
-              disabled={!canGoPrev || isNavigating}
-              isLoading={isNavigating}
+              disabled={!canGoPrev || isReverting}
+              isLoading={isReverting}
               className="w-full sm:w-auto sm:flex-1"
             >
               <ChevronRight className="ml-2 h-5 w-5" />
-              {isRtl ? 'قبلی' : 'Prev'}
+              {t('interview.revertPrev')}
             </Button>
             <Button variant="outline" size="lg" onClick={handleComplete} isLoading={isCompleting} className="w-full sm:w-auto sm:flex-1">
               <CheckCircle className="ml-2 h-5 w-5" />

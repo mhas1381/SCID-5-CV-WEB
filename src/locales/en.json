@@ -215,7 +215,10 @@
     "reviewResume": "Back to interview",
     "reviewClose": "Close",
     "reviewCount": "answers",
-    "reviewError": "Failed to load the recorded answer."
+    "reviewError": "Failed to load the recorded answer.",
+    "revertPrev": "Back & edit answer",
+    "revertError": "Failed to go back to the previous question.",
+    "revertSuccess": "Previous answer removed; you can now change it."
   },
   "results": {
     "title": "Diagnostic Results",
