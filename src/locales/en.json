@@ -630,6 +630,8 @@
       "fromDate": "From",
       "toDate": "To",
       "apply": "Apply Filters",
+      "reset": "Clear filters",
+      "liveHint": "Filters apply live; the per-dimension breakdowns always show every group.",
       "filteredSessions": "{{count}} sessions after filtering",
       "dataSource": "Data source",
       "realData": "Real data",

@@ -46,17 +46,16 @@ export function AdminDemographicsPage() {
   const dispatch = useAppDispatch()
   const testData = useAppSelector(selectDataSource)
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS)
-  const [applied, setApplied] = useState<FilterState>(EMPTY_FILTERS)
   const { data: provinces } = useGetProvincesQuery()
 
   const queryParams = {
-    ...(applied.gender && { gender: applied.gender }),
-    ...(applied.education && { education: applied.education }),
-    ...(applied.marital_status && { marital_status: applied.marital_status }),
-    ...(applied.age_group && { age_group: applied.age_group }),
-    ...(applied.province && { province: applied.province }),
-    ...(applied.from && { from: applied.from }),
-    ...(applied.to && { to: applied.to }),
+    ...(filters.gender && { gender: filters.gender }),
+    ...(filters.education && { education: filters.education }),
+    ...(filters.marital_status && { marital_status: filters.marital_status }),
+    ...(filters.age_group && { age_group: filters.age_group }),
+    ...(filters.province && { province: filters.province }),
+    ...(filters.from && { from: filters.from }),
+    ...(filters.to && { to: filters.to }),
     test_data: testData,
   }
 
@@ -76,10 +75,8 @@ export function AdminDemographicsPage() {
     setFilters((prev) => ({ ...prev, [key]: value }))
   }
 
-  const applyFilters = () => setApplied(filters)
   const resetFilters = () => {
     setFilters(EMPTY_FILTERS)
-    setApplied(EMPTY_FILTERS)
     dispatch(setDataSource('real'))
   }
 
@@ -97,13 +94,13 @@ export function AdminDemographicsPage() {
   }
 
   const hasActiveFilters =
-    applied.gender !== '' ||
-    applied.education !== '' ||
-    applied.marital_status !== '' ||
-    applied.age_group !== '' ||
-    applied.province !== '' ||
-    applied.from !== '' ||
-    applied.to !== '' ||
+    filters.gender !== '' ||
+    filters.education !== '' ||
+    filters.marital_status !== '' ||
+    filters.age_group !== '' ||
+    filters.province !== '' ||
+    filters.from !== '' ||
+    filters.to !== '' ||
     testData !== 'real'
 
   if (isLoading) {
@@ -280,18 +277,21 @@ export function AdminDemographicsPage() {
             </div>
 
             <div className="flex items-end gap-2">
-              <Button onClick={applyFilters} className="flex-1">
-                {t('admin.demographics.apply')}
-              </Button>
-              <Button variant="outline" onClick={resetFilters} className="px-3">
-                <RotateCcw className="h-4 w-4" />
+              <Button variant="outline" onClick={resetFilters} className="flex-1">
+                <RotateCcw className="h-4 w-4 ml-2" />
+                {t('admin.demographics.reset')}
               </Button>
             </div>
           </div>
 
+          <div className="mt-4 flex items-center gap-2 text-xs text-[hsl(var(--muted-foreground))]">
+            <Filter className="h-3.5 w-3.5 shrink-0" />
+            <span>{t('admin.demographics.liveHint')}</span>
+          </div>
+
           {hasActiveFilters && (
-            <div className="mt-4 flex items-center gap-2 text-xs text-[hsl(var(--muted-foreground))]">
-              <Filter className="h-3.5 w-3.5" />
+            <div className="mt-2 flex items-center gap-2 text-xs text-[hsl(var(--muted-foreground))]">
+              <CalendarDays className="h-3.5 w-3.5" />
               {t('admin.demographics.filteredSessions', {
                 count: toPersianNum(String(data.total_sessions)),
               })}
