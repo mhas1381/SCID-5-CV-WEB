@@ -624,6 +624,7 @@ function FeedbackCard({
 }) {
   const [content, setContent] = useState('')
   const [feedbackType, setFeedbackType] = useState<AdminFeedbackType>('general')
+  const [withResults, setWithResults] = useState(false)
   const [submitFeedback, { isLoading }] = useSubmitSystemFeedbackMutation()
 
   const FEEDBACK_TYPES: AdminFeedbackType[] = ['suggestion', 'problem', 'general']
@@ -661,10 +662,16 @@ function FeedbackCard({
       return
     }
     try {
-      await submitFeedback({ content, session_id: sessionId, feedback_type: feedbackType }).unwrap()
+      await submitFeedback({
+        content,
+        session_id: sessionId,
+        feedback_type: feedbackType,
+        with_results: withResults,
+      }).unwrap()
       toast.success(t('results.feedbackSuccess'))
       setContent('')
       setFeedbackType('general')
+      setWithResults(false)
     } catch (err) {
       toast.error(getErrorMessage(err, t('results.feedbackError')))
     }
@@ -708,6 +715,22 @@ function FeedbackCard({
             })}
           </div>
         </div>
+        <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-[hsl(var(--border))] p-3 transition-colors hover:border-[hsl(var(--ring))]">
+          <input
+            type="checkbox"
+            checked={withResults}
+            onChange={(e) => setWithResults(e.target.checked)}
+            className="mt-0.5 h-4 w-4 shrink-0 accent-[hsl(var(--primary))]"
+          />
+          <span className="min-w-0">
+            <span className="block text-sm font-medium text-[hsl(var(--foreground))]">
+              {t('results.feedbackWithResults')}
+            </span>
+            <span className="block text-xs text-[hsl(var(--muted-foreground))]">
+              {t('results.feedbackWithResultsHint')}
+            </span>
+          </span>
+        </label>
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
@@ -935,7 +958,7 @@ function AiInterpretationCard({
               <p className="text-sm text-[hsl(var(--muted-foreground))] mb-3">
                 {t('results.aiInterpretationPromptHint')}
               </p>
-              <textarea
+        <textarea
                 value={promptText}
                 onChange={(e) => setPromptText(e.target.value)}
                 dir={isRtl ? 'rtl' : 'ltr'}

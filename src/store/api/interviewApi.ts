@@ -259,8 +259,13 @@ export const interviewApi = baseApi.injectEndpoints({
 
     // Submit system feedback (session-bound or general)
     submitSystemFeedback: builder.mutation<
-      { detail: string; id: number; feedback_type: string },
-      { content: string; session_id?: number; feedback_type?: string }
+      { detail: string; id: number; feedback_type: string; with_results: boolean },
+      {
+        content: string
+        session_id?: number
+        feedback_type?: string
+        with_results?: boolean
+      }
     >({
       query: (body) => ({
         url: 'v1/interviews/feedback/',

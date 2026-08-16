@@ -287,6 +287,8 @@
       "problem": "مشکل",
       "general": "عمومی"
     },
+    "feedbackWithResults": "همراه با نتایج تشخیصی این مصاحبه",
+    "feedbackWithResultsHint": "خروجی تشخیص‌های ثبت‌شده این جلسه برای بررسی بیشتر ارسال می‌شود",
     "disagreed": "عدم تایید",
     "disagreeActive": "رفع عدم تایید",
     "disagreeSuccess": "عدم تایید ثبت شد",
@@ -492,6 +494,22 @@
         "suggestion": "پیشنهاد",
         "problem": "مشکل",
         "general": "عمومی"
+      },
+      "attachedDiagnoses": "تشخیص‌های پیوست‌شده",
+      "detailsTitle": "جزئیات کامل مصاحبه",
+      "diagnosesLabel": "تشخیص",
+      "manualDiagnoses": "تشخیص‌های از پیش موجود (تکمیل‌شده توسط درمانگر)",
+      "responsesTitle": "پرسش‌وپاسخ‌های جلسه",
+      "selectedModules": "ماژول‌های انتخابی",
+      "severity": {
+        "mild": "خفیف",
+        "moderate": "متوسط",
+        "severe": "شدید"
+      },
+      "confirmation": {
+        "CONFIRMED": "تأییدشده",
+        "PROVISIONAL": "احتمالی",
+        "RULED_OUT": "ردشده"
       },
       "search": "جستجو",
       "searchPlaceholder": "جستجو در متن یا نام درمانگر...",

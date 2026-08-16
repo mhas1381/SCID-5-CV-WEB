@@ -287,6 +287,8 @@
       "problem": "Problem",
       "general": "General"
     },
+    "feedbackWithResults": "Include this interview's diagnostic results",
+    "feedbackWithResultsHint": "The recorded diagnoses of this session are attached for review",
     "disagreed": "Disagreed",
     "disagreeActive": "Remove disagreement",
     "disagreeSuccess": "Disagreement recorded",
@@ -492,6 +494,22 @@
         "suggestion": "Suggestion",
         "problem": "Problem",
         "general": "General"
+      },
+      "attachedDiagnoses": "Attached diagnoses",
+      "detailsTitle": "Full interview details",
+      "diagnosesLabel": "diagnoses",
+      "manualDiagnoses": "Pre-existing (clinician-recorded) diagnoses",
+      "responsesTitle": "Session Q&A",
+      "selectedModules": "Selected modules",
+      "severity": {
+        "mild": "Mild",
+        "moderate": "Moderate",
+        "severe": "Severe"
+      },
+      "confirmation": {
+        "CONFIRMED": "Confirmed",
+        "PROVISIONAL": "Provisional",
+        "RULED_OUT": "Ruled out"
       },
       "search": "Search",
       "searchPlaceholder": "Search content or clinician name...",

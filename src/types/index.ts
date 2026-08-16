@@ -866,12 +866,68 @@ export interface AdminActivityParams {
 /** GET /api/v1/admin/feedback/ → item */
 export type AdminFeedbackType = 'suggestion' | 'problem' | 'general'
 
+export interface AdminFeedbackAnswerOption {
+  value: string
+  label: string
+  label_fa: string
+}
+
+export interface AdminFeedbackResponse {
+  question_id: string
+  question: string
+  question_fa: string
+  module: string
+  question_type: string
+  substance: string
+  answer_option: AdminFeedbackAnswerOption | null
+  text_response: string
+  numeric_response: number | null
+  date_response: string | null
+}
+
+export interface AdminFeedbackDiagnosticItem {
+  criteria_id: number
+  code: string
+  name: string
+  name_fa: string
+  is_met: boolean
+  is_current: boolean
+  severity: string
+  symptoms_met_count: number
+  confirmation_status: string
+  clinician_confirmed: boolean
+  clinician_disagreed: boolean
+  criteria_details: Record<string, unknown>
+}
+
+export interface AdminFeedbackManualDiagnosis {
+  criteria__diagnosis_code: string
+  criteria__disorder_name: string
+  criteria__disorder_name_fa: string
+}
+
+export interface AdminFeedbackDiagnosticSummary {
+  session_id?: number
+  session_status?: string
+  completed_at?: string | null
+  patient_count?: number
+  current_module?: string | null
+  selected_modules?: string[] | null
+  total_responses?: number
+  responses?: AdminFeedbackResponse[]
+  total_results?: number
+  total_met?: number
+  diagnoses?: AdminFeedbackDiagnosticItem[]
+  manual_diagnoses?: AdminFeedbackManualDiagnosis[]
+}
+
 export interface AdminFeedbackItem {
   id: number
   clinician_name: string
   feedback_type: AdminFeedbackType
   content: string
   session: number | null
+  diagnostic_summary?: AdminFeedbackDiagnosticSummary | null
   created_at: string
 }
 
