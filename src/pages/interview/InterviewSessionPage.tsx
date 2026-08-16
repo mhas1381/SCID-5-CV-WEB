@@ -777,12 +777,19 @@ export function InterviewSessionPage() {
                 <div className="flex flex-row gap-3">
                   {options.map((opt) => {
                     const label = isRtl && opt.label_fa ? opt.label_fa : opt.label
+                    const isYes = opt.value === 'yes'
+                    const isNo = opt.value === 'no'
+                    const variantClass = isYes
+                      ? 'border-emerald-300/80 bg-emerald-50/70 text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200 hover:border-emerald-400 hover:bg-emerald-100/80 dark:hover:bg-emerald-900/50'
+                      : isNo
+                        ? 'border-rose-300/80 bg-rose-50/70 text-rose-800 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-200 hover:border-rose-400 hover:bg-rose-100/80 dark:hover:bg-rose-900/50'
+                        : 'border-[hsl(var(--border))] hover:border-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/5'
                     return (
                       <button
                         key={opt.id}
                         onClick={() => handleAnswer({ selected_option_id: opt.id, text_response: noteText || undefined })}
                         disabled={isSubmitting}
-                        className="flex-1 flex flex-col items-center justify-center gap-2 rounded-xl border-2 py-6 sm:py-10 px-4 text-base sm:text-lg font-semibold transition-all hover:shadow-md disabled:opacity-50 border-[hsl(var(--border))] hover:border-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/5"
+                        className={`flex-1 flex flex-col items-center justify-center gap-2 rounded-xl border-2 py-6 sm:py-10 px-4 text-base sm:text-lg font-semibold transition-all hover:shadow-md disabled:opacity-50 ${variantClass}`}
                       >
                         <span>{label}</span>
                       </button>

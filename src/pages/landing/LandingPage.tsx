@@ -216,9 +216,12 @@ export function LandingPage() {
       {/* ── Stats ── */}
       <section className="border-y border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-sm">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
             {stats.map((stat) => (
-              <div key={stat.label} className="text-center">
+              <div
+                key={stat.label}
+                className="rounded-2xl border border-violet-200/80 bg-white/70 px-4 py-6 text-center shadow-[inset_0_1px_0_hsl(0_0%_100%/0.8),0_4px_16px_hsl(262_45%_55%/0.08)] dark:border-[var(--glass-border)] dark:bg-[var(--glass-bg)] dark:backdrop-blur-sm transition-shadow hover:shadow-[inset_0_1px_0_hsl(0_0%_100%/0.9),0_6px_20px_hsl(262_45%_55%/0.14)]"
+              >
                 <div className="text-3xl md:text-4xl font-bold text-[hsl(var(--primary))]">{stat.value}</div>
                 <div className="text-sm text-[hsl(var(--muted-foreground))] mt-1">{stat.label}</div>
               </div>
