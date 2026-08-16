@@ -106,17 +106,27 @@ export function StructuredInterviewPage() {
 
       {/* ── Hero ── */}
       <section className="relative overflow-hidden">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 text-center">
-          <div className="flex justify-center mb-4">
-            <div className="rounded-2xl bg-[hsl(var(--primary))]/10 p-3">
-              <History className="h-10 w-10 text-[hsl(var(--primary))]" />
+        <div className="relative w-full aspect-[16/7]">
+          <img
+            src="/hero-illustration.webp"
+            alt="سامانه هوشمند مصاحبه بالینی SCID-5-CV"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/35 to-black/55" />
+          <div className="absolute inset-0 flex items-center justify-center px-4 sm:px-6 lg:px-8">
+            <div className="text-center max-w-4xl mx-auto">
+              <div className="flex justify-center mb-4">
+                <div className="rounded-2xl bg-white/10 p-3 backdrop-blur-md ring-1 ring-white/20">
+                  <History className="h-10 w-10 text-white" />
+                </div>
+              </div>
+              <h1 className="text-3xl md:text-4xl font-bold leading-tight text-white drop-shadow">راهنمای سامانه</h1>
+              <p className="text-base text-white/90 mt-2 font-medium">مصاحبه بالینی ساختاریافته</p>
+              <p className="text-sm sm:text-base text-white/85 mt-4 max-w-2xl mx-auto leading-relaxed drop-shadow">
+                آشنایی با SCID-5-CV و نحوه کارکرد سامانه هوشمند مصاحبه بالینی — از معرفی علمی تا گام‌های عملی ارزیابی و تشخیص.
+              </p>
             </div>
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold leading-tight">راهنمای سامانه</h1>
-          <p className="text-base text-[hsl(var(--muted-foreground))] mt-2 font-medium">مصاحبه بالینی ساختاریافته</p>
-          <p className="text-sm sm:text-base text-[hsl(var(--muted-foreground))] mt-4 max-w-2xl mx-auto leading-relaxed">
-            آشنایی با SCID-5-CV و نحوه کارکرد سامانه هوشمند مصاحبه بالینی — از معرفی علمی تا گام‌های عملی ارزیابی و تشخیص.
-          </p>
         </div>
       </section>
 

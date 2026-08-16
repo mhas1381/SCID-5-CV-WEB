@@ -40,6 +40,7 @@ const AdminDemographicsPage = lazy(() => import('@/pages/admin/AdminDemographics
 const AdminUsersPage = lazy(() => import('@/pages/admin/AdminUsersPage').then(m => ({ default: m.AdminUsersPage })))
 const AdminActivityPage = lazy(() => import('@/pages/admin/AdminActivityPage').then(m => ({ default: m.AdminActivityPage })))
 const AdminFeedbackPage = lazy(() => import('@/pages/admin/AdminFeedbackPage').then(m => ({ default: m.AdminFeedbackPage })))
+const AdminFeedbackSessionResultsPage = lazy(() => import('@/pages/admin/AdminFeedbackSessionResultsPage').then(m => ({ default: m.AdminFeedbackSessionResultsPage })))
 
 /**
  * Tracks navigation direction from the browser history index that react-router
@@ -147,6 +148,7 @@ function AppContent() {
                 <Route path="/admin/users" element={<AdminUsersPage />} />
                 <Route path="/admin/activity" element={<AdminActivityPage />} />
                 <Route path="/admin/feedback" element={<AdminFeedbackPage />} />
+                <Route path="/admin/feedback/session/:id" element={<AdminFeedbackSessionResultsPage />} />
               </Route>
             </Routes>
           </motion.div>

@@ -497,6 +497,8 @@
       },
       "attachedDiagnoses": "تشخیص‌های پیوست‌شده",
       "detailsTitle": "جزئیات کامل مصاحبه",
+      "viewFullResults": "مشاهده صفحه نتایج کامل",
+      "questionsLabel": "پرسش",
       "diagnosesLabel": "تشخیص",
       "manualDiagnoses": "تشخیص‌های از پیش موجود (تکمیل‌شده توسط درمانگر)",
       "responsesTitle": "پرسش‌وپاسخ‌های جلسه",

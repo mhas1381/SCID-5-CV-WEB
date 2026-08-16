@@ -986,11 +986,16 @@ function AiInterpretationCard({
   )
 }
 
-export function InterviewResultsPage() {
+interface InterviewResultsPageProps {
+  /** When set, render results for this session instead of reading it from the URL. */
+  sessionIdOverride?: number
+}
+
+export function InterviewResultsPage({ sessionIdOverride }: InterviewResultsPageProps) {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { t, i18n } = useTranslation()
-  const sessionId = Number(id)
+  const sessionId = sessionIdOverride ?? Number(id)
   const isRtl = i18n.language === 'fa'
 
   const { data: resultsData, isLoading } = useGetDiagnosticResultsQuery(sessionId)
@@ -1113,14 +1118,16 @@ export function InterviewResultsPage() {
                 </div>
               </div>
               <div className="flex shrink-0 items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => navigate(`/interview/${id}/background`)}
-                >
-                  <FileText className="ms-1 h-4 w-4" />
-                  {t('results.viewOverview')}
-                </Button>
+                {!sessionIdOverride && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigate(`/interview/${id}/background`)}
+                  >
+                    <FileText className="ms-1 h-4 w-4" />
+                    {t('results.viewOverview')}
+                  </Button>
+                )}
               </div>
             </div>
             <div className="mt-4 flex flex-wrap gap-x-6 gap-y-1 border-t border-[hsl(var(--border))] pt-3 text-xs text-[hsl(var(--muted-foreground))]">
@@ -1171,18 +1178,20 @@ export function InterviewResultsPage() {
             <ValidityCard agreement={resultsData.agreement} isRtl={isRtl} t={t} />
           )}
 
-          <FeedbackCard sessionId={sessionId} t={t} />
+          {!sessionIdOverride && <FeedbackCard sessionId={sessionId} t={t} />}
         </>
       )}
 
       <div className="flex gap-4 pb-8">
-        <Button onClick={() => navigate('/sessions')}>
+        <Button onClick={() => navigate(sessionIdOverride ? '/admin/feedback' : '/sessions')}>
           <ArrowLeft className={cn('h-4 w-4', isRtl ? 'ml-2' : 'mr-2')} />
           {t('results.backToSessions')}
         </Button>
-        <Button variant="outline" onClick={() => navigate('/interview')}>
-          {t('results.newInterview')}
-        </Button>
+        {!sessionIdOverride && (
+          <Button variant="outline" onClick={() => navigate('/interview')}>
+            {t('results.newInterview')}
+          </Button>
+        )}
       </div>
     </div>
   )

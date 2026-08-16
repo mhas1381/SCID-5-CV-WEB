@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Brain, ClipboardList, ShieldCheck, BarChart3, Users, Languages, Lock, 
-  ArrowLeft, ChevronLeft, GraduationCap, User } from 'lucide-react'
+  ArrowLeft, ChevronLeft, GraduationCap, User, Sparkles, Download, MessageSquare, Gauge, LayoutDashboard, GitCompareArrows } from 'lucide-react'
 import { Button, Card, CardContent } from '@/components/ui'
 import { ThemeToggle } from '@/components/layout/ThemeToggle'
 import { useAppSelector } from '@/hooks/useAppStore'
@@ -17,9 +17,9 @@ const features = [
   {
     icon: ClipboardList,
     title: 'مصاحبه بالینی ساختاریافته',
-    desc: 'پیاده‌سازی کامل SCID-5-CV برای تشخیص اختلالات محور I بر اساس DSM-5 با پرسش‌های گام‌به‌گام',
-    color: 'text-blue-600 dark:text-blue-400',
-    bg: 'bg-blue-100 dark:bg-blue-900/50',
+    desc: 'پیاده‌سازی کامل SCID-5-CV برای تشخیص اختلالات محور I بر اساس DSM-5 با پرسش‌های گام‌به‌گام و پیشرفت هوشمند مصاحبه',
+    color: 'text-violet-600 dark:text-violet-400',
+    bg: 'bg-violet-100 dark:bg-violet-900/50',
   },
   {
     icon: Users,
@@ -31,9 +31,44 @@ const features = [
   {
     icon: BarChart3,
     title: 'نتایج تشخیصی لحظه‌ای',
-    desc: 'محاسبه خودکار الگوریتم‌های تشخیصی و نمایش شدت اختلال، معیارهای met و گزارش تفصیلی',
+    desc: 'محاسبه خودکار الگوریتم‌های تشخیصی و نمایش شدت اختلال، معیارهای met، سازگاری با تشخیص از پیش موجود و گزارش تفصیلی',
     color: 'text-orange-600 dark:text-orange-400',
     bg: 'bg-orange-100 dark:bg-orange-900/50',
+  },
+  {
+    icon: Sparkles,
+    title: 'تفسیر هوشمند با هوش مصنوعی',
+    desc: 'تولید خودکار تفسیر جامع و روایی از نتایج مصاحبه، قابل ویرایش و ذخیره‌سازی برای هر جلسه',
+    color: 'text-violet-600 dark:text-violet-400',
+    bg: 'bg-violet-100 dark:bg-violet-900/50',
+  },
+  {
+    icon: Download,
+    title: 'گزارش و خروجی PDF',
+    desc: 'دریافت گزارش کامل مصاحبه همراه با تفسیر هوشمند در قالب PDF و برنامه‌نویسی برای هر بیمار',
+    color: 'text-cyan-600 dark:text-cyan-400',
+    bg: 'bg-cyan-100 dark:bg-cyan-900/50',
+  },
+  {
+    icon: Gauge,
+    title: 'پیشرفت و هدایت مصاحبه',
+    desc: 'نمایش زنده موقعیت شما در مصاحبه، پرش هوشمند بین ماژول‌ها و هدایت پرسش بر اساس پاسخ‌های قبلی',
+    color: 'text-fuchsia-600 dark:text-fuchsia-400',
+    bg: 'bg-fuchsia-100 dark:bg-fuchsia-900/50',
+  },
+  {
+    icon: MessageSquare,
+    title: 'بازخورد و پشتیبانی',
+    desc: 'ارسال بازخورد، پیشنهاد یا گزارش مشکل به‌همراه نتایج جلسه؛ مدیریت و بررسی دقیق توسط پنل اداری برای بهبود سامانه',
+    color: 'text-amber-600 dark:text-amber-400',
+    bg: 'bg-amber-100 dark:bg-amber-900/50',
+  },
+  {
+    icon: GitCompareArrows,
+    title: 'سازگاری با تشخیص قبلی',
+    desc: 'ثبت تشخیص‌های از پیش موجود توسط درمانگر و محاسبه خودکار درصد توافق (Agreement) با نتایج سامانه برای اعتبارسنجی بالینی',
+    color: 'text-indigo-600 dark:text-indigo-400',
+    bg: 'bg-indigo-100 dark:bg-indigo-900/50',
   },
   {
     icon: ShieldCheck,
@@ -50,11 +85,18 @@ const features = [
     bg: 'bg-purple-100 dark:bg-purple-900/50',
   },
   {
+    icon: LayoutDashboard,
+    title: 'پنل مدیریتی جامع',
+    desc: 'داشبورد اداری با مرور مصاحبه‌های کاربران، بازخوردها، تحلیل جمعیت‌شناختی و فعالیت سامانه',
+    color: 'text-rose-600 dark:text-rose-400',
+    bg: 'bg-rose-100 dark:bg-rose-900/50',
+  },
+  {
     icon: Lock,
     title: 'امن و محرمانه',
     desc: 'رمزنگاری اطلاعات حساس بیماران (کد ملی، تلفن، آدرس) در دیتابیس با AES-256، احراز هویت با JWT و رعایت استانداردهای حریم خصوصی',
-    color: 'text-rose-600 dark:text-rose-400',
-    bg: 'bg-rose-100 dark:bg-rose-900/50',
+    color: 'text-slate-600 dark:text-slate-400',
+    bg: 'bg-slate-100 dark:bg-slate-800/60',
   },
 ]
 
@@ -68,20 +110,20 @@ const steps = [
   {
     number: '۲',
     title: 'ثبت بیمار جدید',
-    desc: 'اطلاعات دموگرافیک بیمار را وارد کنید و پرونده بالینی تشکیل دهید',
+    desc: 'اطلاعات دموگرافیک بیمار را وارد کنید، ماژول‌های لازم را انتخاب و پرونده بالینی تشکیل دهید',
     icon: Users,
   },
   {
     number: '۳',
     title: 'انجام مصاحبه',
-    desc: 'مصاحبه ساختاریافته را گام‌به‌گام با راهنمایی سامانه انجام دهید',
+    desc: 'مصاحبه ساختاریافته را گام‌به‌گام با هدایت هوشمند سامانه و ردیابی پیشرفت انجام دهید',
     icon: Brain,
   },
   {
     number: '۴',
-    title: 'مشاهده نتایج',
-    desc: 'نتایج تشخیصی را به‌صورت لحظه‌ای با جزئیات کامل دریافت کنید',
-    icon: BarChart3,
+    title: 'بررسی نتایج و گزارش',
+    desc: 'نتایج تشخیصی، تفسیر هوشمند و گزارش PDF را دریافت و در صورت تمایل بازخورد خود را ثبت کنید',
+    icon: Sparkles,
   },
 ]
 
@@ -131,33 +173,41 @@ export function LandingPage() {
 
       {/* ── Hero ── */}
       <section className="relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28">
-          <div className="text-center max-w-4xl mx-auto">
-            <div className="flex justify-center mb-6">
-              <div className="rounded-2xl bg-[hsl(var(--primary))]/10 p-4">
-                <Brain className="h-16 w-16 text-[hsl(var(--primary))]" />
+        <div className="relative w-full aspect-[16/7]">
+          <img
+            src="/hero-illustration.webp"
+            alt="سامانه هوشمند مصاحبه بالینی SCID-5-CV"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/35 to-black/55" />
+          <div className="absolute inset-0 flex items-center justify-center px-4 sm:px-6 lg:px-8">
+            <div className="text-center max-w-4xl mx-auto">
+              <div className="flex justify-center mb-6">
+                <div className="rounded-2xl bg-white/10 p-4 backdrop-blur-md ring-1 ring-white/20">
+                  <Brain className="h-16 w-16 text-white" />
+                </div>
               </div>
-            </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-              سامانه هوشمند مصاحبه بالینی
-            </h1>
-            <p className="text-lg md:text-xl text-[hsl(var(--muted-foreground))] mt-3 font-medium">
-              Smart Clinical Interview System
-            </p>
-            <p className="text-base text-[hsl(var(--muted-foreground))] mt-6 max-w-2xl mx-auto leading-relaxed">
-              سامانه SCID-5-CV یک ابزار دیجیتال برای انجام مصاحبه‌های بالینی ساختاریافته
-              بر اساس معیارهای DSM-5 است. این سیستم به روانشناسان و روانپزشکان کمک می‌کند
-              تا فرآیند تشخیص را با دقت و سرعت بیشتری انجام دهند.
-            </p>
-            <div className="flex items-center justify-center gap-4 mt-10">
-              <Button size="lg" onClick={() => navigate('/login')}>
-                شروع کنید
-                <ArrowLeft className={`${isRtl ? 'mr-2' : 'ml-2'} h-5 w-5`} />
-              </Button>
-              <Button variant="outline" size="lg" onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}>
-                اطلاعات بیشتر
-                <ChevronLeft className={`${isRtl ? 'mr-2' : 'ml-2'} h-4 w-4`} />
-              </Button>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-white drop-shadow">
+                سامانه هوشمند مصاحبه بالینی
+              </h1>
+              <p className="text-lg md:text-xl text-white/90 mt-3 font-medium">
+                Smart Clinical Interview System
+              </p>
+              <p className="text-base text-white/85 mt-6 max-w-2xl mx-auto leading-relaxed drop-shadow">
+                سامانه SCID-5-CV یک ابزار دیجیتال برای انجام مصاحبه‌های بالینی ساختاریافته
+                بر اساس معیارهای DSM-5 است. این سیستم به روانشناسان و روانپزشکان کمک می‌کند
+                تا فرآیند تشخیص را با دقت و سرعت بیشتری انجام دهند.
+              </p>
+              <div className="flex items-center justify-center gap-4 mt-10">
+                <Button size="lg" className="liquid-glass-on-image" onClick={() => navigate('/login')}>
+                  شروع کنید
+                  <ArrowLeft className={`${isRtl ? 'mr-2' : 'ml-2'} h-5 w-5`} />
+                </Button>
+                <Button variant="outline" size="lg" className="liquid-glass-on-image" onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}>
+                  اطلاعات بیشتر
+                  <ChevronLeft className={`${isRtl ? 'mr-2' : 'ml-2'} h-4 w-4`} />
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -215,7 +265,7 @@ export function LandingPage() {
           </div>
           <div className="relative grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="hidden md:block absolute top-8 left-[calc(12.5%+2rem)] right-[calc(12.5%+2rem)] h-px border-t-2 border-dashed border-[hsl(var(--border))]" />
-            {steps.map((step, index) => (
+            {steps.map((step) => (
               <div key={step.number} className="relative text-center">
                 <div className="relative inline-flex items-center justify-center h-16 w-16 rounded-full bg-[var(--glass-bg)] backdrop-blur-md mb-4 shadow-[var(--glass-shadow)]">
                   <div className="absolute inset-0 rounded-full bg-[hsl(var(--primary))]/10" />

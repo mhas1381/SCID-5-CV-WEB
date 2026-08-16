@@ -497,6 +497,8 @@
       },
       "attachedDiagnoses": "Attached diagnoses",
       "detailsTitle": "Full interview details",
+      "viewFullResults": "View full results page",
+      "questionsLabel": "questions",
       "diagnosesLabel": "diagnoses",
       "manualDiagnoses": "Pre-existing (clinician-recorded) diagnoses",
       "responsesTitle": "Session Q&A",

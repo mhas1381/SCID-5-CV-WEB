@@ -1,7 +1,8 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useGetAdminFeedbackQuery } from '@/store/api/adminApi'
-import { Card, CardContent, CardHeader, CardTitle, LoadingSpinner, Input, ExportButton } from '@/components/ui'
+import { Card, CardContent, CardHeader, CardTitle, LoadingSpinner, Input, ExportButton, Button } from '@/components/ui'
 import {
   MessageSquare,
   Lightbulb,
@@ -253,6 +254,7 @@ function FeedbackDetailsSection({
   t: (key: string, options?: Record<string, unknown>) => string
 }) {
   const [open, setOpen] = useState(false)
+  const navigate = useNavigate()
   const summary = item.diagnostic_summary
   const diagnoses = summary?.diagnoses ?? []
   const responses = summary?.responses ?? []
@@ -271,7 +273,7 @@ function FeedbackDetailsSection({
           <ClipboardList className="h-3.5 w-3.5" />
           {t('admin.feedback.detailsTitle')}
           <span className="rounded-full bg-[hsl(var(--primary))]/10 px-1.5 py-0.5 text-[11px] font-medium text-[hsl(var(--primary))]">
-            {toPersianNum(String(totalQ))} {t('common.questions')} /{' '}
+            {toPersianNum(String(totalQ))} {t('admin.feedback.questionsLabel')} /{' '}
             {toPersianNum(String(diagnoses.length))} {t('admin.feedback.diagnosesLabel')}
           </span>
         </span>
@@ -285,21 +287,36 @@ function FeedbackDetailsSection({
       {open && (
         <div className="space-y-4 p-3">
           {/* Session meta */}
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <div className="text-[hsl(var(--muted-foreground))]">
-              {t('admin.feedback.sessionLabel', {
-                id: toPersianNum(String(summary?.session_id ?? item.session ?? '—')),
-              })}
-            </div>
-            <div className="text-[hsl(var(--muted-foreground))]">
-              {t('admin.feedback.attachedDiagnoses') + ':'}{' '}
-              {toPersianNum(String(diagnoses.filter((d) => d.is_met).length))}
-            </div>
-            {summary?.selected_modules && (
-              <div className="col-span-2 text-[hsl(var(--muted-foreground))]">
-                {t('admin.feedback.selectedModules')}:{' '}
-                {summary.selected_modules.map((m) => m).join(' · ')}
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="text-[hsl(var(--muted-foreground))]">
+                {t('admin.feedback.sessionLabel', {
+                  id: toPersianNum(String(summary?.session_id ?? item.session ?? '—')),
+                })}
               </div>
+              <div className="text-[hsl(var(--muted-foreground))]">
+                {t('admin.feedback.attachedDiagnoses') + ':'}{' '}
+                {toPersianNum(String(diagnoses.filter((d) => d.is_met).length))}
+              </div>
+              {summary?.selected_modules && (
+                <div className="col-span-2 text-[hsl(var(--muted-foreground))]">
+                  {t('admin.feedback.selectedModules')}:{' '}
+                  {summary.selected_modules.map((m) => m).join(' · ')}
+                </div>
+              )}
+            </div>
+            {summary?.session_id && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  navigate(`/admin/feedback/session/${summary.session_id}`)
+                }}
+              >
+                <ClipboardList className="h-4 w-4" />
+                {t('admin.feedback.viewFullResults')}
+              </Button>
             )}
           </div>
 
