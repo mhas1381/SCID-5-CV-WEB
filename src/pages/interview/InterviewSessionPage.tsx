@@ -629,7 +629,7 @@ export function InterviewSessionPage() {
         <div className="flex-shrink-0">
           <div className="w-full bg-[hsl(var(--secondary))] rounded-full h-2">
             <div
-              className="bg-[hsl(var(--primary))] h-2 rounded-full transition-all duration-500"
+              className="bg-gradient-to-r from-violet-500 to-fuchsia-500 h-2 rounded-full transition-all duration-500"
               style={{ width: `${Math.min(progressPercent, 100)}%` }}
             />
           </div>
