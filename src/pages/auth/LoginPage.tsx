@@ -198,7 +198,16 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center">
+    <div className="flex min-h-screen items-center justify-center relative px-4">
+      <Button
+        variant="ghost"
+        onClick={() => navigate('/')}
+        className="absolute top-4 start-4"
+      >
+        <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
+        {t('common.back')}
+      </Button>
+
       <Card className="w-full max-w-xl mx-4">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
