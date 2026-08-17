@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useNavigate, Navigate, Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -78,6 +78,17 @@ export function LoginPage() {
   const [verifyOTP, { isLoading: isVerifying }] = useVerifyOTPMutation()
   const [googleLoginMutation] = useGoogleLoginMutation()
   const [passwordLoginMutation, { isLoading: isPasswordLogging }] = usePasswordLoginMutation()
+
+  // Ensure the browser/phone back button returns to the landing page instead
+  // of leaving the site when the user opens /login directly. We replace the
+  // current history entry with the home URL so the previous entry is "/".
+  useEffect(() => {
+    const { pathname, search, hash } = window.location
+    if (pathname === '/login') {
+      window.history.replaceState(null, '', '/')
+      window.history.pushState(null, '', pathname + search + hash)
+    }
+  }, [])
 
   const onGoogleSuccess = async (credentialResponse: CredentialResponse) => {
     try {
@@ -199,15 +210,6 @@ export function LoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center relative px-4">
-      <Button
-        variant="ghost"
-        onClick={() => navigate('/')}
-        className="absolute top-4 start-4"
-      >
-        <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
-        {t('common.back')}
-      </Button>
-
       <Card className="w-full max-w-xl mx-4">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
