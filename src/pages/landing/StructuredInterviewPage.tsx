@@ -107,13 +107,19 @@ export function StructuredInterviewPage() {
       {/* ── Hero ── */}
       <section className="relative overflow-hidden">
         <div className="relative w-full aspect-[3/4] sm:aspect-[16/10] lg:aspect-[16/7]">
-          <img
-            src="/hero-illustration.webp"
-            alt="سامانه هوشمند مصاحبه بالینی SCID-5-CV"
-            className="absolute inset-0 h-full w-full object-cover"
-          />
+          <picture>
+            <source
+              media="(max-width: 639px)"
+              srcSet="/hero-illustration-mobile.webp"
+            />
+            <img
+              src="/hero-illustration.webp"
+              alt="سامانه هوشمند مصاحبه بالینی SCID-5-CV"
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          </picture>
           <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/35 to-black/55" />
-          <div className="absolute inset-0 flex items-center justify-center px-4 sm:px-6 lg:px-8">
+          <div className="absolute inset-0 flex items-end sm:items-center justify-center px-4 sm:px-6 lg:px-8 pb-12 sm:pb-0">
             <div className="text-center max-w-4xl mx-auto">
               <div className="flex justify-center mb-3 sm:mb-4">
                 <div className="rounded-2xl bg-white/10 p-3 backdrop-blur-md ring-1 ring-white/20">
