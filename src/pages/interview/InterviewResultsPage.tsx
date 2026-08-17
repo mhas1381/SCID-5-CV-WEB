@@ -458,10 +458,10 @@ function ValidityCard({
           : 'bg-red-500'
 
   const categories = [
-    { key: 'true_positive', count: agreement.true_positive },
-    { key: 'true_negative', count: agreement.true_negative },
-    { key: 'false_positive', count: agreement.false_positive },
-    { key: 'false_negative', count: agreement.false_negative },
+    { key: 'true_positive', count: agreement.true_positive, hintKey: 'results.truePositiveHint' },
+    { key: 'true_negative', count: agreement.true_negative, hintKey: 'results.trueNegativeHint' },
+    { key: 'false_positive', count: agreement.false_positive, hintKey: 'results.falsePositiveHint' },
+    { key: 'false_negative', count: agreement.false_negative, hintKey: 'results.falseNegativeHint' },
   ]
 
   const itemsByCategory = (key: string) =>
@@ -502,7 +502,7 @@ function ValidityCard({
               <div className={cn('h-full rounded-full transition-all', barColor)} style={{ width: `${percent}%` }} />
             </div>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-              {categories.map(({ key, count }) => (
+              {categories.map(({ key, count, hintKey }) => (
                 <button
                   key={key}
                   type="button"
@@ -519,6 +519,9 @@ function ValidityCard({
                   <p className="text-2xl font-bold">{count}</p>
                   <p className="text-xs text-[hsl(var(--muted-foreground))]">
                     {getCategoryLabel(key, t, isRtl)}
+                  </p>
+                  <p className="mt-1 text-[11px] leading-snug text-[hsl(var(--muted-foreground))]">
+                    {t(hintKey)}
                   </p>
                 </button>
               ))}
