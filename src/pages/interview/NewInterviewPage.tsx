@@ -115,11 +115,27 @@ export function NewInterviewPage() {
     return groups
   }, [orderedCriteria, orderedModules])
 
+  const groupsVisible = useMemo(() => {
+    if (selectedModules.length === 0) return criteriaByModule
+    return criteriaByModule.filter((group) => selectedModules.includes(group.code))
+  }, [criteriaByModule, selectedModules])
+
   const toggleManualDiagnosis = (criteriaId: number) => {
     setSelectedManualDiagnoses((prev) =>
       prev.includes(criteriaId)
         ? prev.filter((c) => c !== criteriaId)
         : [...prev, criteriaId]
+    )
+  }
+
+  // Drop pre-existing diagnoses that belong to modules that are no longer selected.
+  const pruneManualDiagnoses = (moduleCodes: string[]) => {
+    setSelectedManualDiagnoses((prev) =>
+      prev.filter(
+        (id) =>
+          moduleCodes.length === 0 ||
+          !orderedCriteria.some((c) => c.id === id && !moduleCodes.includes(c.module))
+      )
     )
   }
 
@@ -129,14 +145,19 @@ export function NewInterviewPage() {
       const pair = MODULE_PAIRS[code]
       if (isActive) {
         // Removing the module also removes its mandatory pair
-        return prev.filter((c) => c !== code && c !== pair)
+        const next = prev.filter((c) => c !== code && c !== pair)
+        pruneManualDiagnoses(next)
+        return next
       }
       // Adding the module also adds its mandatory pair
       return [...prev, code, pair].filter((c) => c && c.length > 0)
     })
   }
 
-  const clearAll = () => setSelectedModules([])
+  const clearAll = () => {
+    setSelectedModules([])
+    setSelectedManualDiagnoses([])
+  }
 
   const createSessionAndNavigate = async (patientId: number, isTestData: boolean) => {
     try {
@@ -383,7 +404,7 @@ export function NewInterviewPage() {
                   )}
                 </div>
 
-                {criteriaByModule.map((group) => {
+                {groupsVisible.map((group) => {
                   const modName = lang === 'fa' && group.name_fa ? group.name_fa : group.name
                   const selectedCount = group.items.filter((c) =>
                     selectedManualDiagnoses.includes(c.id)
