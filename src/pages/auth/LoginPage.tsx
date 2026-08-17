@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef } from 'react'
 import { useNavigate, Navigate, Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -78,17 +78,6 @@ export function LoginPage() {
   const [verifyOTP, { isLoading: isVerifying }] = useVerifyOTPMutation()
   const [googleLoginMutation] = useGoogleLoginMutation()
   const [passwordLoginMutation, { isLoading: isPasswordLogging }] = usePasswordLoginMutation()
-
-  // Ensure the browser/phone back button returns to the landing page instead
-  // of leaving the site when the user opens /login directly. We replace the
-  // current history entry with the home URL so the previous entry is "/".
-  useEffect(() => {
-    const { pathname, search, hash } = window.location
-    if (pathname === '/login') {
-      window.history.replaceState(null, '', '/')
-      window.history.pushState(null, '', pathname + search + hash)
-    }
-  }, [])
 
   const onGoogleSuccess = async (credentialResponse: CredentialResponse) => {
     try {
@@ -419,6 +408,14 @@ export function LoginPage() {
                 {t('register.submitBtn')}
               </Link>
             </p>
+          </div>
+
+          {/* ---- Back to home ---- */}
+          <div className="text-center">
+            <Button variant="outline" onClick={() => navigate('/')} className="w-full">
+              <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
+              {t('common.back')}
+            </Button>
           </div>
         </CardContent>
       </Card>
