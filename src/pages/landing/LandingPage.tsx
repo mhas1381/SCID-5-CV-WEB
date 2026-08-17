@@ -1,7 +1,8 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Brain, ClipboardList, ShieldCheck, BarChart3, Users, Languages, Lock, 
-  ArrowLeft, ChevronLeft, GraduationCap, User, Sparkles, Download, MessageSquare, Gauge, LayoutDashboard, GitCompareArrows } from 'lucide-react'
+  ArrowLeft, ChevronLeft, GraduationCap, User, Sparkles, Download, MessageSquare, Gauge, LayoutDashboard, GitCompareArrows, Menu, X } from 'lucide-react'
 import { Button, Card, CardContent } from '@/components/ui'
 import { ThemeToggle } from '@/components/layout/ThemeToggle'
 import { useAppSelector } from '@/hooks/useAppStore'
@@ -132,13 +133,19 @@ export function LandingPage() {
   const { i18n } = useTranslation()
   const { isAuthenticated, user } = useAppSelector((state) => state.auth)
   const isRtl = i18n.language === 'fa'
+  const [menuOpen, setMenuOpen] = useState(false)
+
+  const goTo = (path: string) => {
+    setMenuOpen(false)
+    navigate(path)
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
       {/* ── Header ── */}
       <header className="border-b border-[var(--glass-border)] sticky top-0 bg-[var(--glass-bg)] backdrop-blur-xl z-50 shadow-[var(--glass-shadow)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <button type="button" onClick={() => navigate('/')} className="flex items-center gap-2.5 text-start">
+          <button type="button" onClick={() => goTo('/')} className="flex items-center gap-2.5 text-start">
             <div className="rounded-lg bg-[hsl(var(--primary))]/10 p-1.5">
               <Brain className="h-6 w-6 text-[hsl(var(--primary))]" />
             </div>
@@ -162,13 +169,46 @@ export function LandingPage() {
                 {user?.first_name || user?.phone_number || 'پروفایل'}
               </Button>
             ) : (
-              <Button onClick={() => navigate('/login')} className="px-3 sm:px-4">
+              <Button onClick={() => navigate('/login')} className="hidden sm:inline-flex px-3 sm:px-4">
                 شروع کنید
                 <ArrowLeft className={`${isRtl ? 'mr-1.5' : 'ml-1.5'} h-4 w-4`} />
               </Button>
             )}
+            <button
+              type="button"
+              onClick={() => setMenuOpen((open) => !open)}
+              className="md:hidden inline-flex h-9 w-9 items-center justify-center rounded-lg text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))]"
+              aria-label="menu"
+            >
+              {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
           </div>
         </div>
+
+        {/* ── Mobile menu ── */}
+        {menuOpen && (
+          <div className="md:hidden border-t border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-xl">
+            <div className="max-w-7xl mx-auto px-4 py-3 flex flex-col gap-1">
+              <Button variant="ghost" className="justify-start" onClick={() => goTo('/structured-interview')}>
+                راهنمای سامانه
+              </Button>
+              <Button variant="ghost" className="justify-start" onClick={() => goTo('/about')}>
+                درباره ما
+              </Button>
+              {isAuthenticated ? (
+                <Button className="justify-start" onClick={() => goTo('/dashboard')}>
+                  <User className={`${isRtl ? 'ml-1.5' : 'mr-1.5'} h-4 w-4`} />
+                  {user?.first_name || user?.phone_number || 'پروفایل'}
+                </Button>
+              ) : (
+                <Button className="justify-start" onClick={() => goTo('/login')}>
+                  شروع کنید
+                  <ArrowLeft className={`${isRtl ? 'mr-1.5' : 'ml-1.5'} h-4 w-4`} />
+                </Button>
+              )}
+            </div>
+          </div>
+        )}
       </header>
 
       {/* ── Hero ── */}
