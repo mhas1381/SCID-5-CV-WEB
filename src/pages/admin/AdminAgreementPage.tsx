@@ -57,6 +57,7 @@ export function AdminAgreementPage() {
     },
     {
       label: t('admin.agreement.tp'),
+      hint: t('admin.agreement.tpHint'),
       value: data.totals.tp,
       icon: ThumbsUp,
       color: 'text-green-600 dark:text-green-400',
@@ -64,6 +65,7 @@ export function AdminAgreementPage() {
     },
     {
       label: t('admin.agreement.tn'),
+      hint: t('admin.agreement.tnHint'),
       value: data.totals.tn,
       icon: ThumbsUp,
       color: 'text-blue-600 dark:text-blue-400',
@@ -71,6 +73,7 @@ export function AdminAgreementPage() {
     },
     {
       label: t('admin.agreement.fp'),
+      hint: t('admin.agreement.fpHint'),
       value: data.totals.fp,
       icon: PlusCircle,
       color: 'text-amber-600 dark:text-amber-400',
@@ -78,6 +81,7 @@ export function AdminAgreementPage() {
     },
     {
       label: t('admin.agreement.fn'),
+      hint: t('admin.agreement.fnHint'),
       value: data.totals.fn,
       icon: MinusCircle,
       color: 'text-red-600 dark:text-red-400',
@@ -135,6 +139,11 @@ export function AdminAgreementPage() {
                 <div className="min-w-0">
                   <p className="text-xs text-[hsl(var(--muted-foreground))] truncate">{stat.label}</p>
                   <p className="text-xl font-bold mt-1 tabular-nums">{stat.value}</p>
+                  {'hint' in stat && (
+                    <p className="text-[11px] leading-snug text-[hsl(var(--muted-foreground))] mt-1.5">
+                      {stat.hint}
+                    </p>
+                  )}
                 </div>
                 <div className={`shrink-0 rounded-xl p-2.5 ${stat.bg}`}>
                   <stat.icon className={`h-5 w-5 ${stat.color}`} />
