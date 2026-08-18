@@ -236,6 +236,20 @@ export interface PatientCreateResponse {
   phone_number: string
 }
 
+export interface PatientEncryptionField {
+  name: string
+  plaintext: string | null
+  ciphertext: string | null
+}
+
+export interface PatientEncryptionInfo {
+  patient_id: number
+  algorithm: string
+  key_derivation: string
+  storage: string
+  fields: PatientEncryptionField[]
+}
+
 export interface PatientNote {
   id: number
   clinician_name: string

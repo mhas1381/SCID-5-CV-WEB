@@ -1,5 +1,5 @@
 import { baseApi } from './baseApi'
-import type { Patient, PatientCreateRequest, PatientCreateResponse, PatientNote, PatientNoteCreateRequest, PatientNoteCreateResponse, PaginatedResponse } from '@/types'
+import type { Patient, PatientCreateRequest, PatientCreateResponse, PatientNote, PatientNoteCreateRequest, PatientNoteCreateResponse, PatientEncryptionInfo, PaginatedResponse } from '@/types'
 
 export const patientApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -16,6 +16,10 @@ export const patientApi = baseApi.injectEndpoints({
     }),
     getPatient: builder.query<Patient, number>({
       query: (id) => `v1/accounts/patients/${id}/`,
+      providesTags: (result, error, id) => [{ type: 'Patient', id }],
+    }),
+    getPatientEncryptionInfo: builder.query<PatientEncryptionInfo, number>({
+      query: (id) => `v1/accounts/patients/${id}/encryption-info/`,
       providesTags: (result, error, id) => [{ type: 'Patient', id }],
     }),
     createPatient: builder.mutation<PatientCreateResponse, PatientCreateRequest>({
@@ -59,6 +63,7 @@ export const patientApi = baseApi.injectEndpoints({
 export const {
   useGetPatientsQuery,
   useGetPatientQuery,
+  useGetPatientEncryptionInfoQuery,
   useCreatePatientMutation,
   useUpdatePatientMutation,
   useDeletePatientMutation,

@@ -6,9 +6,10 @@ import { useGetPatientsQuery, useDeletePatientMutation } from '@/store/api/patie
 import { Button, Card, CardContent, LoadingSpinner } from '@/components/ui'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { JalaliDatePicker } from '@/components/ui/JalaliDatePicker'
-import { Plus, Search, Edit2, Trash2, User, Info, RotateCcw } from 'lucide-react'
+import { Plus, Search, Edit2, Trash2, User, Info, RotateCcw, Lock } from 'lucide-react'
 import { cn } from '@/utils/cn'
 import { formatDate, toPersianNum } from '@/utils/date'
+import { EncryptionInfoModal } from './EncryptionInfoModal'
 
 const avatarColors = [
   'bg-blue-500', 'bg-emerald-500', 'bg-violet-500', 'bg-rose-500',
@@ -51,6 +52,8 @@ export function PatientsPage() {
   const [page, setPage] = useState(1)
   const [deleteTarget, setDeleteTarget] = useState<{ id: number; name: string } | null>(null)
   const [deletingId, setDeletingId] = useState<number | null>(null)
+  const [encryptionOpen, setEncryptionOpen] = useState(false)
+  const [encryptionPatientId, setEncryptionPatientId] = useState<number | null>(null)
 
   const queryParams = useMemo(() => {
     const params: Record<string, unknown> = { page }
@@ -126,9 +129,24 @@ export function PatientsPage() {
       </div>
 
       <div className="rounded-lg border border-blue-200 bg-blue-50/50 p-3 text-sm text-blue-800 dark:border-blue-800 dark:bg-blue-950/50 dark:text-blue-300">
-        <div className="flex items-start gap-2">
-          <Info className="mt-0.5 h-4 w-4 shrink-0" />
-          <p>{t('patients.encryptionHint')}</p>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-start gap-2">
+            <Info className="mt-0.5 h-4 w-4 shrink-0" />
+            <p>{t('patients.encryptionHint')}</p>
+          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            className="shrink-0"
+            onClick={() => {
+              const first = data?.results?.[0]
+              setEncryptionPatientId(first ? first.id : null)
+              setEncryptionOpen(true)
+            }}
+          >
+            <Lock className="ml-1 h-4 w-4" />
+            {t('patients.encryptionMoreInfo')}
+          </Button>
         </div>
       </div>
 
@@ -335,6 +353,13 @@ export function PatientsPage() {
         onConfirm={handleDelete}
         onCancel={() => setDeleteTarget(null)}
         isLoading={isDeleting}
+      />
+
+      <EncryptionInfoModal
+        open={encryptionOpen}
+        patients={data?.results ?? []}
+        initialPatientId={encryptionPatientId}
+        onClose={() => setEncryptionOpen(false)}
       />
     </div>
   )
