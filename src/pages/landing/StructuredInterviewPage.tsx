@@ -25,7 +25,7 @@ const modules = [
   { code: 'F', name_fa: 'اختلالات اضطرابی', name_en: 'Anxiety Disorders', questions: 54, disorders: 'پانیک، آگورافوبیا، اضطراب اجتماعی و اضطراب فراگیر' },
   { code: 'G', name_fa: 'وسواس جبری و PTSD', name_en: 'OCD & PTSD', questions: 19, disorders: 'اختلال وسواسی-جبری و اختلال استرس پس از سانحه' },
   { code: 'H', name_fa: 'اختلال بیش‌فعالی بزرگ‌سالان', name_en: 'Adult ADHD', questions: 27, disorders: 'ترکیبی، کم‌توجهی و تکانشگری-بیش‌فعالی' },
-  { code: 'I', name_fa: 'غربالگری سایر اختلالات', name_en: 'Screening', questions: 17, disorders: 'فقط غربالگری بدون معیار تشخیصی' },
+  { code: 'I', name_fa: 'غربالگری سایر اختلالات', name_en: 'Screening', questions: 17, disorders: 'غربالگری ۱۶ اختلال (بی‌خوابی، پرخوابی، خوردن، قمار و …) با علامت‌گذاری احتمالی' },
   { code: 'J', name_fa: 'اختلال سازگاری', name_en: 'Adjustment Disorder', questions: 4, disorders: 'اختلال سازگاری (F43.2)' },
 ]
 

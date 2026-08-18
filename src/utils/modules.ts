@@ -1,4 +1,4 @@
-export const MAIN_MODULE_CODES = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
+export const MAIN_MODULE_CODES = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
 
 export const MODULE_COLORS: Record<string, string> = {
   A: '#3b82f6',
