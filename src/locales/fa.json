@@ -113,6 +113,7 @@
     "moduleH": "اختلالات تغذیه",
     "moduleI": "اختلالات خواب",
     "moduleJ": "اختلالات تطبیقی",
+    "modulePD": "اختلالات شخصیت",
     "enterAdminPanel": "ورود به پنل مدیریت"
   },
   "patients": {
@@ -165,6 +166,8 @@
     "selectPatient": "انتخاب بیمار",
     "selectPatientRequired": "لطفاً یک بیمار انتخاب کنید",
     "selectPatientPlaceholder": "انتخاب بیمار...",
+    "instrumentTitle": "ابزار بالینی",
+    "instrumentHint": "ابزار مصاحبه ساختاریافته را انتخاب کنید. SCID-5-CV اختلالات محور یک (بالینی) و SCID-5-PD اختلالات شخصیت را پوشش می‌دهد.",
     "selectModules": "انتخاب ماژول‌ها (اختیاری)",
     "selectModulesHint": "برای اجرای مصاحبه کامل SCID-5-CV خالی بگذارید. در صورت انتخاب ماژول، می‌توانید تعیین کنید آیا اطلاعات زمینه‌ای (Overview) هم پرسیده شود یا مستقیماً به ماژول‌های انتخابی برویم.",
     "overviewChoiceTitle": "اجرای اطلاعات زمینه‌ای (Overview)؟",
@@ -173,6 +176,7 @@
     "overviewChoiceWithout": "خیر، مستقیماً از ماژول‌های انتخابی",
     "fullInterview": "مصاحبه کامل — همه ماژول‌ها (J–A)",
     "modulesGroupedHint": "ماژول‌های A/D و B/C همیشه با هم اجرا می‌شوند.",
+    "pdOverviewIncluded": "مرور زمینه‌ای (Overview) همیشه در SCID-5-PD گنجانده می‌شود.",
     "questions": "سؤال",
     "clearSelection": "پاک کردن انتخاب",
     "selectedModulesCount": "ماژول انتخاب شده",
@@ -265,6 +269,17 @@
     "sessionId": "شماره جلسه",
     "sessionDate": "تاریخ",
     "modules": "ماژول‌ها",
+    "instrument": "ابزار بالینی",
+    "principalDiagnosis": "تشخیص اصلی",
+    "dimensionalProfile": "پروفایل ابعادی (برگه امتیاز تشخیصی)",
+    "dimensionalProfileHint": "امتیاز ابعادی هر اختلال شخصیت و رعایت یا عدم رعایت آستانه تشخیصی.",
+    "dimensionalScore": "امتیاز ابعادی",
+    "threshold": "آستانه",
+    "thresholdMet": "رعایت شده",
+    "thresholdNotMet": "رعایت نشده",
+    "infoQuality": "کیفیت اطلاعات",
+    "disorder": "اختلال",
+    "code": "کد",
     "viewOverview": "مشاهده اطلاعات زمینه (Overview)",
     "downloadReport": "دانلود گزارش PDF",
     "downloadError": "خطا در دانلود گزارش PDF",
@@ -359,6 +374,8 @@
     "clearFilters": "حذف فیلترها",
     "resultsCount": "{{count}} جلسه",
     "statusFilter": "وضعیت",
+    "instrumentFilter": "ابزار",
+    "allInstruments": "همه ابزارها",
     "startedAtLabel": "شروع",
     "notesLabel": "یادداشت"
   },
@@ -578,6 +595,10 @@
       "loading": "در حال دانلود...",
       "success": "خروجی با موفقیت دانلود شد",
       "error": "خطا در دانلود خروجی"
+    },
+    "instrument": {
+      "label": "ابزار",
+      "all": "همه ابزارها"
     },
     "overview": {
       "title": "داشبورد مدیریت",

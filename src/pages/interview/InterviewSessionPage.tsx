@@ -21,6 +21,7 @@ import { Button, Card, CardHeader, CardTitle, CardContent, PageLoader, LoadingSp
 import { AlertCircle, CheckCircle, XCircle, ArrowLeft, ChevronRight, FileText, Play, History } from 'lucide-react'
 import { cn } from '@/utils/cn'
 import { getErrorMessage } from '@/utils/error'
+import { deriveModuleCode, firstModuleCode } from '@/utils/instruments'
 import { toEnglishDigits } from '@/utils/string'
 import type { Question, ReviewResponse, SubmitAnswerRequest, SessionResponse } from '@/types'
 import { ReviewHistoryModal } from './ReviewHistoryModal'
@@ -87,6 +88,7 @@ export function InterviewSessionPage() {
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null)
   const [localError, setLocalError] = useState<string | null>(null)
   const [noteText, setNoteText] = useState('')
+  const [answerText, setAnswerText] = useState('')
   const [submitAnswer, { isLoading: isSubmitting }] = useSubmitAnswerMutation()
   const [completeSession, { isLoading: isCompleting }] = useCompleteSessionMutation()
   const [navigateSession, { isLoading: _isNavigating }] = useNavigateSessionMutation()
@@ -150,12 +152,13 @@ export function InterviewSessionPage() {
 
   const canGoPrev = answeredQuestionIds.length > 0
 
-  // Load note text from existing response when question changes
+  // Load note/answer text from existing response when question changes
   useEffect(() => {
     const existing = session?.responses?.find(
       (r) => r.question_id_str === currentQuestion?.question_id
     )
     setNoteText(existing?.text_response || '')
+    setAnswerText(existing?.text_response || '')
   }, [currentQuestion?.question_id, session?.responses])
 
   // Set module code from session (with fallback for corrupted sessions)
@@ -164,15 +167,15 @@ export function InterviewSessionPage() {
       setCurrentModuleCode(session.current_module_code)
     } else if (session?.phase === 'diagnostic') {
       if (session.current_question_id) {
-        // Derive module code from question_id prefix (e.g., "A1" → "A")
-        const modCode = session.current_question_id.charAt(0).toUpperCase()
+        // Derive module code from question_id prefix (e.g., "A1" → "A", "PD1" → "PD")
+        const modCode = deriveModuleCode(session.current_question_id, session.instrument)
         if (modCode) setCurrentModuleCode(modCode)
       } else {
-        // Fallback: start from module A
-        setCurrentModuleCode('A')
+        // Fallback: start from the instrument's first module
+        setCurrentModuleCode(firstModuleCode(session.instrument))
       }
     }
-  }, [session?.current_module_code, session?.current_question_id, session?.phase])
+  }, [session?.current_module_code, session?.current_question_id, session?.phase, session?.instrument])
 
   // Find current question when module questions load
   useEffect(() => {
@@ -212,7 +215,7 @@ export function InterviewSessionPage() {
         navigateSession({ sessionId, question_id: moduleQuestions[0].question_id })
       }
     }
-  }, [moduleQuestions, session?.current_question_id, currentModuleCode])
+  }, [moduleQuestions, session?.current_question_id, currentModuleCode, currentQuestion, navigateSession, sessionId])
 
   const findQuestion = useCallback(
     (questionId: string) =>
@@ -232,7 +235,7 @@ export function InterviewSessionPage() {
         if (fullQ) {
           setCurrentQuestion(fullQ)
         } else {
-          const nextModuleCode = nextQid.charAt(0)
+          const nextModuleCode = deriveModuleCode(nextQid, session?.instrument)
           if (nextModuleCode && nextModuleCode !== currentModuleCode) {
             setCurrentModuleCode(nextModuleCode)
             setCurrentQuestion(null)
@@ -847,29 +850,54 @@ export function InterviewSessionPage() {
             <form
               onSubmit={(e) => {
                 e.preventDefault()
-                const fd = new FormData(e.currentTarget)
-                const val = fd.get('text_response') as string
-                if (val.trim()) handleAnswer({ text_response: val })
+                if (answerText.trim()) handleAnswer({ text_response: answerText.trim() })
               }}
-              className={q.input_type === 'text' ? 'flex flex-col gap-2 sm:flex-row' : 'space-y-2'}
+              className={
+                q.input_type === 'text'
+                  ? 'flex flex-col gap-2 sm:flex-row'
+                  : 'space-y-3'
+              }
             >
               {q.input_type === 'text' ? (
                 <input
                   name="text_response"
                   type="text"
+                  value={answerText}
+                  onChange={(e) => setAnswerText(e.target.value)}
                   className="flex-1 rounded-lg border border-[hsl(var(--input))] bg-transparent px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
                   placeholder={t('common.type')}
                 />
               ) : (
                 <textarea
                   name="text_response"
-                  className="w-full rounded-lg border border-[hsl(var(--input))] bg-transparent px-3 py-2 text-sm min-h-[100px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
+                  value={answerText}
+                  onChange={(e) => setAnswerText(e.target.value)}
+                  rows={8}
+                  className="w-full min-h-[240px] sm:min-h-[300px] rounded-lg border border-[hsl(var(--input))] bg-transparent px-4 py-3 text-sm leading-relaxed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))] resize-y"
                   placeholder={t('common.type')}
                 />
               )}
-              <Button type="submit" size="sm" isLoading={isSubmitting}>
-                {t('common.submit')}
-              </Button>
+              {q.input_type === 'textarea' && (
+                <div className="flex justify-center">
+                  <Button
+                    type="submit"
+                    isLoading={isSubmitting}
+                    className="min-w-[120px]"
+                  >
+                    {t('common.submit')}
+                  </Button>
+                </div>
+              )}
+              {q.input_type === 'text' && (
+                <Button
+                  type="submit"
+                  size="sm"
+                  isLoading={isSubmitting}
+                  className="shrink-0 self-start sm:self-center"
+                >
+                  {t('common.submit')}
+                </Button>
+              )}
             </form>
           )}
 

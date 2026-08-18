@@ -11,6 +11,8 @@ import { JalaliDatePicker } from '@/components/ui/JalaliDatePicker'
 import { ClipboardList, Search, Trash2, Play, FileText, Eye, RotateCcw } from 'lucide-react'
 import { cn } from '@/utils/cn'
 import { toPersianNum, formatDateTime } from '@/utils/date'
+import { instrumentBadgeClasses, instrumentLabel } from '@/utils/instruments'
+import { INSTRUMENTS } from '@/utils/modules'
 
 const PAGE_SIZE = 100
 
@@ -96,24 +98,30 @@ export function SessionsListPage() {
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState('')
+  const [instrumentFilter, setInstrumentFilter] = useState('')
   const [fromDate, setFromDate] = useState('')
   const [toDate, setToDate] = useState('')
   const [page, setPage] = useState(1)
   const [deleteTarget, setDeleteTarget] = useState<Session | null>(null)
-  const [deletingId, setDeletingId] = useState<number | null>(null)
+  const [, setDeletingId] = useState<number | null>(null)
   const [deleteSession] = useDeleteSessionMutation()
   const [continueSession, { isLoading: isContinuing }] = useContinueSessionMutation()
 
   const queryParams = useMemo(() => {
     const params: Record<string, unknown> = { page, page_size: PAGE_SIZE }
     if (status) params.status = status
+    if (instrumentFilter) params.instrument = instrumentFilter
     if (fromDate) params.from = fromDate
     if (toDate) params.to = toDate
     return params
-  }, [status, fromDate, toDate, page])
+  }, [status, instrumentFilter, fromDate, toDate, page])
 
   const setStatusFilter = (value: string) => {
     setStatus(value)
+    setPage(1)
+  }
+  const setInstrumentFilterValue = (value: string) => {
+    setInstrumentFilter(value)
     setPage(1)
   }
   const setFromFilter = (value: string) => {
@@ -130,10 +138,11 @@ export function SessionsListPage() {
   // via navigation always shows its real status.
   const { data: sessionsData, isLoading, isFetching } = useGetSessionsQuery(queryParams, { refetchOnMountOrArgChange: true })
 
-  const hasActiveFilters = !!(status || fromDate || toDate)
+  const hasActiveFilters = !!(status || instrumentFilter || fromDate || toDate)
 
   const clearFilters = () => {
     setStatus('')
+    setInstrumentFilter('')
     setFromDate('')
     setToDate('')
     setPage(1)
@@ -222,6 +231,24 @@ export function SessionsListPage() {
               </select>
             </div>
 
+            <div className="space-y-1">
+              <label className="block text-xs font-medium text-[hsl(var(--muted-foreground))]">
+                {t('sessions.instrumentFilter')}
+              </label>
+              <select
+                value={instrumentFilter}
+                onChange={(e) => setInstrumentFilterValue(e.target.value)}
+                className="h-9 w-full min-w-36 rounded-lg border border-[hsl(var(--input))] bg-[hsl(var(--card))] px-2 py-1 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
+              >
+                <option value="">{t('sessions.allInstruments')}</option>
+                {INSTRUMENTS.map((inst) => (
+                  <option key={inst.value} value={inst.value}>
+                    {inst.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <JalaliDatePicker
               label={t('sessions.fromDate')}
               value={fromDate}
@@ -283,6 +310,14 @@ export function SessionsListPage() {
                   onClick={() => navigate(`/interview/${session.id}`)}
                 >
                   <CardContent className="p-0">
+                    <div
+                      className={cn(
+                        'px-3 py-1.5 text-sm font-bold uppercase tracking-wide text-center',
+                        instrumentBadgeClasses(session.instrument)
+                      )}
+                    >
+                      {instrumentLabel(session.instrument)}
+                    </div>
                     <div className="flex items-center gap-3 p-3 pb-2">
                       <div className={cn(
                         'shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold',

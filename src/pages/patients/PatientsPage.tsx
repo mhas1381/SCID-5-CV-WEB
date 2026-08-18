@@ -51,7 +51,7 @@ export function PatientsPage() {
   const [toDate, setToDate] = useState('')
   const [page, setPage] = useState(1)
   const [deleteTarget, setDeleteTarget] = useState<{ id: number; name: string } | null>(null)
-  const [deletingId, setDeletingId] = useState<number | null>(null)
+  const [, setDeletingId] = useState<number | null>(null)
   const [encryptionOpen, setEncryptionOpen] = useState(false)
   const [encryptionPatientId, setEncryptionPatientId] = useState<number | null>(null)
 

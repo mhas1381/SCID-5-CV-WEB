@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit'
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
 import type { User, AuthTokens } from '@/types'
 import { readTokens, writeTokens, clearTokens } from '@/utils/tokenStorage'
 

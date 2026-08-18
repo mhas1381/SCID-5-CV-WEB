@@ -113,6 +113,7 @@
     "moduleH": "Eating Disorders",
     "moduleI": "Sleep Disorders",
     "moduleJ": "Adjustment Disorders",
+    "modulePD": "Personality Disorders",
     "enterAdminPanel": "Admin Panel"
   },
   "patients": {
@@ -165,6 +166,8 @@
     "selectPatient": "Select Patient",
     "selectPatientRequired": "Please select a patient",
     "selectPatientPlaceholder": "Select a patient...",
+    "instrumentTitle": "Clinical Instrument",
+    "instrumentHint": "Choose the structured interview instrument. SCID-5-CV covers axis-I (clinical) disorders; SCID-5-PD covers personality disorders.",
     "selectModules": "Select Modules (Optional)",
     "selectModulesHint": "Leave empty to run the full SCID-5-CV interview. When modules are selected, you can choose whether the background information (Overview) should still be collected or skipped.",
     "overviewChoiceTitle": "Include background (Overview)?",
@@ -173,6 +176,7 @@
     "overviewChoiceWithout": "No, go directly to selected modules",
     "fullInterview": "Full interview — all modules (A–J)",
     "modulesGroupedHint": "Modules A/D and B/C are always run together.",
+    "pdOverviewIncluded": "The background overview is always included in SCID-5-PD.",
     "questions": "questions",
     "clearSelection": "Clear selection",
     "selectedModulesCount": "modules selected",
@@ -265,6 +269,17 @@
     "sessionId": "Session ID",
     "sessionDate": "Date",
     "modules": "Modules",
+    "instrument": "Instrument",
+    "principalDiagnosis": "Principal Diagnosis",
+    "dimensionalProfile": "Dimensional Profile (Diagnostic Summary Score Sheet)",
+    "dimensionalProfileHint": "Dimensional scores per personality disorder and whether the diagnostic threshold is met.",
+    "dimensionalScore": "Dimensional Score",
+    "threshold": "Threshold",
+    "thresholdMet": "Met",
+    "thresholdNotMet": "Not met",
+    "infoQuality": "Information Quality",
+    "disorder": "Disorder",
+    "code": "Code",
     "viewOverview": "View Background Info (Overview)",
     "downloadReport": "Download PDF Report",
     "downloadError": "Failed to download the PDF report",
@@ -359,6 +374,8 @@
     "clearFilters": "Clear filters",
     "resultsCount": "{{count}} sessions",
     "statusFilter": "Status",
+    "instrumentFilter": "Instrument",
+    "allInstruments": "All instruments",
     "startedAtLabel": "Started",
     "notesLabel": "Notes"
   },
@@ -578,6 +595,10 @@
       "loading": "Downloading...",
       "success": "Export downloaded successfully",
       "error": "Failed to download export"
+    },
+    "instrument": {
+      "label": "Instrument",
+      "all": "All instruments"
     },
     "overview": {
       "title": "Admin Dashboard",

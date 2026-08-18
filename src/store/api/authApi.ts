@@ -1,5 +1,5 @@
 import { baseApi } from './baseApi'
-import type { User, SendOTPRequest, SendOTPResponse, SendOTPError, VerifyOTPRequest, VerifyOTPResponse, GoogleLoginResponse, PasswordLoginRequest, RegisterRequest, RegisterResponse, SetPasswordRequest, SetPasswordResponse, AuthTokens, TokenRefreshRequest, PasswordResetRequest, PasswordResetResponse, PasswordResetConfirmRequest, PasswordResetConfirmResponse } from '@/types'
+import type { User, SendOTPRequest, SendOTPResponse, VerifyOTPRequest, VerifyOTPResponse, GoogleLoginResponse, PasswordLoginRequest, RegisterRequest, RegisterResponse, SetPasswordRequest, SetPasswordResponse, AuthTokens, TokenRefreshRequest, PasswordResetRequest, PasswordResetResponse, PasswordResetConfirmRequest, PasswordResetConfirmResponse } from '@/types'
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({

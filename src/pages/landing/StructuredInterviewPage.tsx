@@ -14,6 +14,7 @@ import {
   History,
 } from 'lucide-react'
 import { Button, Card, CardContent } from '@/components/ui'
+import { AppFooter } from '@/components/AppFooter'
 import { ThemeToggle } from '@/components/layout/ThemeToggle'
 
 const modules = [
@@ -329,11 +330,7 @@ export function StructuredInterviewPage() {
       </section>
 
       {/* ── Footer ── */}
-      <footer className="border-t border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-sm py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-[hsl(var(--muted-foreground))]">
-          <p>Smart SCID-5-CV &copy; {new Date().getFullYear()} &mdash; سامانه هوشمند مصاحبه بالینی</p>
-        </div>
-      </footer>
+      <AppFooter />
     </div>
   )
 }

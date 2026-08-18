@@ -38,8 +38,10 @@ import {
   RotateCw,
   X,
 } from 'lucide-react'
+import { DimensionalProfileCard } from '@/components/interview/pd/DimensionalProfileCard'
 import { cn } from '@/utils/cn'
 import { formatDate, toPersianNum } from '@/utils/date'
+import { instrumentLabel, isPd } from '@/utils/instruments'
 import { MODULE_COLORS } from '@/utils/modules'
 import { downloadSessionPdf } from '@/utils/download'
 import { getErrorMessage } from '@/utils/error'
@@ -1142,6 +1144,16 @@ export function InterviewResultsPage({ sessionIdOverride }: InterviewResultsPage
                   {t('results.sessionDate')}: {formatDate(session.started_at)}
                 </span>
               )}
+              <span>
+                {t('results.instrument')}:{' '}
+                {instrumentLabel(resultsData?.instrument)}
+              </span>
+              {session.principal_diagnosis && (
+                <span>
+                  {t('results.principalDiagnosis')}: {session.principal_diagnosis}
+                  {session.principal_diagnosis_code ? ` (${session.principal_diagnosis_code})` : ''}
+                </span>
+              )}
               {moduleCodes.length > 0 && (
                 <span>
                   {t('results.modules')}: {moduleCodes.join('، ')}
@@ -1174,6 +1186,15 @@ export function InterviewResultsPage({ sessionIdOverride }: InterviewResultsPage
               />
             ))}
           </div>
+
+          {isPd(resultsData.instrument) && (
+            <DimensionalProfileCard
+              modules={modules}
+              infoQuality={resultsData.info_quality}
+              isRtl={isRtl}
+              t={t}
+            />
+          )}
 
           <AiInterpretationCard sessionId={sessionId} isRtl={isRtl} t={t} />
 

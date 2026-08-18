@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui'
 import { JalaliDatePicker } from '@/components/ui/JalaliDatePicker'
 import { toast } from 'sonner'
-import { Loader2, User, Save, Camera, ShieldCheck, Upload, X, Image, GraduationCap, Stethoscope, IdCard, BadgeCheck } from 'lucide-react'
+import { User, Save, Camera, ShieldCheck, Upload, X, GraduationCap, Stethoscope, BadgeCheck } from 'lucide-react'
 import { getErrorMessage } from '@/utils/error'
 import type { UserProfileUpdateRequest } from '@/types'
 

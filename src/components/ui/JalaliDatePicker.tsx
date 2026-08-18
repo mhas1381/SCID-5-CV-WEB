@@ -53,7 +53,7 @@ export function JalaliDatePicker({ value, onChange, label, error }: JalaliDatePi
       setViewYear(selectedJalali.jy)
       setViewMonth(selectedJalali.jm)
     }
-  }, [selectedJalali?.jy, selectedJalali?.jm])
+  }, [selectedJalali])
 
   const updatePosition = useCallback(() => {
     if (!ref.current) return
