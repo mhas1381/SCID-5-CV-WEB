@@ -283,6 +283,16 @@ export function SessionsListPage() {
                   onClick={() => navigate(`/interview/${session.id}`)}
                 >
                   <CardContent className="p-0">
+                    <div
+                      className={cn(
+                        'px-3 py-1.5 text-sm font-bold uppercase tracking-wide',
+                        session.instrument === 'scid5_pd'
+                          ? 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300'
+                          : 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
+                      )}
+                    >
+                      {session.instrument === 'scid5_pd' ? 'SCID-5-PD' : 'SCID-5-CV'}
+                    </div>
                     <div className="flex items-center gap-3 p-3 pb-2">
                       <div className={cn(
                         'shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold',
@@ -305,15 +315,6 @@ export function SessionsListPage() {
                           <span className={cn('px-1.5 py-0.5 rounded text-[10px] font-medium uppercase', phaseBadge(session.phase))}>
                             {session.phase === 'diagnostic' ? t('sessions.phase_diagnostic') : t('sessions.phase_overview')}
                           </span>
-                          {session.instrument === 'scid5_pd' ? (
-                            <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300">
-                              SCID-5-PD
-                            </span>
-                          ) : (
-                            <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
-                              SCID-5-CV
-                            </span>
-                          )}
                         </div>
                       </div>
                     </div>
