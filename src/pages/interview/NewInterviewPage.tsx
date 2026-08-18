@@ -27,11 +27,12 @@ import {
   ClipboardCheck,
   Database,
   ChevronDown,
+  Users,
   type LucideIcon,
 } from 'lucide-react'
 import { getErrorMessage } from '@/utils/error'
 import { cn } from '@/utils/cn'
-import { MODULE_COLORS } from '@/utils/modules'
+import { MODULE_COLORS, SCID5_CV, SCID5_PD, INSTRUMENTS } from '@/utils/modules'
 
 const MODULE_PAIRS: Record<string, string> = {
   A: 'D',
@@ -51,6 +52,7 @@ const MODULE_ICONS: Record<string, LucideIcon> = {
   H: Zap,
   I: ListChecks,
   J: Scale,
+  PD: Users,
 }
 
 export function NewInterviewPage() {
@@ -58,6 +60,7 @@ export function NewInterviewPage() {
   const navigate = useNavigate()
   const lang = i18n.language as 'en' | 'fa'
   const [selectedPatient, setSelectedPatient] = useState<number | null>(null)
+  const [instrument, setInstrument] = useState<string>(SCID5_CV)
   const [selectedModules, setSelectedModules] = useState<string[]>([])
   const [includeOverview, setIncludeOverview] = useState(true)
   const [hasPreexistingDiagnosis, setHasPreexistingDiagnosis] = useState(false)
@@ -72,22 +75,34 @@ export function NewInterviewPage() {
   const { data: criteria, isLoading: criteriaLoading } = useGetDiagnosticCriteriaQuery()
   const [createSession, { isLoading }] = useCreateSessionMutation()
 
+  const instrumentModules = useMemo(
+    () => (modules ?? []).filter((m) => (m.instrument ?? 'scid5_cv') === instrument),
+    [modules, instrument],
+  )
+
   const orderedModules = useMemo(
-    () => [...(modules ?? [])].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)),
-    [modules],
+    () => [...instrumentModules].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)),
+    [instrumentModules],
+  )
+
+  const instrumentModuleCodes = useMemo(
+    () => new Set(instrumentModules.map((m) => m.code)),
+    [instrumentModules],
   )
 
   const orderedCriteria = useMemo(
     () =>
-      [...(criteria ?? [])].sort((a, b) => {
-        const moduleOrder = (a.module ?? '').localeCompare(b.module ?? '')
-        return moduleOrder !== 0 ? moduleOrder : a.disorder_name.localeCompare(b.disorder_name)
-      }),
-    [criteria],
+      [...(criteria ?? [])]
+        .filter((c) => instrumentModuleCodes.has(c.module))
+        .sort((a, b) => {
+          const moduleOrder = (a.module ?? '').localeCompare(b.module ?? '')
+          return moduleOrder !== 0 ? moduleOrder : a.disorder_name.localeCompare(b.disorder_name)
+        }),
+    [criteria, instrumentModuleCodes],
   )
 
   // Group criteria by module code for a module-by-module accordion like the
-  // results page. Module order follows the module list (A..J).
+  // results page. Module order follows the module list (A..J / PD).
   const criteriaByModule = useMemo(() => {
     const moduleOrder = (orderedModules ?? []).reduce<Record<string, number>>(
       (acc, m) => {
@@ -141,6 +156,7 @@ export function NewInterviewPage() {
   }
 
   const toggleModule = (code: string) => {
+    if (instrument === SCID5_PD) return
     setSelectedModules((prev) => {
       const isActive = prev.includes(code)
       const pair = MODULE_PAIRS[code]
@@ -155,8 +171,15 @@ export function NewInterviewPage() {
     })
   }
 
+  const handleInstrumentChange = (next: string) => {
+    setInstrument(next)
+    setSelectedModules(next === SCID5_PD ? ['PD'] : [])
+    setSelectedManualDiagnoses([])
+    setIncludeOverview(true)
+  }
+
   const clearAll = () => {
-    setSelectedModules([])
+    setSelectedModules(instrument === SCID5_PD ? ['PD'] : [])
     setSelectedManualDiagnoses([])
   }
 
@@ -165,7 +188,8 @@ export function NewInterviewPage() {
       setError(null)
       const session = await createSession({
         patient: patientId,
-        modules: selectedModules.length > 0 ? selectedModules : undefined,
+        instrument,
+        modules: instrument === SCID5_PD ? undefined : selectedModules.length > 0 ? selectedModules : undefined,
         include_overview: selectedModules.length > 0 ? includeOverview : undefined,
         has_preexisting_diagnosis: hasPreexistingDiagnosis,
         manual_diagnoses: hasPreexistingDiagnosis ? selectedManualDiagnoses : undefined,
@@ -264,6 +288,50 @@ export function NewInterviewPage() {
         </CardContent>
       </Card>
 
+      {/* Instrument selection */}
+      <Card>
+        <CardHeader className="p-6 sm:p-7">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <ClipboardCheck className="h-5 w-5" />
+            {t('interview.instrumentTitle')}
+          </CardTitle>
+          <p className="text-sm text-[hsl(var(--muted-foreground))] mt-1">
+            {t('interview.instrumentHint')}
+          </p>
+        </CardHeader>
+        <CardContent className="p-6 pt-0 sm:p-7 sm:pt-0">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {INSTRUMENTS.map((inst) => (
+              <button
+                key={inst.value}
+                type="button"
+                onClick={() => handleInstrumentChange(inst.value)}
+                className={cn(
+                  'flex items-center gap-3 rounded-xl border-2 p-4 text-start text-sm transition-all',
+                  instrument === inst.value
+                    ? 'border-[hsl(var(--primary))] bg-[hsl(var(--primary))]/5'
+                    : 'border-[hsl(var(--border))] hover:border-[hsl(var(--primary))]/50'
+                )}
+              >
+                <span
+                  className={cn(
+                    'flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2',
+                    instrument === inst.value
+                      ? 'border-[hsl(var(--primary))] bg-[hsl(var(--primary))] text-white'
+                      : 'border-[hsl(var(--input))] text-transparent'
+                  )}
+                >
+                  <Check className="h-4 w-4" />
+                </span>
+                <span className="font-medium leading-snug">
+                  {lang === 'fa' ? inst.label_fa : inst.label}
+                </span>
+              </button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Module selection */}
       <div className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -276,7 +344,7 @@ export function NewInterviewPage() {
               {t('interview.selectModulesHint')}
             </p>
           </div>
-          {selectedModules.length > 0 && (
+          {selectedModules.length > 0 && instrument !== SCID5_PD && (
             <Button variant="outline" size="sm" onClick={clearAll}>
               {t('interview.clearSelection')}
             </Button>
@@ -355,9 +423,11 @@ export function NewInterviewPage() {
               </p>
             )}
 
-            <p className="text-xs text-[hsl(var(--muted-foreground))]">
-              {t('interview.modulesGroupedHint')}
-            </p>
+            {instrument !== SCID5_PD && (
+              <p className="text-xs text-[hsl(var(--muted-foreground))]">
+                {t('interview.modulesGroupedHint')}
+              </p>
+            )}
 
             {selectedModules.length > 0 && (
               <Card>

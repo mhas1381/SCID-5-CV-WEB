@@ -305,6 +305,11 @@ export function SessionsListPage() {
                           <span className={cn('px-1.5 py-0.5 rounded text-[10px] font-medium uppercase', phaseBadge(session.phase))}>
                             {session.phase === 'diagnostic' ? t('sessions.phase_diagnostic') : t('sessions.phase_overview')}
                           </span>
+                          {session.instrument === 'scid5_pd' && (
+                            <span className="px-1.5 py-0.5 rounded text-[10px] font-medium uppercase bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300">
+                              PD
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>

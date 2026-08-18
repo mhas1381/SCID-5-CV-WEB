@@ -354,6 +354,9 @@ export interface Session {
   current_module: number | null
   current_module_code: string | null
   overview_id: number | null
+  instrument?: string
+  principal_diagnosis?: string | null
+  principal_diagnosis_code?: string | null
   selected_module_codes?: string[] | null
   has_preexisting_diagnosis?: boolean
   is_test_data?: boolean
@@ -375,6 +378,7 @@ export interface Session {
 export interface SessionCreateRequest {
   patient: number
   notes?: string
+  instrument?: string
   modules?: string[]
   include_overview?: boolean
   has_preexisting_diagnosis?: boolean
@@ -449,6 +453,7 @@ export interface Module {
   description?: string
   description_fa?: string
   order?: number
+  instrument?: string
   questions_count: number
 }
 
@@ -574,6 +579,7 @@ export interface DiagnosticResultItem {
   is_current: boolean
   severity: string | null
   symptoms_met_count: number
+  dimensional_score?: number | null
   criteria_details: Record<string, unknown>
   clinician_confirmed: boolean
   clinician_disagreed: boolean
@@ -629,9 +635,20 @@ export interface AgreementData {
   }>
 }
 
+export interface InfoQuality {
+  value: string
+  score: number
+  label: string
+  label_fa: string
+}
+
 export interface DiagnosticResultsResponse {
   session_id: number
   status: string
+  instrument?: string
+  principal_diagnosis?: string | null
+  principal_diagnosis_code?: string | null
+  info_quality?: InfoQuality | null
   modules: ModuleGroupResult[]
   has_preexisting_diagnosis: boolean
   agreement: AgreementData

@@ -165,7 +165,8 @@ export function ReviewHistoryModal({
   const grouped = useMemo(() => {
     const map = new Map<string, SessionResponse[]>()
     for (const r of responses) {
-      const code = r.question_id_str?.charAt(0).toUpperCase()
+      const qid = r.question_id_str ?? ''
+      const code = qid.toUpperCase().startsWith('PD') ? 'PD' : qid.charAt(0).toUpperCase()
       if (!code) continue
       if (!map.has(code)) map.set(code, [])
       map.get(code)!.push(r)
