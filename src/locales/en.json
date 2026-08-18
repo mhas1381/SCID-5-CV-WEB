@@ -374,6 +374,8 @@
     "clearFilters": "Clear filters",
     "resultsCount": "{{count}} sessions",
     "statusFilter": "Status",
+    "instrumentFilter": "Instrument",
+    "allInstruments": "All instruments",
     "startedAtLabel": "Started",
     "notesLabel": "Notes"
   },

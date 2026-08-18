@@ -96,6 +96,7 @@ export function SessionsListPage() {
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState('')
+  const [instrumentFilter, setInstrumentFilter] = useState('')
   const [fromDate, setFromDate] = useState('')
   const [toDate, setToDate] = useState('')
   const [page, setPage] = useState(1)
@@ -107,13 +108,18 @@ export function SessionsListPage() {
   const queryParams = useMemo(() => {
     const params: Record<string, unknown> = { page, page_size: PAGE_SIZE }
     if (status) params.status = status
+    if (instrumentFilter) params.instrument = instrumentFilter
     if (fromDate) params.from = fromDate
     if (toDate) params.to = toDate
     return params
-  }, [status, fromDate, toDate, page])
+  }, [status, instrumentFilter, fromDate, toDate, page])
 
   const setStatusFilter = (value: string) => {
     setStatus(value)
+    setPage(1)
+  }
+  const setInstrumentFilterValue = (value: string) => {
+    setInstrumentFilter(value)
     setPage(1)
   }
   const setFromFilter = (value: string) => {
@@ -130,10 +136,11 @@ export function SessionsListPage() {
   // via navigation always shows its real status.
   const { data: sessionsData, isLoading, isFetching } = useGetSessionsQuery(queryParams, { refetchOnMountOrArgChange: true })
 
-  const hasActiveFilters = !!(status || fromDate || toDate)
+  const hasActiveFilters = !!(status || instrumentFilter || fromDate || toDate)
 
   const clearFilters = () => {
     setStatus('')
+    setInstrumentFilter('')
     setFromDate('')
     setToDate('')
     setPage(1)
@@ -219,6 +226,21 @@ export function SessionsListPage() {
                     {t(`sessions.status_${s}`)}
                   </option>
                 ))}
+              </select>
+            </div>
+
+            <div className="space-y-1">
+              <label className="block text-xs font-medium text-[hsl(var(--muted-foreground))]">
+                {t('sessions.instrumentFilter')}
+              </label>
+              <select
+                value={instrumentFilter}
+                onChange={(e) => setInstrumentFilterValue(e.target.value)}
+                className="h-9 w-full min-w-36 rounded-lg border border-[hsl(var(--input))] bg-[hsl(var(--card))] px-2 py-1 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
+              >
+                <option value="">{t('sessions.allInstruments')}</option>
+                <option value="scid5_cv">SCID-5-CV</option>
+                <option value="scid5_pd">SCID-5-PD</option>
               </select>
             </div>
 

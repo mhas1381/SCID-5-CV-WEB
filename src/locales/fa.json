@@ -374,6 +374,8 @@
     "clearFilters": "حذف فیلترها",
     "resultsCount": "{{count}} جلسه",
     "statusFilter": "وضعیت",
+    "instrumentFilter": "ابزار",
+    "allInstruments": "همه ابزارها",
     "startedAtLabel": "شروع",
     "notesLabel": "یادداشت"
   },
