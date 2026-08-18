@@ -284,7 +284,7 @@ export function OverviewPage() {
 
       {/* Section stepper */}
       <div className="space-y-3">
-        <div className="flex items-center justify-between gap-2 text-xs text-[hsl(var(--muted-foreground))]">
+        <div className="flex flex-col gap-1 text-xs text-[hsl(var(--muted-foreground))] sm:flex-row sm:items-center sm:justify-between sm:gap-2">
           <span className="truncate min-w-0">{sectionTitle}</span>
           <div className="flex items-center gap-3 shrink-0">
             <span className="flex items-center gap-1">
@@ -303,19 +303,23 @@ export function OverviewPage() {
             style={{ width: `${progressPercent}%` }}
           />
         </div>
-        <div className="flex items-center gap-0">
+        {/* Section tabs: two-column grid on mobile, single row on sm+ */}
+        <div className="grid grid-cols-2 gap-1.5 sm:flex sm:items-center sm:gap-0">
           {sections.map((s, i) => {
             const sTitle = lang === 'fa' && s.title_fa ? s.title_fa : s.title
+            const active = i === currentSectionIndex
             return (
               <button
                 key={i}
                 type="button"
                 onClick={() => setCurrentSectionIndex(i)}
                 className={cn(
-                  'flex-1 text-center py-1 text-[10px] font-medium transition-all border-b-2 truncate px-1',
-                  i === currentSectionIndex
-                    ? 'text-[hsl(var(--primary))] border-[hsl(var(--primary))]'
-                    : 'text-[hsl(var(--muted-foreground))] border-transparent hover:text-[hsl(var(--foreground))] hover:border-[hsl(var(--muted-foreground))]'
+                  'text-center font-medium transition-all',
+                  'rounded-lg border px-2 py-2 text-xs leading-tight',
+                  'sm:flex-1 sm:rounded-none sm:border-0 sm:border-b-2 sm:px-1 sm:py-1 sm:text-[10px] sm:truncate',
+                  active
+                    ? 'border-[hsl(var(--primary))] bg-[hsl(var(--primary))]/10 text-[hsl(var(--primary))] sm:border-[hsl(var(--primary))] sm:bg-transparent'
+                    : 'border-[hsl(var(--border))] text-[hsl(var(--muted-foreground))] hover:border-[hsl(var(--primary))]/50 hover:text-[hsl(var(--foreground))] sm:border-transparent'
                 )}
               >
                 {sTitle}
