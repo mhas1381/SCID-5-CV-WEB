@@ -19,7 +19,7 @@ function resolveApiBase(): string {
 export const API_BASE_URL = resolveApiBase().replace(/\/+$/, '')
 
 /** Shown in the app footer so users can identify the deployed build. */
-export const APP_VERSION = 'v1.2.0'
+export const APP_VERSION = 'v1.4.0'
 
 export function apiUrl(path: string): string {
   // Ensure exactly one slash between the base (e.g. "/api") and the path
