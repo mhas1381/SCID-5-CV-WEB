@@ -2,6 +2,9 @@
 // User & Auth Types (Based on Backend OpenAPI Schema)
 // ==========================================================
 
+/** Clinical instrument of an interview: SCID-5-CV or SCID-5-PD. */
+export type Instrument = 'scid5_cv' | 'scid5_pd'
+
 /** Matches VerifyOTPUser / MeResponse from backend */
 export interface User {
   id: number
@@ -354,7 +357,7 @@ export interface Session {
   current_module: number | null
   current_module_code: string | null
   overview_id: number | null
-  instrument?: string
+  instrument?: Instrument
   principal_diagnosis?: string | null
   principal_diagnosis_code?: string | null
   selected_module_codes?: string[] | null
@@ -378,7 +381,7 @@ export interface Session {
 export interface SessionCreateRequest {
   patient: number
   notes?: string
-  instrument?: string
+  instrument?: Instrument
   modules?: string[]
   include_overview?: boolean
   has_preexisting_diagnosis?: boolean
@@ -453,7 +456,7 @@ export interface Module {
   description?: string
   description_fa?: string
   order?: number
-  instrument?: string
+  instrument?: Instrument
   questions_count: number
 }
 
@@ -645,7 +648,7 @@ export interface InfoQuality {
 export interface DiagnosticResultsResponse {
   session_id: number
   status: string
-  instrument?: string
+  instrument?: Instrument
   principal_diagnosis?: string | null
   principal_diagnosis_code?: string | null
   info_quality?: InfoQuality | null

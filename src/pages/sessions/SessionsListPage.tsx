@@ -11,6 +11,8 @@ import { JalaliDatePicker } from '@/components/ui/JalaliDatePicker'
 import { ClipboardList, Search, Trash2, Play, FileText, Eye, RotateCcw } from 'lucide-react'
 import { cn } from '@/utils/cn'
 import { toPersianNum, formatDateTime } from '@/utils/date'
+import { instrumentBadgeClasses, instrumentLabel } from '@/utils/instruments'
+import { INSTRUMENTS } from '@/utils/modules'
 
 const PAGE_SIZE = 100
 
@@ -239,8 +241,11 @@ export function SessionsListPage() {
                 className="h-9 w-full min-w-36 rounded-lg border border-[hsl(var(--input))] bg-[hsl(var(--card))] px-2 py-1 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
               >
                 <option value="">{t('sessions.allInstruments')}</option>
-                <option value="scid5_cv">SCID-5-CV</option>
-                <option value="scid5_pd">SCID-5-PD</option>
+                {INSTRUMENTS.map((inst) => (
+                  <option key={inst.value} value={inst.value}>
+                    {inst.label}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -308,12 +313,10 @@ export function SessionsListPage() {
                     <div
                       className={cn(
                         'px-3 py-1.5 text-sm font-bold uppercase tracking-wide text-center',
-                        session.instrument === 'scid5_pd'
-                          ? 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300'
-                          : 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
+                        instrumentBadgeClasses(session.instrument)
                       )}
                     >
-                      {session.instrument === 'scid5_pd' ? 'SCID-5-PD' : 'SCID-5-CV'}
+                      {instrumentLabel(session.instrument)}
                     </div>
                     <div className="flex items-center gap-3 p-3 pb-2">
                       <div className={cn(

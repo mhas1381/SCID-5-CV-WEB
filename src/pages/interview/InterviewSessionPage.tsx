@@ -21,6 +21,7 @@ import { Button, Card, CardHeader, CardTitle, CardContent, PageLoader, LoadingSp
 import { AlertCircle, CheckCircle, XCircle, ArrowLeft, ChevronRight, FileText, Play, History } from 'lucide-react'
 import { cn } from '@/utils/cn'
 import { getErrorMessage } from '@/utils/error'
+import { deriveModuleCode, firstModuleCode } from '@/utils/instruments'
 import { toEnglishDigits } from '@/utils/string'
 import type { Question, ReviewResponse, SubmitAnswerRequest, SessionResponse } from '@/types'
 import { ReviewHistoryModal } from './ReviewHistoryModal'
@@ -33,19 +34,6 @@ type QuestionBlock =
 const IF_NO_PATTERN = /^(اگر\s+خیر|if\s+no)/i
 const IF_YES_PATTERN = /^(اگر\s+بله|if\s+yes)/i
 const IF_PATTERN = /^(اگر|if)/i
-
-// PD-questions use a two-letter prefix ("PD1", "PD_B", ...) so a plain
-// charAt(0) would derive the wrong module code ("P").
-function deriveModuleCode(questionId: string, instrument?: string): string | null {
-  const qid = (questionId || '').toUpperCase()
-  if (qid.startsWith('PD')) return 'PD'
-  if (qid.charAt(0)) return qid.charAt(0)
-  return null
-}
-
-function firstModuleCode(instrument?: string): string {
-  return instrument === 'scid5_pd' ? 'PD' : 'A'
-}
 
 function parseQuestionBlocks(text: string): QuestionBlock[] {
   const lines = text

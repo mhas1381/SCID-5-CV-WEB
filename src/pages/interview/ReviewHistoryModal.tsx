@@ -4,6 +4,7 @@ import { ChevronDown, History, X } from 'lucide-react'
 import { useGetModuleQuestionsQuery, useGetModulesQuery } from '@/store/api/interviewApi'
 import { Button } from '@/components/ui'
 import { cn } from '@/utils/cn'
+import { deriveModuleCode } from '@/utils/instruments'
 import { MODULE_COLORS } from '@/utils/modules'
 import type { Question, SessionResponse } from '@/types'
 
@@ -166,7 +167,7 @@ export function ReviewHistoryModal({
     const map = new Map<string, SessionResponse[]>()
     for (const r of responses) {
       const qid = r.question_id_str ?? ''
-      const code = qid.toUpperCase().startsWith('PD') ? 'PD' : qid.charAt(0).toUpperCase()
+      const code = deriveModuleCode(qid)
       if (!code) continue
       if (!map.has(code)) map.set(code, [])
       map.get(code)!.push(r)

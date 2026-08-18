@@ -32,7 +32,9 @@ import {
 } from 'lucide-react'
 import { getErrorMessage } from '@/utils/error'
 import { cn } from '@/utils/cn'
-import { MODULE_COLORS, SCID5_CV, SCID5_PD, INSTRUMENTS } from '@/utils/modules'
+import { MODULE_COLORS, SCID5_CV, INSTRUMENTS } from '@/utils/modules'
+import { INSTRUMENT_CONFIG } from '@/utils/instruments'
+import type { Instrument } from '@/types'
 
 const MODULE_PAIRS: Record<string, string> = {
   A: 'D',
@@ -61,6 +63,7 @@ export function NewInterviewPage() {
   const lang = i18n.language as 'en' | 'fa'
   const [selectedPatient, setSelectedPatient] = useState<number | null>(null)
   const [instrument, setInstrument] = useState<string>(SCID5_CV)
+  const instrumentConfig = INSTRUMENT_CONFIG[instrument as Instrument]
   const [selectedModules, setSelectedModules] = useState<string[]>([])
   const [includeOverview, setIncludeOverview] = useState(true)
   const [hasPreexistingDiagnosis, setHasPreexistingDiagnosis] = useState(false)
@@ -156,7 +159,7 @@ export function NewInterviewPage() {
   }
 
   const toggleModule = (code: string) => {
-    if (instrument === SCID5_PD) return
+    if (instrumentConfig.modulesLocked) return
     setSelectedModules((prev) => {
       const isActive = prev.includes(code)
       const pair = MODULE_PAIRS[code]
@@ -173,13 +176,13 @@ export function NewInterviewPage() {
 
   const handleInstrumentChange = (next: string) => {
     setInstrument(next)
-    setSelectedModules(next === SCID5_PD ? ['PD'] : [])
+    setSelectedModules(INSTRUMENT_CONFIG[next as Instrument].initialModules)
     setSelectedManualDiagnoses([])
     setIncludeOverview(true)
   }
 
   const clearAll = () => {
-    setSelectedModules(instrument === SCID5_PD ? ['PD'] : [])
+    setSelectedModules(instrumentConfig.initialModules)
     setSelectedManualDiagnoses([])
   }
 
@@ -188,17 +191,17 @@ export function NewInterviewPage() {
       setError(null)
       const session = await createSession({
         patient: patientId,
-        instrument,
-        modules: instrument === SCID5_PD ? undefined : selectedModules.length > 0 ? selectedModules : undefined,
+        instrument: instrument as Instrument,
+        modules: instrumentConfig.sendModulesParam && selectedModules.length > 0 ? selectedModules : undefined,
         // PD always includes the overview; for CV it depends on the choice.
-        include_overview: selectedModules.length > 0 ? (instrument === SCID5_PD ? true : includeOverview) : undefined,
+        include_overview: selectedModules.length > 0 ? (instrumentConfig.overviewAlwaysIncluded ? true : includeOverview) : undefined,
         has_preexisting_diagnosis: hasPreexistingDiagnosis,
         manual_diagnoses: hasPreexistingDiagnosis ? selectedManualDiagnoses : undefined,
         is_test_data: isTestData,
       }).unwrap()
       // PD and CV full interviews always start in the overview phase; a
       // module-only CV session only when the user opted to include it.
-      if (instrument === SCID5_PD || selectedModules.length === 0 || includeOverview) {
+      if (instrumentConfig.overviewAlwaysIncluded || selectedModules.length === 0 || includeOverview) {
         navigate(`/interview/${session.id}/overview`)
       } else {
         navigate(`/interview/${session.id}`)
@@ -345,7 +348,7 @@ export function NewInterviewPage() {
               {t('interview.selectModulesHint')}
             </p>
           </div>
-          {selectedModules.length > 0 && instrument !== SCID5_PD && (
+          {selectedModules.length > 0 && instrumentConfig.clearSelectionAllowed && (
             <Button variant="outline" size="sm" onClick={clearAll}>
               {t('interview.clearSelection')}
             </Button>
@@ -424,19 +427,11 @@ export function NewInterviewPage() {
               </p>
             )}
 
-            {instrument !== SCID5_PD && (
-              <p className="text-xs text-[hsl(var(--muted-foreground))]">
-                {t('interview.modulesGroupedHint')}
-              </p>
-            )}
+            <p className="text-xs text-[hsl(var(--muted-foreground))]">
+              {t(instrumentConfig.hintKey)}
+            </p>
 
-            {instrument === SCID5_PD && (
-              <p className="text-xs text-[hsl(var(--muted-foreground))]">
-                {t('interview.pdOverviewIncluded')}
-              </p>
-            )}
-
-            {selectedModules.length > 0 && instrument !== SCID5_PD && (
+            {selectedModules.length > 0 && instrumentConfig.showOverviewChoice && (
               <Card>
                 <CardHeader className="p-5">
                   <CardTitle className="flex items-center gap-2 text-base">
