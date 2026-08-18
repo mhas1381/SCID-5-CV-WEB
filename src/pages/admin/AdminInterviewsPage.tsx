@@ -1,8 +1,11 @@
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useGetAdminInterviewAnalyticsQuery } from '@/store/api/adminApi'
 import { selectDataSource } from '@/store/slices/dataSourceSlice'
 import { useAppSelector } from '@/hooks/useAppStore'
 import { Card, CardContent, CardHeader, CardTitle, LoadingSpinner, ExportButton } from '@/components/ui'
+import { InstrumentFilter } from '@/components/admin/InstrumentFilter'
+import type { Instrument } from '@/types'
 import {
   CheckCircle2, XCircle, Clock, Timer, ListChecks, ThumbsUp, BarChart3,
 } from 'lucide-react'
@@ -28,7 +31,14 @@ export function AdminInterviewsPage() {
   const { t, i18n } = useTranslation()
   const isFa = i18n.language === 'fa'
   const testData = useAppSelector(selectDataSource)
-  const { data, isLoading } = useGetAdminInterviewAnalyticsQuery({ test_data: testData })
+  const [instrumentFilter, setInstrumentFilter] = useState('')
+  const { data, isLoading } = useGetAdminInterviewAnalyticsQuery({
+    test_data: testData,
+    instrument: (instrumentFilter || undefined) as Instrument | undefined,
+  })
+  const exportUrl = instrumentFilter
+    ? `v1/admin/export/interviews/?${new URLSearchParams({ instrument: instrumentFilter }).toString()}`
+    : 'v1/admin/export/interviews/'
 
   if (isLoading) {
     return <LoadingSpinner size="xl" className="py-20" />
@@ -96,7 +106,12 @@ export function AdminInterviewsPage() {
             {t('admin.interviews.description')}
           </p>
         </div>
-        <ExportButton url="v1/admin/export/interviews/" filename="admin-interviews.csv" />
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="w-44">
+            <InstrumentFilter value={instrumentFilter} onChange={setInstrumentFilter} />
+          </div>
+          <ExportButton url={exportUrl} filename="admin-interviews.csv" />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">

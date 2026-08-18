@@ -10,6 +10,7 @@ import type {
   AdminOverview,
   AdminUser,
   AdminUserUpdateRequest,
+  Instrument,
   PaginatedResponse,
 } from '@/types'
 
@@ -24,6 +25,8 @@ export interface DemographicsParams {
   to?: string
   /** "real" (default), "test", or "all" */
   test_data?: string
+  /** Narrow stats to one instrument: "scid5_cv" or "scid5_pd". */
+  instrument?: Instrument
 }
 
 /** Query params shared by the global analytics endpoints. */
@@ -31,6 +34,8 @@ export interface AnalyticsParams {
   days?: number
   /** "real" (default), "test", or "all" */
   test_data?: string
+  /** Narrow stats to one instrument: "scid5_cv" or "scid5_pd". */
+  instrument?: Instrument
 }
 
 export const adminApi = baseApi.injectEndpoints({
@@ -50,6 +55,7 @@ export const adminApi = baseApi.injectEndpoints({
         const query: Record<string, string> = {}
         if (params?.days != null) query.days = String(params.days)
         if (params?.test_data) query.test_data = params.test_data
+        if (params?.instrument) query.instrument = params.instrument
         return { url: 'v1/admin/analytics/interviews/', params: query }
       },
     }),

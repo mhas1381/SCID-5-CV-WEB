@@ -9,7 +9,8 @@ import { JalaliDatePicker } from '@/components/ui/JalaliDatePicker'
 import { Users, Filter, RotateCcw, CalendarDays, MapPin } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import { toPersianNum } from '@/utils/date'
-import { MODULE_COLORS } from '@/utils/modules'
+import type { Instrument } from '@/types'
+import { MODULE_COLORS, INSTRUMENTS } from '@/utils/modules'
 import { chartTooltipProps } from '@/utils/charts'
 
 const EDUCATION_OPTIONS = ['none', 'diploma', 'associate', 'bachelor', 'master', 'doctorate']
@@ -28,6 +29,7 @@ interface FilterState {
   province: string
   from: string
   to: string
+  instrument: string
 }
 
 const EMPTY_FILTERS: FilterState = {
@@ -38,6 +40,7 @@ const EMPTY_FILTERS: FilterState = {
   province: '',
   from: '',
   to: '',
+  instrument: '',
 }
 
 export function AdminDemographicsPage() {
@@ -56,6 +59,7 @@ export function AdminDemographicsPage() {
     ...(filters.province && { province: filters.province }),
     ...(filters.from && { from: filters.from }),
     ...(filters.to && { to: filters.to }),
+    ...(filters.instrument && { instrument: filters.instrument as Instrument }),
     test_data: testData,
   }
 
@@ -101,6 +105,7 @@ export function AdminDemographicsPage() {
     filters.province !== '' ||
     filters.from !== '' ||
     filters.to !== '' ||
+    filters.instrument !== '' ||
     testData !== 'real'
 
   if (isLoading) {
@@ -171,6 +176,20 @@ export function AdminDemographicsPage() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="space-y-1">
+              <label className="block text-xs font-medium text-[hsl(var(--muted-foreground))]">
+                {t('admin.instrument.label')}
+              </label>
+              <select className={selectClass} value={filters.instrument} onChange={setFilter('instrument')}>
+                <option value="">{t('admin.instrument.all')}</option>
+                {INSTRUMENTS.map((inst) => (
+                  <option key={inst.value} value={inst.value}>
+                    {inst.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <div className="space-y-1">
               <label className="block text-xs font-medium text-[hsl(var(--muted-foreground))]">
                 {t('admin.demographics.gender')}

@@ -596,6 +596,10 @@
       "success": "Export downloaded successfully",
       "error": "Failed to download export"
     },
+    "instrument": {
+      "label": "Instrument",
+      "all": "All instruments"
+    },
     "overview": {
       "title": "Admin Dashboard",
       "description": "System-wide performance overview",

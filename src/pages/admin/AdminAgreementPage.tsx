@@ -4,6 +4,8 @@ import { useGetAdminAgreementQuery } from '@/store/api/adminApi'
 import { selectDataSource } from '@/store/slices/dataSourceSlice'
 import { useAppSelector } from '@/hooks/useAppStore'
 import { Card, CardContent, CardHeader, CardTitle, LoadingSpinner, ExportButton } from '@/components/ui'
+import { InstrumentFilter } from '@/components/admin/InstrumentFilter'
+import type { Instrument } from '@/types'
 import { GitCompareArrows, ThumbsUp, PlusCircle, MinusCircle, Users, Stethoscope, Percent, ChevronDown } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import { toPersianNum } from '@/utils/date'
@@ -22,7 +24,14 @@ export function AdminAgreementPage() {
   const isFa = i18n.language === 'fa'
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({})
   const testData = useAppSelector(selectDataSource)
-  const { data, isLoading } = useGetAdminAgreementQuery({ test_data: testData })
+  const [instrumentFilter, setInstrumentFilter] = useState('')
+  const { data, isLoading } = useGetAdminAgreementQuery({
+    test_data: testData,
+    instrument: (instrumentFilter || undefined) as Instrument | undefined,
+  })
+  const exportUrl = instrumentFilter
+    ? `v1/admin/export/agreement/?${new URLSearchParams({ instrument: instrumentFilter }).toString()}`
+    : 'v1/admin/export/agreement/'
 
   if (isLoading) {
     return <LoadingSpinner size="xl" className="py-20" />
@@ -128,7 +137,12 @@ export function AdminAgreementPage() {
             {t('admin.agreement.description')}
           </p>
         </div>
-        <ExportButton url="v1/admin/export/agreement/" filename="admin-agreement.csv" />
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="w-44">
+            <InstrumentFilter value={instrumentFilter} onChange={setInstrumentFilter} />
+          </div>
+          <ExportButton url={exportUrl} filename="admin-agreement.csv" />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
