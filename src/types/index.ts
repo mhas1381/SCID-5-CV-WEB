@@ -376,6 +376,7 @@ export interface SessionCreateRequest {
   patient: number
   notes?: string
   modules?: string[]
+  include_overview?: boolean
   has_preexisting_diagnosis?: boolean
   manual_diagnoses?: number[]
   is_test_data?: boolean

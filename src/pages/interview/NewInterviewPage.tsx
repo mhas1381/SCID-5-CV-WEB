@@ -59,6 +59,7 @@ export function NewInterviewPage() {
   const lang = i18n.language as 'en' | 'fa'
   const [selectedPatient, setSelectedPatient] = useState<number | null>(null)
   const [selectedModules, setSelectedModules] = useState<string[]>([])
+  const [includeOverview, setIncludeOverview] = useState(true)
   const [hasPreexistingDiagnosis, setHasPreexistingDiagnosis] = useState(false)
   const [selectedManualDiagnoses, setSelectedManualDiagnoses] = useState<number[]>([])
   const [isTestData, setIsTestData] = useState(true)
@@ -165,15 +166,17 @@ export function NewInterviewPage() {
       const session = await createSession({
         patient: patientId,
         modules: selectedModules.length > 0 ? selectedModules : undefined,
+        include_overview: selectedModules.length > 0 ? includeOverview : undefined,
         has_preexisting_diagnosis: hasPreexistingDiagnosis,
         manual_diagnoses: hasPreexistingDiagnosis ? selectedManualDiagnoses : undefined,
         is_test_data: isTestData,
       }).unwrap()
-      // When modules are selected, the overview is skipped (backend starts in diagnostic phase)
-      if (selectedModules.length > 0) {
-        navigate(`/interview/${session.id}`)
-      } else {
+      // With a full interview or when the user opted to include the overview,
+      // the session starts in the overview phase.
+      if (selectedModules.length === 0 || includeOverview) {
         navigate(`/interview/${session.id}/overview`)
+      } else {
+        navigate(`/interview/${session.id}`)
       }
     } catch (err: any) {
       setError(getErrorMessage(err, t('interview.startError')))
@@ -355,6 +358,72 @@ export function NewInterviewPage() {
             <p className="text-xs text-[hsl(var(--muted-foreground))]">
               {t('interview.modulesGroupedHint')}
             </p>
+
+            {selectedModules.length > 0 && (
+              <Card>
+                <CardHeader className="p-5">
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <Scale className="h-4 w-4" />
+                    {t('interview.overviewChoiceTitle')}
+                  </CardTitle>
+                  <p className="text-sm text-[hsl(var(--muted-foreground))] mt-1">
+                    {t('interview.overviewChoiceHint')}
+                  </p>
+                </CardHeader>
+                <CardContent className="p-5 pt-0">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <button
+                      type="button"
+                      onClick={() => setIncludeOverview(true)}
+                      className={cn(
+                        'flex items-center gap-3 rounded-xl border-2 p-4 text-start text-sm transition-all',
+                        includeOverview
+                          ? 'border-[hsl(var(--primary))] bg-[hsl(var(--primary))]/5'
+                          : 'border-[hsl(var(--border))] hover:border-[hsl(var(--primary))]/50'
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          'flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2',
+                          includeOverview
+                            ? 'border-[hsl(var(--primary))] bg-[hsl(var(--primary))] text-white'
+                            : 'border-[hsl(var(--input))] text-transparent'
+                        )}
+                      >
+                        <Check className="h-4 w-4" />
+                      </span>
+                      <span className="font-medium leading-snug">
+                        {t('interview.overviewChoiceWith')}
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIncludeOverview(false)}
+                      className={cn(
+                        'flex items-center gap-3 rounded-xl border-2 p-4 text-start text-sm transition-all',
+                        !includeOverview
+                          ? 'border-[hsl(var(--primary))] bg-[hsl(var(--primary))]/5'
+                          : 'border-[hsl(var(--border))] hover:border-[hsl(var(--primary))]/50'
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          'flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2',
+                          !includeOverview
+                            ? 'border-[hsl(var(--primary))] bg-[hsl(var(--primary))] text-white'
+                            : 'border-[hsl(var(--input))] text-transparent'
+                        )}
+                      >
+                        <Check className="h-4 w-4" />
+                      </span>
+                      <span className="font-medium leading-snug">
+                        {t('interview.overviewChoiceWithout')}
+                      </span>
+                    </button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </>
         )}
       </div>
