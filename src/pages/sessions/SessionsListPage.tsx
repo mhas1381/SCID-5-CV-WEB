@@ -285,7 +285,7 @@ export function SessionsListPage() {
                   <CardContent className="p-0">
                     <div
                       className={cn(
-                        'px-3 py-1.5 text-sm font-bold uppercase tracking-wide',
+                        'px-3 py-1.5 text-sm font-bold uppercase tracking-wide text-center',
                         session.instrument === 'scid5_pd'
                           ? 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300'
                           : 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
