@@ -190,14 +190,15 @@ export function NewInterviewPage() {
         patient: patientId,
         instrument,
         modules: instrument === SCID5_PD ? undefined : selectedModules.length > 0 ? selectedModules : undefined,
-        include_overview: selectedModules.length > 0 ? includeOverview : undefined,
+        // PD always includes the overview; for CV it depends on the choice.
+        include_overview: selectedModules.length > 0 ? (instrument === SCID5_PD ? true : includeOverview) : undefined,
         has_preexisting_diagnosis: hasPreexistingDiagnosis,
         manual_diagnoses: hasPreexistingDiagnosis ? selectedManualDiagnoses : undefined,
         is_test_data: isTestData,
       }).unwrap()
-      // With a full interview or when the user opted to include the overview,
-      // the session starts in the overview phase.
-      if (selectedModules.length === 0 || includeOverview) {
+      // PD and CV full interviews always start in the overview phase; a
+      // module-only CV session only when the user opted to include it.
+      if (instrument === SCID5_PD || selectedModules.length === 0 || includeOverview) {
         navigate(`/interview/${session.id}/overview`)
       } else {
         navigate(`/interview/${session.id}`)
@@ -429,7 +430,13 @@ export function NewInterviewPage() {
               </p>
             )}
 
-            {selectedModules.length > 0 && (
+            {instrument === SCID5_PD && (
+              <p className="text-xs text-[hsl(var(--muted-foreground))]">
+                {t('interview.pdOverviewIncluded')}
+              </p>
+            )}
+
+            {selectedModules.length > 0 && instrument !== SCID5_PD && (
               <Card>
                 <CardHeader className="p-5">
                   <CardTitle className="flex items-center gap-2 text-base">

@@ -176,6 +176,7 @@
     "overviewChoiceWithout": "No, go directly to selected modules",
     "fullInterview": "Full interview — all modules (A–J)",
     "modulesGroupedHint": "Modules A/D and B/C are always run together.",
+    "pdOverviewIncluded": "The background overview is always included in SCID-5-PD.",
     "questions": "questions",
     "clearSelection": "Clear selection",
     "selectedModulesCount": "modules selected",

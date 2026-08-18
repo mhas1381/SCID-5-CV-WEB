@@ -176,6 +176,7 @@
     "overviewChoiceWithout": "خیر، مستقیماً از ماژول‌های انتخابی",
     "fullInterview": "مصاحبه کامل — همه ماژول‌ها (J–A)",
     "modulesGroupedHint": "ماژول‌های A/D و B/C همیشه با هم اجرا می‌شوند.",
+    "pdOverviewIncluded": "مرور زمینه‌ای (Overview) همیشه در SCID-5-PD گنجانده می‌شود.",
     "questions": "سؤال",
     "clearSelection": "پاک کردن انتخاب",
     "selectedModulesCount": "ماژول انتخاب شده",
