@@ -175,7 +175,7 @@ export function InterviewSessionPage() {
         setCurrentModuleCode(firstModuleCode(session.instrument))
       }
     }
-  }, [session?.current_module_code, session?.current_question_id, session?.phase])
+  }, [session?.current_module_code, session?.current_question_id, session?.phase, session?.instrument])
 
   // Find current question when module questions load
   useEffect(() => {
@@ -215,7 +215,7 @@ export function InterviewSessionPage() {
         navigateSession({ sessionId, question_id: moduleQuestions[0].question_id })
       }
     }
-  }, [moduleQuestions, session?.current_question_id, currentModuleCode])
+  }, [moduleQuestions, session?.current_question_id, currentModuleCode, currentQuestion, navigateSession, sessionId])
 
   const findQuestion = useCallback(
     (questionId: string) =>

@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Brain, ArrowLeft, CheckCircle, User, Camera, Loader2, Eye, EyeOff } from 'lucide-react'
 import { Button, Input, Card, CardHeader, CardTitle, CardContent, ConfirmDialog, PasswordStrength } from '@/components/ui'
-import { useCompleteProfileMutation, useGetMeQuery } from '@/store/api/authApi'
+import { useCompleteProfileMutation } from '@/store/api/authApi'
 import { useUpdateProfileMutation } from '@/store/api/profileApi'
 import { useAppDispatch, useAppSelector } from '@/hooks/useAppStore'
 import { setCredentials, logout } from '@/store/slices/authSlice'
@@ -43,7 +43,6 @@ export function CompleteRegistrationPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const dispatch = useAppDispatch()
-  const { refetch: refetchMe } = useGetMeQuery(undefined, { skip: true })
 
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)

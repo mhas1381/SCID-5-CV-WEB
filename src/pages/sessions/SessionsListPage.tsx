@@ -103,7 +103,7 @@ export function SessionsListPage() {
   const [toDate, setToDate] = useState('')
   const [page, setPage] = useState(1)
   const [deleteTarget, setDeleteTarget] = useState<Session | null>(null)
-  const [deletingId, setDeletingId] = useState<number | null>(null)
+  const [, setDeletingId] = useState<number | null>(null)
   const [deleteSession] = useDeleteSessionMutation()
   const [continueSession, { isLoading: isContinuing }] = useContinueSessionMutation()
 

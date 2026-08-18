@@ -19,7 +19,7 @@ import { Button, Card, CardHeader, CardTitle, CardContent, PageLoader } from '@/
 import { AlertCircle, ArrowLeft, ArrowRight, CheckCircle, Clock } from 'lucide-react'
 import { getErrorMessage } from '@/utils/error'
 import { cn } from '@/utils/cn'
-import type { OverviewSection, OverviewQuestion } from '@/types'
+import type { OverviewQuestion } from '@/types'
 
 export function OverviewPage() {
   const { id } = useParams<{ id: string }>()
@@ -36,13 +36,13 @@ export function OverviewPage() {
   const [updateSession] = useUpdateSessionMutation()
 
   // Load existing incomplete overview answers on mount (for resume)
-  const { data: patientOverviews } = useGetPatientOverviewsQuery(session?.patient!, {
+  const { data: patientOverviews } = useGetPatientOverviewsQuery(session?.patient ?? 0, {
     skip: !session?.patient,
   })
   const latestOverviewId = patientOverviews?.results
     .filter((o) => !o.is_completed)
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0]?.id
-  const { data: existingOverview } = useGetOverviewDetailQuery(latestOverviewId!, {
+  const { data: existingOverview } = useGetOverviewDetailQuery(latestOverviewId ?? 0, {
     skip: !latestOverviewId,
   })
 

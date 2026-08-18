@@ -26,7 +26,7 @@ function formatOverviewValue(value: unknown, question: { choices?: { value?: str
 export function OverviewResultsPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { t, i18n } = useTranslation()
+  const { i18n } = useTranslation()
   const sessionId = Number(id)
   const isRtl = i18n.language === 'fa'
 

@@ -46,7 +46,7 @@ export const INSTRUMENT_CONFIG: Record<Instrument, InstrumentConfig> = {
 // PD-questions use a two-letter prefix ("PD1", "PD_B", ...) so a plain
 // charAt(0) would derive the wrong module code ("P"). The instrument is kept
 // in the signature for future use / consistency with firstModuleCode.
-export function deriveModuleCode(questionId: string, instrument?: string): string | null {
+export function deriveModuleCode(questionId: string, _instrument?: string): string | null {
   const qid = (questionId || '').toUpperCase()
   if (qid.startsWith('PD')) return 'PD'
   if (qid.charAt(0)) return qid.charAt(0)
